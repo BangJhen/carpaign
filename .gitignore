@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Scratch and Reference Files
+describe_image.py
+Carpaign Logo.png
+Carpaign just Symbol.png
+Design References.jpeg
+*.pdf
+.agents/
