@@ -1,0 +1,108 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 2rem 4rem;
+  overflow: hidden;
+}
+
+.glowBackground {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(10, 10, 10, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-white-glass);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-white-mute);
+}
+
+.badgeHighlight {
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--color-accent-amber);
+}
+
+.title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--color-white-mute);
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--color-border-light);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statValue {
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-family: var(--font-outfit), sans-serif;
+  color: var(--color-white);
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: var(--color-white-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}

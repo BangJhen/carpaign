@@ -7,3 +7,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Global Project Workflow & Rules
+
+## 1. Automatic Skill Activation
+When working on frontend tasks, UI design, or React/Next.js components in this repository, **you (the AI Agent) must automatically apply the following skills without waiting for explicit user instruction**:
+- `frontend-design`: Always apply bold, intentional, and premium modern aesthetics. Do not generate generic UI.
+- `taste-skill`: Enforce high-taste visual craftsmanship, eliminate "AI-tells" (like generic purple gradients or clunky cards), and ensure authentic production-grade aesthetics.
+- `emil-design-eng`: Master-level UI animation and interaction guidelines (Emil Kowalski / Sonner creator) — focusing on physics, stagger timing, 60fps hardware-accelerated transitions, and micro-interactions.
+- `shadcn`: Always use proper shadcn/ui CLI commands and adhere to Tailwind/Radix UI best practices.
+- `web-design-guidelines`: Enforce strict spacing, typography, and accessibility guidelines.
+- `react-best-practices` & `next-best-practices`: Implement optimal React composition patterns, Server Components by default, and efficient data fetching.
+
+*Note for the Agent: If you are unsure about the specifics of these skills, actively read their respective `SKILL.md` files located in `.agents/skills/` before starting the task.*
+
+## 2. Image to Code Workflow
+Whenever the user asks to convert a design, pitchdeck, or image into code:
+1. Actively analyze the layout, typography, and color palette.
+2. Utilize the design system configured in `globals.css` and `tailwind.config.ts`.
+3. Build responsive and pixel-perfect layouts, applying smooth `framer-motion` scroll animations where appropriate to elevate the UX.

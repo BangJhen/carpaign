@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="./public/carpaign-logo.png" alt="Carpaign Logo" height="60" />
+  <br />
+  <p><strong>Turn Vehicle Inventory Into Content</strong></p>
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## 📌 Apa itu Carpaign?
+Carpaign adalah platform inovatif yang menghubungkan Dealer Otomotif/Brand dengan Kreator Konten. Kreator dapat memilih "Campaign" (seperti Edit, Shoot, Publish, UGC) dari inventory kendaraan yang tersedia dan mendapatkan cuan dari hasil kerja mereka. Platform ini mengusung antarmuka bergaya *Luxury Gold & Tech* yang premium.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Fitur Utama
+- **Creator Dashboard**: Ringkasan performa kreator, metrik *views*, dan status kampanye berjalan.
+- **Campaign Marketplace**: Menelusuri kampanye aktif (Edit, Shoot, UGC, Publish) untuk diambil dan dikerjakan.
+- **Dynamic Routing**: Halaman detail kampanye yang memuat instruksi, deadline, dan kriteria konten.
+- **Leaderboard & Rank System**: Sistem kompetisi kreator berdasarkan view dengan sistem *tier* (Rank).
+- **Pendapatan & Analitik**: Laporan analitik mendalam dan riwayat pendapatan (withdrawal).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📸 Demo Dashboard
+![Dashboard Demo](./docs/demo-dashboard.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Tech Stack
+Proyek ini dibangun di atas teknologi frontend modern:
+- **[Next.js 15 (App Router)](https://nextjs.org/)**: Framework React untuk rendering (SSR/SSG), optimasi performa, dan routing dinamis.
+- **[React 19](https://react.dev/)**: Library UI dengan fitur-fitur Server Components.
+- **[Tailwind CSS v4](https://tailwindcss.com/)**: Utility-first CSS framework untuk *styling* super cepat dengan *custom theme* (Luxury Gold).
+- **[shadcn/ui](https://ui.shadcn.com/)**: Koleksi komponen UI *accessible* yang dapat disesuaikan (Radix UI).
+- **[Framer Motion](https://www.framer.com/motion/)**: Animasi *scroll*, transisi halus, dan interaksi dinamis.
+- **[Lucide React](https://lucide.dev/)**: Ikon SVG minimalis nan elegan.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💻 Cara Menjalankan Proyek (Local Development)
 
-## Learn More
+Ikuti langkah-langkah di bawah ini untuk menjalankan Carpaign di mesin lokal Anda:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone repository ini:**
+   ```bash
+   git clone https://github.com/USERNAME/carpaign.git
+   cd carpaign
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Install dependensi:**
+   ```bash
+   npm install
+   # atau
+   yarn install
+   # atau
+   pnpm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Jalankan server *development*:**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+4. Buka [http://localhost:3000](http://localhost:3000) di browser Anda untuk melihat hasilnya. Halaman utama secara otomatis akan *redirect* ke `/dashboard`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📁 Struktur Direktori
+- `src/app/`: Berisi semua *route* halaman (Dashboard, Campaigns, Leaderboard, dll).
+- `src/components/views/`: Berisi komponen utama *view* spesifik (layar penuh) untuk masing-masing halaman.
+- `src/components/ui/`: Komponen UI modular (Buttons, Cards, Dialogs) bawaan *shadcn*.
+- `src/components/layout/`: Komponen tata letak utama (Sidebar, Header, DashboardLayout).
+- `src/components/modals/`: Komponen interaktif *pop-up* (Invite Modal, dll).
+- `public/`: Aset statis seperti *image* (Logo, Ikon) yang disajikan langsung.

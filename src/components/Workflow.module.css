@@ -1,0 +1,142 @@
+.workflow {
+  padding: 8rem 2rem;
+  background: var(--color-black-mute);
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 6rem;
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: var(--color-white-mute);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.stepper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: var(--color-border);
+  transform: translateX(-50%);
+}
+
+.step {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.step:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.stepContent {
+  width: 45%;
+  padding: 2rem;
+  transition: transform var(--transition-normal);
+}
+
+.stepContent:hover {
+  transform: translateY(-5px);
+}
+
+.stepNumber {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: var(--color-black);
+  border: 2px solid var(--color-accent-amber);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--color-accent-gold);
+  z-index: 2;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.stepTitle {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-white);
+}
+
+.stepDesc {
+  color: var(--color-white-mute);
+  line-height: 1.6;
+}
+
+.roles {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.roleBadge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.roleDemand {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.roleSupply {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+@media (max-width: 768px) {
+  .stepper::before {
+    left: 20px;
+  }
+  
+  .step, .step:nth-child(even) {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .stepContent {
+    width: calc(100% - 60px);
+  }
+  
+  .stepNumber {
+    left: 20px;
+  }
+}
