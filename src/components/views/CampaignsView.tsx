@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, Video, Scissors, Film, Share2, Search, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { campaigns } from "@/lib/campaigns-data";
+import Autoplay from "embla-carousel-autoplay";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -20,12 +28,42 @@ const fadeUp: Variants = {
 };
 
 const jobTypes = [
-  { id: "all", label: "Semua", icon: Search, color: "text-foreground" },
-  { id: "shoot", label: "SHOOT", icon: Camera, color: "text-blue-400" },
-  { id: "ugc", label: "UGC", icon: Video, color: "text-orange-400" },
-  { id: "edit", label: "EDIT", icon: Film, color: "text-emerald-400" },
-  { id: "clip", label: "CLIP", icon: Scissors, color: "text-purple-400" },
-  { id: "publish", label: "PUBLISH", icon: Share2, color: "text-pink-400" },
+  { id: "all", label: "Semua", icon: Search, color: "text-muted-foreground" },
+  { id: "shoot", label: "SHOOT", icon: Camera, color: "text-muted-foreground" },
+  { id: "ugc", label: "UGC", icon: Video, color: "text-muted-foreground" },
+  { id: "edit", label: "EDIT", icon: Film, color: "text-muted-foreground" },
+  { id: "clip", label: "CLIP", icon: Scissors, color: "text-muted-foreground" },
+  { id: "publish", label: "PUBLISH", icon: Share2, color: "text-muted-foreground" },
+];
+
+const featuredCampaigns = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1600",
+    title: "BMW X5 Test Drive & Review Experience",
+    brand: "BMW Tunas",
+    brandLogo: "BMW",
+    type: "TEST DRIVE / UGC",
+    reward: "Rp5.000",
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=1600",
+    title: "Lexus RX Luxury Review",
+    brand: "Lexus Gallery",
+    brandLogo: "L",
+    type: "SHOOT / REVIEW",
+    reward: "Rp7.500",
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=1600",
+    title: "Porsche 911 Carrera S Cinematic",
+    brand: "Porsche Centre",
+    brandLogo: "P",
+    type: "EDIT / CINEMATIC",
+    reward: "Rp10.000",
+  }
 ];
 
 
@@ -42,87 +80,86 @@ export function CampaignsView() {
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
       
-      {/* Featured Campaign Carousel (Konten.com style) */}
+      {/* Featured Campaign Carousel */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0}>
-        <div className="relative w-full h-[420px] rounded-2xl overflow-hidden group">
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <img 
-              src="https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&q=80&w=1600" 
-              alt="Featured Campaign" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {/* Gradients for readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0c]/90 via-[#0a0a0c]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-80" />
+        <Carousel
+          plugins={[
+            Autoplay({
+              delay: 4000,
+              stopOnInteraction: true,
+            }),
+          ]}
+          className="relative w-full rounded-2xl overflow-hidden group h-[420px]"
+        >
+          <CarouselContent className="h-full ml-0">
+            {featuredCampaigns.map((featured) => (
+              <CarouselItem key={featured.id} className="relative w-full h-[420px] pl-0">
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img 
+                    src={featured.image} 
+                    alt={featured.title} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                {/* Gradients for readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0c]/90 via-[#0a0a0c]/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-80" />
 
-          {/* Content Overlay */}
-          <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-[700px]">
-            <Badge className="bg-[#f26522] hover:bg-[#d6571a] text-white font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(242,101,34,0.4)]">
-              FEATURED
-            </Badge>
+                {/* Content Overlay */}
+                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-[700px]">
+                  <Badge className="bg-[#f26522] hover:bg-[#d6571a] text-white font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(242,101,34,0.4)]">
+                    FEATURED
+                  </Badge>
 
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-5">
-              BMW X5 Test Drive & Review Experience
-            </h1>
+                  <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-5">
+                    {featured.title}
+                  </h1>
 
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <div className="size-6 rounded-full bg-white flex items-center justify-center p-1">
-                  <div className="w-full h-full bg-[#111] rounded-full flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-white">BMW</span>
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
+                    <div className="flex items-center gap-2">
+                      <div className="size-6 rounded-full bg-white flex items-center justify-center p-1">
+                        <div className="w-full h-full bg-[#111] rounded-full flex items-center justify-center">
+                          <span className="text-[8px] font-bold text-white">{featured.brandLogo}</span>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-white/90">{featured.brand}</span>
+                    </div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                    <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3">
+                      {featured.type}
+                    </Badge>
+                  </div>
+
+                  <div className="w-full max-w-[300px] h-[1px] bg-white/10 mb-6" />
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+                    <div>
+                      <p className="text-sm font-medium text-white/60 mb-0.5">Reward</p>
+                      <p className="text-2xl font-bold text-white tracking-tight">
+                        {featured.reward} <span className="text-sm font-normal text-white/70">/ 1K Views</span>
+                      </p>
+                    </div>
+                    
+                    <Button
+                      onClick={() => goToJob(featured.id)}
+                      className="bg-[#f26522] hover:bg-[#d6571a] text-white font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(242,101,34,0.25)] transition-all sm:ml-auto w-full sm:w-auto z-10"
+                    >
+                      Lihat Detail
+                    </Button>
                   </div>
                 </div>
-                <span className="text-sm font-semibold text-white/90">BMW Tunas</span>
-              </div>
-              <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
-              <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3">
-                TEST DRIVE / UGC
-              </Badge>
-            </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
 
-            <div className="w-full max-w-[300px] h-[1px] bg-white/10 mb-6" />
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-              <div>
-                <p className="text-sm font-medium text-white/60 mb-0.5">Reward</p>
-                <p className="text-2xl font-bold text-white tracking-tight">
-                  Rp5.000 <span className="text-sm font-normal text-white/70">/ 1K Views</span>
-                </p>
-              </div>
-              
-              <Button
-                onClick={() => goToJob(campaigns[0].id)}
-                className="bg-[#f26522] hover:bg-[#d6571a] text-white font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(242,101,34,0.25)] transition-all sm:ml-auto w-full sm:w-auto"
-              >
-                Lihat Detail
-              </Button>
-            </div>
+          {/* Navigation Arrows */}
+          <div className="absolute bottom-6 right-8 sm:right-12 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <CarouselPrevious className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
+            <CarouselNext className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
           </div>
-
-          {/* Carousel Controls */}
-          <div className="absolute bottom-6 left-0 right-0 px-8 sm:px-12 flex items-center justify-between">
-            {/* Dots */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-1.5 rounded-full bg-[#f26522] shadow-[0_0_10px_rgba(242,101,34,0.5)]" />
-              <div className="w-2 h-1.5 rounded-full bg-white/20" />
-              <div className="w-2 h-1.5 rounded-full bg-white/20" />
-              <div className="w-2 h-1.5 rounded-full bg-white/20" />
-            </div>
-
-            {/* Navigation Arrows */}
-            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="flex items-center justify-center size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all">
-                <ChevronLeft className="size-5" />
-              </button>
-              <button className="flex items-center justify-center size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all">
-                <ChevronRight className="size-5" />
-              </button>
-            </div>
-          </div>
-        </div>
+        </Carousel>
       </motion.div>
 
       {/* 5 Core Job Types Navigation */}
