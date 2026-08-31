@@ -52,8 +52,8 @@ export function HowItWorksSection() {
     >
       <div className="sticky top-0 h-screen flex items-center overflow-hidden">
         {/* Absolute Title behind the sliding cards */}
-        <div className="absolute top-20 left-10 md:left-20 z-0">
-           <h2 className="text-[12vw] font-bold tracking-tighter leading-none opacity-5 pointer-events-none" style={{ color: "#F5F5E9" }}>
+        <div className="absolute top-12 md:top-16 left-6 md:left-20 z-0">
+           <h2 className="text-[10vw] md:text-[8vw] font-bold tracking-tighter leading-none opacity-5 pointer-events-none" style={{ color: "#F5F5E9" }}>
              PROCESS
            </h2>
         </div>
@@ -87,7 +87,6 @@ export function HowItWorksSection() {
                   >
                     {step.number}
                   </span>
-                  <div className="h-px w-12 bg-[#D4AF37]/50" />
                 </div>
                 <h3 
                   className="text-5xl md:text-7xl font-bold mb-6 tracking-tight"

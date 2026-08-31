@@ -5,6 +5,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE_ACCORDION = [0.32, 0.72, 0, 1] as const;
 
 const faqs = [
   {
@@ -81,7 +82,7 @@ function FaqItem({
           </span>
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.25, ease: EASE }}
+            transition={{ duration: 0.25, ease: EASE_ACCORDION }}
             className="shrink-0"
           >
             <ChevronDown
@@ -93,11 +94,11 @@ function FaqItem({
 
         <AnimatePresence initial={false}>
           {isOpen && (
-            <motion.div
+              <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: EASE }}
+              transition={{ duration: 0.35, ease: EASE_ACCORDION }}
               className="overflow-hidden"
             >
               <p

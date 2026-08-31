@@ -10,27 +10,33 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const sampleCampaigns = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?auto=format&fit=crop&q=80&w=800",
     brand: "BMW Tunas",
-    title: "X5 M50i",
+    title: "X5 M50i — Test Drive",
     type: "SHOOT",
-    reward: "Rp2.5M",
+    reward: "Rp2.500.000",
+    status: "Aktif",
+    slots: "3/5",
   },
   {
     id: 2,
     image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=800",
     brand: "Honda Jakarta",
-    title: "HRV RS",
+    title: "HRV RS — Cinematic",
     type: "UGC",
-    reward: "Rp1.5M",
+    reward: "Rp1.500.000",
+    status: "Aktif",
+    slots: "1/10",
   },
   {
     id: 3,
     image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800",
     brand: "Porsche Centre",
-    title: "911 S/T",
+    title: "911 S/T — Short Hooks",
     type: "CLIP",
-    reward: "Rp750K",
+    reward: "Rp750.000",
+    status: "Terisi",
+    slots: "0/3",
   },
 ];
 
@@ -57,13 +63,7 @@ export function CampaignPreviewSection() {
   ];
 
   return (
-    <section ref={containerRef} className="relative py-40 px-6 overflow-hidden">
-      {/* Background Texture */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{ backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Dissolve_Noise_Texture.png')" }}
-      />
-
+    <section ref={containerRef} className="relative py-40 px-6 overflow-hidden bg-[#111316]">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20 items-center">
         
         {/* Left: Typography */}
@@ -74,11 +74,8 @@ export function CampaignPreviewSection() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: EASE }}
           >
-            <p
-              className="text-[11px] uppercase tracking-[0.22em] font-mono mb-6"
-              style={{ color: "rgba(212, 175, 55, 0.55)" }}
-            >
-              Exclusive Access
+            <p className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-mono text-[#D4AF37] mb-6">
+              Live Campaigns
             </p>
             <h2
               className="text-5xl md:text-6xl font-bold tracking-tighter leading-[0.95] mb-8"
@@ -88,62 +85,67 @@ export function CampaignPreviewSection() {
               <span className="italic font-light text-[#D4AF37]">Ratusan</span><br/>
               Campaign.
             </h2>
-            <p className="text-sm leading-relaxed mb-10 max-w-sm" style={{ color: "rgba(245, 245, 233, 0.5)" }}>
-              Tidak perlu membuang waktu mengirim proposal. Semua campaign dari brand otomotif top sudah tersedia dan siap dieksekusi hari ini juga.
+            <p className="text-[#A0A0A0] max-w-xl text-sm md:text-base font-light leading-relaxed mb-12">
+              Pilih kendaraan, pesan jadwal rekaman, dan mulai buat konten hari ini tanpa perlu mengirim proposal.
             </p>
             
+            {/* Replaced yellow line with a premium solid button */}
             <Link
               href="/campaigns"
-              className="group flex items-center gap-4 text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#D4AF37]"
-              style={{ color: "#F5F5E9" }}
+              className="inline-flex items-center justify-center px-8 py-3 rounded-full text-sm font-bold text-[#111316] transition-transform duration-150 active:scale-[0.97]"
+              style={{
+                background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
+                boxShadow: "0 0 20px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255,255,255,0.2)",
+              }}
             >
-              <div className="w-12 h-px bg-[#D4AF37] group-hover:w-20 transition-all duration-300" />
-              Lihat Katalog
+              Lihat Semua Campaign
             </Link>
           </motion.div>
         </div>
 
         {/* Right: Scattered Cards */}
-        <div className="w-full lg:w-2/3 h-[600px] relative flex justify-center gap-6 md:gap-10 perspective-[1000px]">
+        <div className="w-full lg:w-2/3 h-[500px] relative flex justify-center gap-4 md:gap-6 perspective-[1200px]">
           {sampleCampaigns.map((c, i) => (
             <motion.div
               key={c.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: i * 0.15, ease: [0.23, 1, 0.32, 1] }}
               style={{
                 y: transforms[i].y,
                 rotateZ: transforms[i].rotate,
                 zIndex: transforms[i].zIndex,
-                alignSelf: transforms[i].align,
                 marginTop: transforms[i].marginTop,
               }}
-              className="group relative w-[220px] md:w-[280px] h-[320px] md:h-[400px] rounded-sm overflow-hidden p-3 md:p-4 bg-[#1a1c20] shadow-2xl transition-shadow duration-500 hover:shadow-[#D4AF37]/20 cursor-pointer"
+              className="group relative w-[220px] md:w-[280px] h-[320px] md:h-[400px] rounded-[1.5rem] overflow-hidden bg-[#0a0a0c] shadow-2xl transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_60px_rgba(212,175,55,0.15)] cursor-pointer ring-1 ring-white/5 hover:ring-[#D4AF37]/30"
             >
-              {/* Image */}
-              <div className="relative w-full h-[75%] overflow-hidden rounded-sm mb-4 bg-black">
-                <Image
-                  src={c.image}
-                  alt={c.title}
-                  fill
-                  className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                />
-              </div>
-              
-              {/* Content */}
-              <div className="flex justify-between items-end px-1">
-                <div>
-                  <p className="text-[10px] font-mono tracking-widest uppercase mb-1" style={{ color: "rgba(212,175,55,0.7)" }}>
-                    {c.brand}
-                  </p>
-                  <h3 className="text-lg font-bold leading-none tracking-tight text-[#F5F5E9]">
-                    {c.title}
-                  </h3>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-mono tracking-wider opacity-40 mb-1">
-                    {c.type}
-                  </p>
-                  <p className="text-sm font-bold text-[#D4AF37]">
-                    {c.reward}
-                  </p>
+              {/* Full Background Image */}
+              <Image
+                src={c.image}
+                alt={c.title}
+                fill
+                className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000 ease-[0.16,1,0.3,1]"
+              />
+
+              {/* Gradient fade from bottom for text readability */}
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/95 via-black/50 to-transparent z-0 pointer-events-none" />
+
+              {/* Content Overlay directly on card */}
+              <div className="absolute inset-x-0 bottom-0 p-6 z-10 flex flex-col justify-end">
+                <p className="text-[10px] font-mono tracking-widest uppercase mb-1.5" style={{ color: "#D4AF37" }}>
+                  {c.brand}
+                </p>
+                <h3 className="text-xl font-bold leading-tight tracking-tight text-white mb-6 line-clamp-1">
+                  {c.title}
+                </h3>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-white/80">{c.type}</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#D4AF37]">{c.reward}</span>
                 </div>
               </div>
             </motion.div>

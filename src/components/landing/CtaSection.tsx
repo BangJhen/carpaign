@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -11,53 +12,50 @@ export function CtaSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section ref={ref} className="relative py-28 px-6 overflow-hidden">
-      {/* Background glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(212,175,55,0.07) 0%, transparent 65%)",
-        }}
-      />
+    <section ref={ref} className="relative py-32 px-6 overflow-hidden">
+      {/* Cinematic Background Image */}
+      <div className="absolute inset-0">
+        <Image 
+          src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=2000"
+          alt="CTA Background"
+          fill
+          className="object-cover"
+        />
+        {/* Dark Overlays for Text Legibility */}
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-transparent to-[#111316]" />
+      </div>
 
-      {/* Horizontal border lines */}
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.2) 30%, rgba(212,175,55,0.5) 50%, rgba(212,175,55,0.2) 70%, transparent 100%)",
-        }}
-      />
-      <div
-        className="absolute bottom-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.2) 30%, rgba(212,175,55,0.5) 50%, rgba(212,175,55,0.2) 70%, transparent 100%)",
-        }}
-      />
-
-      <div className="max-w-3xl mx-auto text-center">
+      <div className="relative max-w-4xl mx-auto text-center z-10">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.65, ease: EASE }}
+          initial={{ opacity: 0, y: 40, rotateX: 10, scale: 0.95 }}
+          animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="p-10 md:p-16 rounded-[2.5rem] shadow-2xl perspective-[1000px]"
+          style={{
+            background: "rgba(17, 19, 22, 0.6)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            boxShadow: "0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+            transformStyle: "preserve-3d"
+          }}
         >
-          <div className="flex items-center justify-center gap-2 mb-7">
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: "#D4AF37" }}
-            />
+          <div className="flex items-center justify-center mb-8">
+            {/* Removed the yellow dot as requested */}
             <p
-              className="text-[11px] uppercase tracking-[0.22em] font-mono"
-              style={{ color: "rgba(212, 175, 55, 0.55)" }}
+              className="text-[11px] uppercase tracking-[0.22em] font-mono px-4 py-1.5 rounded-full"
+              style={{ 
+                color: "rgba(212, 175, 55, 0.8)",
+                background: "rgba(212, 175, 55, 0.1)",
+                border: "1px solid rgba(212, 175, 55, 0.2)"
+              }}
             >
               128 Campaign Aktif Sekarang
             </p>
           </div>
 
           <h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 tracking-tight leading-[1.05]"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-[1.1]"
             style={{ color: "#F5F5E9" }}
           >
             Siap mulai menghasilkan
@@ -76,32 +74,30 @@ export function CtaSection() {
 
           <p
             className="text-base leading-relaxed max-w-xl mx-auto mb-10"
-            style={{ color: "rgba(245, 245, 233, 0.45)" }}
+            style={{ color: "rgba(245, 245, 233, 0.6)" }}
           >
             Bergabung gratis, tidak ada komitmen jangka panjang. Pilih campaign
             pertamamu hari ini dan lihat berapa yang bisa kamu hasilkan minggu ini.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/dashboard"
-              className="relative w-full sm:w-auto px-10 py-4 rounded-xl text-sm font-bold text-[#111316] overflow-hidden group transition-transform duration-150 active:scale-[0.97]"
+              className="relative w-full sm:w-auto px-10 py-4 rounded-xl text-sm font-bold text-[#111316] overflow-hidden group transition-all duration-500 ease-[0.16,1,0.3,1] hover:scale-105 active:scale-[0.97]"
               style={{
-                background:
-                  "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
-                boxShadow:
-                  "0 0 40px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255,255,255,0.25)",
+                background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
+                boxShadow: "0 0 40px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255,255,255,0.25)",
               }}
             >
               <span className="relative z-10">Mulai Sekarang — Gratis</span>
-              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-200 rounded-xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out skew-x-12 z-0" />
             </Link>
             <Link
               href="/campaigns"
-              className="w-full sm:w-auto px-10 py-4 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition-colors duration-200"
+              className="w-full sm:w-auto px-10 py-4 rounded-xl text-sm font-semibold text-white/90 hover:text-white transition-colors duration-200 backdrop-blur-md"
               style={{
-                background: "rgba(245, 245, 233, 0.04)",
-                border: "1px solid rgba(245, 245, 233, 0.08)",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
               }}
             >
               Lihat Semua Campaigns
@@ -109,7 +105,7 @@ export function CtaSection() {
           </div>
 
           {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mt-12 pt-8 border-t border-white/5">
             {[
               "Daftar Gratis",
               "Tanpa Komitmen",
@@ -118,13 +114,9 @@ export function CtaSection() {
             ].map((badge) => (
               <div
                 key={badge}
-                className="flex items-center gap-2 text-xs"
-                style={{ color: "rgba(245, 245, 233, 0.35)" }}
+                className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase text-white/50"
               >
-                <div
-                  className="w-1 h-1 rounded-full"
-                  style={{ background: "rgba(212, 175, 55, 0.5)" }}
-                />
+                <span className="w-1 h-1 rounded-full bg-white/20" />
                 {badge}
               </div>
             ))}

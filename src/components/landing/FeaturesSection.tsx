@@ -37,11 +37,10 @@ function DashboardMockup() {
 
   return (
     <div
-      className="relative rounded-lg overflow-hidden w-full max-w-[600px] shadow-2xl"
+      className="relative rounded-lg overflow-hidden w-full max-w-[600px]"
       style={{
         background: "linear-gradient(145deg, #15181c 0%, #0d0f12 100%)",
         border: "1px solid rgba(212,175,55,0.15)",
-        boxShadow: "0 40px 80px rgba(0,0,0,0.8), 0 0 60px rgba(212,175,55,0.05)",
       }}
     >
       {/* Window chrome */}
@@ -124,40 +123,40 @@ const features: Record<TabKey, {
 }[]> = {
   creator: [
     {
-      title: "Bayaran per View, bukan per Post",
-      description: "Penghasilan terus mengalir selama video masih ditonton. Tidak ada bayaran flat yang dibatasi.",
+      title: "Bayaran per View",
+      description: "Penghasilan pasif terus mengalir selama videomu ditonton.",
       stat: "Rp5",
       statLabel: "per view rata-rata",
     },
     {
-      title: "Akses Showroom Eksklusif",
-      description: "Rekam di lingkungan yang normalnya tertutup untuk publik. Konten premium dari lokasi premium.",
+      title: "Akses Showroom",
+      description: "Buat konten di area premium yang tertutup untuk publik umum.",
       stat: "200+",
       statLabel: "showroom partner",
     },
     {
       title: "Sistem Tier & Bonus",
-      description: "Semakin sering kamu bekerja, semakin tinggi tier dan multiplier bonusmu — hingga +20% di level teratas.",
+      description: "Naikkan tier untuk melipatgandakan pendapatan hingga +20%.",
       stat: "+20%",
       statLabel: "bonus Tier Elite",
     },
   ],
   dealership: [
     {
-      title: "Konten Organik yang Terpercaya",
-      description: "Ratusan video dari creator nyata — bukan iklan tradisional. Konten authentic menghasilkan trust lebih tinggi.",
+      title: "Jangkauan Organik",
+      description: "Sebaran video kreator menghasilkan impresi yang tak bisa ditandingi iklan statis.",
       stat: "10×",
       statLabel: "lebih efisien vs iklan",
     },
     {
-      title: "Pay-Per-View, Bukan Per Janji",
-      description: "Kamu hanya membayar berdasarkan views nyata yang dihasilkan — bukan janji jumlah tayangan di proposal.",
+      title: "Pay-Per-View",
+      description: "Hanya bayar untuk views nyata yang benar-benar didapatkan.",
       stat: "CPV",
       statLabel: "model pembayaran",
     },
     {
-      title: "Brand Safety Terjamin",
-      description: "Setiap konten melalui review sebelum dihitung. Konten tidak sesuai brief? Tidak ada bayaran.",
+      title: "Brand Safety",
+      description: "Setiap konten wajib lolos review. Melanggar brief = tidak ada bayaran.",
       stat: "100%",
       statLabel: "terverifikasi",
     },
@@ -172,11 +171,11 @@ export function FeaturesSection() {
     offset: ["start start", "end end"]
   });
 
-  // Small parallax for mockup
-  const yMockup = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  // Static sticky without parallax translation to avoid bleeding out of bounds
+  // const yMockup = ... (removed)
 
   return (
-    <section ref={containerRef} className="relative bg-[#111316]">
+    <section ref={containerRef} className="relative bg-[#111316] pt-24 lg:pt-32">
       {/* 
         Sticky Container Layout:
         The dashboard mockup stays sticky on the left side (desktop)
@@ -191,13 +190,13 @@ export function FeaturesSection() {
               className="text-[11px] uppercase tracking-[0.22em] font-mono mb-8"
               style={{ color: "rgba(212, 175, 55, 0.55)" }}
             >
-              The Architecture
+              Cara Kerja Ekosistem
             </p>
             <h2
               className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-8"
               style={{ color: "#F5F5E9" }}
             >
-              Satu ekosistem,<br/>dua pihak diuntungkan.
+              Buat Konten.<br/>Raih Penjualan.
             </h2>
             
             <div className="flex gap-4 mb-12">
@@ -222,7 +221,7 @@ export function FeaturesSection() {
               ))}
             </div>
 
-            <motion.div style={{ y: yMockup }}>
+            <motion.div>
               <DashboardMockup />
             </motion.div>
           </div>
