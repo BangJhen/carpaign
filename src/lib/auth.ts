@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/db";
 
 export const auth = betterAuth({
+  trustedOrigins: ["https://carpaign.vercel.app", "http://localhost:3000"],
   database: drizzleAdapter(db, { provider: "pg" }),
   emailAndPassword: {
     enabled: true,
