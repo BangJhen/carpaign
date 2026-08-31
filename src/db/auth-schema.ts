@@ -21,6 +21,7 @@ export const user = pgTable("user", {
     .notNull(),
   role: text("role").default("creator").notNull(),
   tier: integer("tier").default(1),
+  coverImage: text("cover_image"),
 });
 
 export const session = pgTable(

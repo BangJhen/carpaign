@@ -19,6 +19,10 @@ export const auth = betterAuth({
         required: false,
         defaultValue: 1, // 1 to 5
       },
+      coverImage: {
+        type: "string",
+        required: false,
+      },
     }
   }
 });

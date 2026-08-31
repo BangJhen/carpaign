@@ -17,10 +17,60 @@ const fadeUp = {
   })
 };
 
-import { useSession } from "@/lib/auth-client";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { useSession, updateUser } from "@/lib/auth-client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function ProfileView() {
   const { data: session } = useSession();
+  const [isUploading, setIsUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "coverImage") => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.user?.id) return;
+
+    try {
+      setIsUploading(true);
+      toast.loading(`Mengunggah ${type === "image" ? "foto profil" : "cover"}...`, { id: "upload" });
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${session.user.id}-${type}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath);
+
+      await updateUser({
+        [type]: publicUrl
+      });
+      
+      toast.success("Gambar berhasil diperbarui!", { id: "upload" });
+    } catch (error) {
+      toast.error("Gagal mengunggah gambar. Pastikan bucket 'profiles' sudah ada dan public.", { id: "upload" });
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const userName = session?.user?.name || "Memuat...";
   const userEmail = session?.user?.email || "memuat@email.com";
@@ -46,15 +96,35 @@ export function ProfileView() {
       {/* Header / Cover */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0}>
         <Card className="bg-[#111316] border-white/5 overflow-hidden relative shadow-none">
-          {/* Cover Image Placeholder */}
-          <div className="h-32 sm:h-48 w-full bg-gradient-to-r from-[#1A1C20] to-[#0A0A0C] relative">
-            <div className="absolute inset-0 bg-[#D4AF37]/5 mix-blend-overlay" />
-            {/* Pattern overlay */}
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+          {/* Cover Image */}
+          <div 
+            className="h-32 sm:h-48 w-full bg-gradient-to-r from-[#1A1C20] to-[#0A0A0C] relative bg-cover bg-center"
+            style={(session?.user as any)?.coverImage ? { backgroundImage: `url(${(session.user as any).coverImage})` } : {}}
+          >
+            {!(session?.user as any)?.coverImage && (
+              <>
+                <div className="absolute inset-0 bg-[#D4AF37]/5 mix-blend-overlay" />
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+              </>
+            )}
             
-            <Button size="sm" variant="outline" className="absolute top-4 right-4 bg-black/50 border-white/10 hover:bg-black/70 backdrop-blur-md">
+            <input
+              type="file"
+              ref={coverInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={(e) => handleFileUpload(e, "coverImage")}
+              disabled={isUploading}
+            />
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="absolute top-4 right-4 bg-black/50 border-white/10 hover:bg-black/70 backdrop-blur-md"
+              onClick={() => coverInputRef.current?.click()}
+              disabled={isUploading}
+            >
               <Camera className="size-4 mr-2" />
-              Ubah Cover
+              {isUploading ? "Mengunggah..." : "Ubah Cover"}
             </Button>
           </div>
 
@@ -62,11 +132,22 @@ export function ProfileView() {
             <div className="flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-8 -mt-12 sm:-mt-16">
               
               <div className="relative group">
+                <input
+                  type="file"
+                  ref={avatarInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, "image")}
+                  disabled={isUploading}
+                />
                 <Avatar className="size-24 sm:size-32 border-4 border-[#111316] shadow-xl rounded-2xl bg-[#1A1C20]">
                   <AvatarImage src={session?.user?.image || ""} />
                   <AvatarFallback className="text-2xl font-bold bg-[#1A1C20] text-muted-foreground rounded-2xl">{getInitials(session?.user?.name)}</AvatarFallback>
                 </Avatar>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer backdrop-blur-sm">
+                <div 
+                  className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer backdrop-blur-sm"
+                  onClick={() => avatarInputRef.current?.click()}
+                >
                   <Camera className="size-6 text-white" />
                 </div>
               </div>
@@ -87,9 +168,34 @@ export function ProfileView() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button variant="outline" className="bg-[#1A1C20] border-white/10 hover:bg-white/5">
-                      Lihat Portofolio
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="bg-[#1A1C20] border-white/10 hover:bg-white/5">
+                          Lihat Portofolio
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#111316] border-white/5 text-white max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="text-xl flex items-center gap-2">
+                            <PlaySquare className="size-5 text-primary" /> 
+                            Portofolio Konten
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                          {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <div key={i} className="aspect-[9/16] rounded-xl bg-[#1A1C20] border border-white/5 relative overflow-hidden group cursor-pointer">
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+                              <img src={`https://images.unsplash.com/photo-${1600000000000 + i}?auto=format&fit=crop&q=80&w=400`} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt="Portfolio" />
+                              <div className="absolute bottom-3 left-3 z-20 flex flex-col">
+                                <span className="text-xs font-bold text-white flex items-center gap-1">
+                                  <PlaySquare className="size-3 text-primary" /> {Math.floor(Math.random() * 100) + 10}K Views
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>
