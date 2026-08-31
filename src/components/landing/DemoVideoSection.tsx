@@ -47,7 +47,7 @@ export function DemoVideoSection() {
               Tidak ada control play/pause.
             */}
             <video 
-              src="" 
+              // TODO: Insert your video URL below (e.g. src="/video.mp4")
               poster="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80&w=1600"
               className="w-full h-full object-cover"
               autoPlay
