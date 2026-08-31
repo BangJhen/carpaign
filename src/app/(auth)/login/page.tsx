@@ -2,19 +2,35 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { signIn } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to auth backend
-    console.log("login", form);
+    setLoading(true);
+    const { error } = await signIn.email({
+      email: form.email,
+      password: form.password,
+    });
+    
+    if (error) {
+      toast.error(error.message || "Gagal masuk. Periksa kembali kredensial Anda.");
+      setLoading(false);
+    } else {
+      toast.success("Berhasil masuk!");
+      router.push("/dashboard");
+    }
   };
 
   return (
@@ -165,7 +181,8 @@ export default function LoginPage() {
         <button
           id="login-submit"
           type="submit"
-          className="group relative w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold overflow-hidden transition-all duration-500 ease-[0.23,1,0.32,1] hover:scale-[1.02] active:scale-[0.98]"
+          disabled={loading}
+          className="group relative w-full flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold overflow-hidden transition-all duration-500 ease-[0.23,1,0.32,1] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:active:scale-100"
           style={{
             background:
               "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
@@ -175,9 +192,9 @@ export default function LoginPage() {
           }}
         >
           {/* Shimmer */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />
-          <span className="relative z-10">Masuk</span>
-          <ArrowRight size={15} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+          {!loading && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />}
+          <span className="relative z-10">{loading ? "Memproses..." : "Masuk"}</span>
+          {!loading && <ArrowRight size={15} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />}
         </button>
       </motion.form>
 
