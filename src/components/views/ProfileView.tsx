@@ -99,7 +99,7 @@ export function ProfileView() {
           {/* Cover Image */}
           <div 
             className="h-32 sm:h-48 w-full bg-gradient-to-r from-[#1A1C20] to-[#0A0A0C] relative bg-cover bg-center"
-            style={(session?.user as any)?.coverImage ? { backgroundImage: `url(${(session.user as any).coverImage})` } : {}}
+            style={(session?.user as any)?.coverImage ? { backgroundImage: `url(${(session?.user as any).coverImage})` } : {}}
           >
             {!(session?.user as any)?.coverImage && (
               <>
