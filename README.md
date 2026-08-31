@@ -17,7 +17,7 @@ Carpaign adalah platform inovatif yang menghubungkan Dealer Otomotif/Brand denga
 - **Pendapatan & Analitik**: Laporan analitik mendalam dan riwayat pendapatan (withdrawal).
 
 ## 📸 Demo Dashboard
-![Dashboard Demo](./docs/demo-dashboard.png)
+![Dashboard Demo](./Demo%20Photo.png)
 
 ## 🛠 Tech Stack
 Proyek ini dibangun di atas teknologi frontend modern:
