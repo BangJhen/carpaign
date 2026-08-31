@@ -17,7 +17,29 @@ const fadeUp = {
   })
 };
 
+import { useSession } from "@/lib/auth-client";
+
 export function ProfileView() {
+  const { data: session } = useSession();
+
+  const userName = session?.user?.name || "Memuat...";
+  const userEmail = session?.user?.email || "memuat@email.com";
+  const userRole = (session?.user as any)?.role === "dealership" ? "Dealership" : "Kreator";
+  const userTier = (session?.user as any)?.tier === 2 ? "Platinum" : "Gold";
+  
+  // Create an automatic username based on email
+  const userUsername = session?.user?.email ? `@${session.user.email.split('@')[0]}` : "@username";
+
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
   return (
     <div className="flex flex-col gap-8 max-w-[1000px] mx-auto w-full pb-20">
       
@@ -41,8 +63,8 @@ export function ProfileView() {
               
               <div className="relative group">
                 <Avatar className="size-24 sm:size-32 border-4 border-[#111316] shadow-xl rounded-2xl bg-[#1A1C20]">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="text-2xl font-bold bg-[#1A1C20] text-muted-foreground rounded-2xl">AR</AvatarFallback>
+                  <AvatarImage src={session?.user?.image || ""} />
+                  <AvatarFallback className="text-2xl font-bold bg-[#1A1C20] text-muted-foreground rounded-2xl">{getInitials(session?.user?.name)}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl cursor-pointer backdrop-blur-sm">
                   <Camera className="size-6 text-white" />
@@ -53,9 +75,9 @@ export function ProfileView() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3">
-                      Ammar Ridho
+                      {userName}
                       <Badge className="bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.15)]">
-                        Creator Gold
+                        {userRole} {userTier}
                       </Badge>
                     </h1>
                     <p className="text-muted-foreground mt-1 flex items-center gap-2">
@@ -92,24 +114,24 @@ export function ProfileView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nama Lengkap</label>
-                    <Input defaultValue="Ammar Ridho" className="bg-[#0A0A0C] border-white/5" />
+                    <Input defaultValue={userName} className="bg-[#0A0A0C] border-white/5" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Username</label>
-                    <Input defaultValue="@ammarrdho" className="bg-[#0A0A0C] border-white/5" />
+                    <Input defaultValue={userUsername} className="bg-[#0A0A0C] border-white/5" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                      <Input defaultValue="ammar.ridho@example.com" disabled className="bg-[#1A1C20] border-white/5 pl-9 text-muted-foreground" />
+                      <Input defaultValue={userEmail} disabled className="bg-[#1A1C20] border-white/5 pl-9 text-muted-foreground" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">No. WhatsApp</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                      <Input defaultValue="081234567890" className="bg-[#0A0A0C] border-white/5 pl-9" />
+                      <Input placeholder="Belum ada nomor WhatsApp" className="bg-[#0A0A0C] border-white/5 pl-9" />
                     </div>
                   </div>
                 </div>
@@ -136,15 +158,15 @@ export function ProfileView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bank / E-Wallet</label>
-                    <Input defaultValue="BCA" className="bg-[#0A0A0C] border-white/5" />
+                    <Input placeholder="Belum diatur" className="bg-[#0A0A0C] border-white/5" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nomor Rekening</label>
-                    <Input defaultValue="8726192837" className="bg-[#0A0A0C] border-white/5" />
+                    <Input placeholder="Belum diatur" className="bg-[#0A0A0C] border-white/5" />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nama Pemilik Rekening</label>
-                    <Input defaultValue="Ammar Ridho" className="bg-[#0A0A0C] border-white/5" />
+                    <Input placeholder="Belum diatur" className="bg-[#0A0A0C] border-white/5" />
                     <p className="text-[11px] text-muted-foreground mt-1">*Nama pemilik harus sesuai dengan nama profil untuk menghindari kegagalan transfer.</p>
                   </div>
                 </div>

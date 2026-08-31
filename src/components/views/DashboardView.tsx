@@ -71,6 +71,8 @@ const campaignCategories = [
   { id: "rejected", label: "Ditolak" }
 ];
 
+import { useSession } from "@/lib/auth-client";
+
 const activeCampaigns = [
   {
     id: 1,
@@ -112,6 +114,10 @@ const activeCampaigns = [
 
 export function DashboardView() {
   const router = useRouter();
+  const { data: session } = useSession();
+
+  const userName = session?.user?.name || "Memuat...";
+  const roleName = (session?.user as any)?.role === "dealership" ? "Dealership" : "Kreator";
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
@@ -124,14 +130,14 @@ export function DashboardView() {
         className="flex items-center gap-4"
       >
         <h2 className="text-[22px] font-semibold text-foreground tracking-tight">
-          Selamat datang, Ammar Ridho
+          Selamat datang, {userName}
         </h2>
         <Badge
           variant="outline"
           className="border border-[#382C10] text-[#D4AF37] bg-[#1F190B] px-3 py-0.5 text-[10px] font-medium rounded-full shadow-[0_0_10px_rgba(212,175,55,0.1)] gap-1.5"
         >
           <div className="size-2 rounded-full bg-primary" />
-          Clipper
+          {roleName}
         </Badge>
       </motion.div>
 
