@@ -17,9 +17,16 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <>
-      {/* Added z-40 and border-b for sleek separation */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-[#0a0a0c]/90 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center gap-4">
+      {/* Premium Glassmorphic Header */}
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-gradient-to-r from-[#0a0a0c]/80 via-[#12100A]/80 to-[#0a0a0c]/80 backdrop-blur-2xl border-b border-white/5 shadow-sm relative overflow-hidden">
+        {/* Subtle top/bottom ambient glows */}
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[150%] bg-[#D4AF37]/[0.03] blur-[30px] rounded-[100%] pointer-events-none" />
+        
+        {/* Animated noise texture overlay (optional but adds premium feel) */}
+        <div className="absolute inset-0 opacity-[0.015] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none" />
+        
+        <div className="flex items-center gap-4 relative z-10">
           <SidebarTrigger className="-ml-2 md:hidden text-muted-foreground hover:text-foreground" />
           <h1 className="text-[15px] font-medium text-foreground">{title}</h1>
         </div>
