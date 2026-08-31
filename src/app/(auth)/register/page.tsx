@@ -46,6 +46,7 @@ export default function RegisterPage() {
       name: form.name,
       email: form.email,
       password: form.password,
+      // @ts-expect-error: better-auth client types missing custom additionalFields
       role: role,
     });
 

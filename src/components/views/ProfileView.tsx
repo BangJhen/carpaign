@@ -44,7 +44,7 @@ export function ProfileView() {
       toast.loading(`Mengunggah ${type === "image" ? "foto profil" : "cover"}...`, { id: "upload" });
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${session.user.id}-${type}-${Math.random()}.${fileExt}`;
+      const fileName = `${session?.user?.id}-${type}-${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
