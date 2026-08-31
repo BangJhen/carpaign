@@ -8,7 +8,7 @@ const footerLinks = {
     { label: "FAQ", href: "/#faq" },
   ],
   Dukungan: [
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Dashboard", href: "/login" },
     { label: "Hubungi Admin", href: "#" },
     { label: "Panduan Creator", href: "#" },
   ],

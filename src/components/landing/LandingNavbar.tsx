@@ -70,14 +70,14 @@ export function LandingNavbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-4">
           <Link
-            href="/dashboard"
+            href="/login"
             className="text-[13px] font-medium text-white/70 hover:text-white transition-colors duration-200"
           >
             Log In
           </Link>
           <div className="w-px h-4 bg-white/10" />
           <Link
-            href="/dashboard"
+            href="/register"
             className="relative text-[13px] font-bold text-[#111316] px-5 py-2 rounded-full overflow-hidden group transition-transform duration-150 active:scale-[0.97]"
             style={{
               background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
@@ -126,14 +126,14 @@ export function LandingNavbar() {
                 ))}
                 <div className="pt-2 flex flex-col gap-2">
                   <Link
-                    href="/dashboard"
+                    href="/login"
                     className="text-sm font-medium text-center text-white/70 py-2.5"
                     onClick={() => setMenuOpen(false)}
                   >
                     Log In
                   </Link>
                   <Link
-                    href="/dashboard"
+                    href="/register"
                     className="text-sm font-bold text-center text-[#111316] py-2.5 rounded-full"
                     style={{
                       background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",

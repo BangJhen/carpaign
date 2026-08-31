@@ -82,7 +82,7 @@ export function CtaSection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard"
+              href="/register"
               className="relative w-full sm:w-auto px-10 py-4 rounded-xl text-sm font-bold text-[#111316] overflow-hidden group transition-all duration-500 ease-[0.16,1,0.3,1] hover:scale-105 active:scale-[0.97]"
               style={{
                 background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #B8941F 100%)",
