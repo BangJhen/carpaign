@@ -182,21 +182,16 @@ export function HeroSection() {
 
       {/* Main content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* Eyebrow badge */}
-        <motion.div
+        {/* Overline — no pill badge */}
+        <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease: EASE }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-semibold tracking-widest uppercase"
-          style={{
-            background: "rgba(212, 175, 55, 0.08)",
-            border: "1px solid rgba(212, 175, 55, 0.2)",
-            color: "#D4AF37",
-          }}
+          className="text-[11px] uppercase tracking-[0.22em] font-mono mb-7"
+          style={{ color: "rgba(212, 175, 55, 0.55)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
           Platform Creator Otomotif Indonesia
-        </motion.div>
+        </motion.p>
 
         {/* Headline */}
         <motion.h1

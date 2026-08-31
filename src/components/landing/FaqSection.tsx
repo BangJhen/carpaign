@@ -130,16 +130,12 @@ export function FaqSection() {
           transition={{ duration: 0.6, ease: EASE }}
           className="text-center mb-14"
         >
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-xs font-semibold tracking-widest uppercase"
-            style={{
-              background: "rgba(212, 175, 55, 0.06)",
-              border: "1px solid rgba(212, 175, 55, 0.15)",
-              color: "#D4AF37",
-            }}
+          <p
+            className="text-[11px] uppercase tracking-[0.22em] font-mono mb-4"
+            style={{ color: "rgba(212, 175, 55, 0.55)" }}
           >
             FAQ
-          </div>
+          </p>
           <h2
             className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
             style={{ color: "#F5F5E9" }}

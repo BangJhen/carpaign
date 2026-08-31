@@ -43,16 +43,17 @@ export function CtaSection() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, ease: EASE }}
         >
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase"
-            style={{
-              background: "rgba(212, 175, 55, 0.08)",
-              border: "1px solid rgba(212, 175, 55, 0.2)",
-              color: "#D4AF37",
-            }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
-            128 Campaign Aktif Sekarang
+          <div className="flex items-center justify-center gap-2 mb-7">
+            <span
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ background: "#D4AF37" }}
+            />
+            <p
+              className="text-[11px] uppercase tracking-[0.22em] font-mono"
+              style={{ color: "rgba(212, 175, 55, 0.55)" }}
+            >
+              128 Campaign Aktif Sekarang
+            </p>
           </div>
 
           <h2
