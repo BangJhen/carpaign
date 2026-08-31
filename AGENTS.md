@@ -14,10 +14,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 When working on frontend tasks, UI design, or React/Next.js components in this repository, **you (the AI Agent) must automatically apply the following skills without waiting for explicit user instruction**:
 - `frontend-design`: Always apply bold, intentional, and premium modern aesthetics. Do not generate generic UI.
 - `taste-skill`: Enforce high-taste visual craftsmanship, eliminate "AI-tells" (like generic purple gradients or clunky cards), and ensure authentic production-grade aesthetics.
-- `emil-design-eng`: Master-level UI animation and interaction guidelines (Emil Kowalski / Sonner creator) — focusing on physics, stagger timing, 60fps hardware-accelerated transitions, and micro-interactions.
+- `emil-design-eng` & `animate`: Master-level UI animation and interaction guidelines (Emil Kowalski / Sonner creator) — focusing on physics, stagger timing, 60fps hardware-accelerated transitions, and micro-interactions.
 - `shadcn`: Always use proper shadcn/ui CLI commands and adhere to Tailwind/Radix UI best practices.
 - `web-design-guidelines`: Enforce strict spacing, typography, and accessibility guidelines.
 - `react-best-practices` & `next-best-practices`: Implement optimal React composition patterns, Server Components by default, and efficient data fetching.
+- `deploy-to-vercel`: Guidelines and automated workflows for deploying apps/previews to Vercel.
 
 *Note for the Agent: If you are unsure about the specifics of these skills, actively read their respective `SKILL.md` files located in `.agents/skills/` before starting the task.*
 

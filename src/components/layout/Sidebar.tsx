@@ -13,7 +13,8 @@ import {
   Headset,
   HelpCircle,
   ChevronRight,
-  Medal
+  Medal,
+  LogOut
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,8 +44,35 @@ const navSupport = [
   { href: "/faq", label: "FAQ & Peraturan", icon: HelpCircle },
 ];
 
+import { useSession, signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/login");
+  };
+
+  // Helper untuk inisial nama
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
+  // Capitalize role
+  const formatRole = (role?: string) => {
+    if (!role) return "Kreator";
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
 
   return (
     <Sidebar className="border-r-white/5 bg-[#0a0a0c]" variant="sidebar">
@@ -139,7 +167,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* User Profile Footer */}
-      <SidebarFooter className="p-4 border-t border-white/5">
+      <SidebarFooter className="p-4 border-t border-white/5 flex flex-col gap-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -148,20 +176,32 @@ export function AppSidebar() {
             >
               <div className="flex items-center gap-3">
                 <Avatar className="size-9 border border-white/10">
-                  <AvatarImage src="" alt="User" />
+                  <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || "User"} />
                   <AvatarFallback className="bg-muted text-muted-foreground text-xs font-semibold">
-                    AR
+                    {getInitials(session?.user?.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-sm font-semibold text-foreground">Ammar Ridho</span>
+                  <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                    {session?.user?.name || "Memuat..."}
+                  </span>
                   <div className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full border border-primary/20">
                     <Medal className="size-3" />
-                    Creator Level Gold
+                    {/* Mengambil role dari additional fields jika ada, default ke Kreator */}
+                    {formatRole((session?.user as any)?.role)} Level {(session?.user as any)?.tier || 1}
                   </div>
                 </div>
               </div>
               <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground/80 transition-colors" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="h-10 mt-1 px-3 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-all rounded-lg font-medium"
+            >
+              <LogOut className="size-[18px]" />
+              <span className="ml-2">Keluar</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
