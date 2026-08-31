@@ -1,10 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Clock, DollarSign, MapPin } from "lucide-react";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -13,199 +12,144 @@ const sampleCampaigns = [
     id: 1,
     image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800",
     brand: "BMW Tunas",
-    title: "BMW X5 M50i — Test Drive & Review",
+    title: "X5 M50i",
     type: "SHOOT",
-    reward: "Rp2.500.000",
-    location: "Jakarta Selatan",
-    deadline: "7 Hari",
-    quota: "2 dari 5 Slot",
+    reward: "Rp2.5M",
   },
   {
     id: 2,
     image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=800",
-    brand: "Honda Jakarta Center",
-    title: "All New HRV RS — Cinematic Exterior",
+    brand: "Honda Jakarta",
+    title: "HRV RS",
     type: "UGC",
-    reward: "Rp1.500.000",
-    location: "Kebon Jeruk",
-    deadline: "14 Hari",
-    quota: "1 dari 3 Slot",
+    reward: "Rp1.5M",
   },
   {
     id: 3,
     image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800",
-    brand: "Porsche Centre Jakarta",
-    title: "Porsche 911 S/T — TikTok Short Hooks",
+    brand: "Porsche Centre",
+    title: "911 S/T",
     type: "CLIP",
-    reward: "Rp750.000",
-    location: "Remote",
-    deadline: "3 Hari",
-    quota: "8 dari 20 Slot",
+    reward: "Rp750K",
   },
 ];
 
-function CampaignPreviewCard({
-  campaign,
-  index,
-}: {
-  campaign: (typeof sampleCampaigns)[0];
-  index: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.1, duration: 0.6, ease: EASE }}
-      className="group rounded-2xl overflow-hidden border transition-all duration-300 hover:border-[rgba(212,175,55,0.2)]"
-      style={{
-        background: "linear-gradient(145deg, rgba(21,24,28,0.9) 0%, rgba(17,19,22,0.95) 100%)",
-        border: "1px solid rgba(245, 245, 233, 0.06)",
-      }}
-    >
-      {/* Image */}
-      <div className="relative h-44 overflow-hidden">
-        <Image
-          src={campaign.image}
-          alt={campaign.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent 50%, rgba(17,19,22,0.95) 100%)",
-          }}
-        />
-        {/* Type Badge */}
-        <div
-          className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-widest"
-          style={{
-            background: "rgba(212, 175, 55, 0.12)",
-            border: "1px solid rgba(212, 175, 55, 0.25)",
-            color: "#D4AF37",
-          }}
-        >
-          {campaign.type}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        <p className="text-[11px] font-medium mb-1.5" style={{ color: "rgba(212,175,55,0.7)" }}>
-          {campaign.brand}
-        </p>
-        <h3 className="text-sm font-bold mb-3 leading-tight" style={{ color: "#F5F5E9" }}>
-          {campaign.title}
-        </h3>
-
-        <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
-          <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(245,245,233,0.4)" }}>
-            <DollarSign size={11} style={{ color: "#D4AF37" }} />
-            <span className="font-semibold" style={{ color: "#D4AF37" }}>{campaign.reward}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(245,245,233,0.4)" }}>
-            <MapPin size={11} />
-            {campaign.location}
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(245,245,233,0.4)" }}>
-            <Clock size={11} />
-            {campaign.deadline}
-          </div>
-        </div>
-
-        <div
-          className="flex items-center justify-between pt-3"
-          style={{ borderTop: "1px solid rgba(245,245,233,0.06)" }}
-        >
-          <span className="text-[11px]" style={{ color: "rgba(245,245,233,0.35)" }}>
-            {campaign.quota}
-          </span>
-          <Link
-            href="/dashboard"
-            className="text-[11px] font-semibold flex items-center gap-1 transition-colors duration-200 hover:text-white"
-            style={{ color: "#D4AF37" }}
-          >
-            Apply <ArrowRight size={11} />
-          </Link>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 export function CampaignPreviewSection() {
-  const headerRef = useRef<HTMLDivElement>(null);
-  const headerInView = useInView(headerRef, { once: true, margin: "-60px" });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  // Unique parallax and rotation transforms for each card to create an organic scatter effect
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [250, -200]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  
+  const rot1 = useTransform(scrollYProgress, [0, 1], [-5, 2]);
+  const rot2 = useTransform(scrollYProgress, [0, 1], [8, -4]);
+  const rot3 = useTransform(scrollYProgress, [0, 1], [-2, -8]);
+
+  const transforms = [
+    { y: y1, rotate: rot1, zIndex: 10, align: "self-start", marginTop: "10%" },
+    { y: y2, rotate: rot2, zIndex: 20, align: "self-center", marginTop: "0%" },
+    { y: y3, rotate: rot3, zIndex: 5, align: "self-end", marginTop: "20%" },
+  ];
 
   return (
-    <section className="relative py-28 px-6">
-      {/* Subtle divider */}
-      <div
-        className="absolute top-0 left-6 right-6 mx-auto max-w-6xl h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.12) 30%, rgba(212,175,55,0.12) 70%, transparent 100%)",
-        }}
+    <section ref={containerRef} className="relative py-40 px-6 overflow-hidden">
+      {/* Background Texture */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{ backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Dissolve_Noise_Texture.png')" }}
       />
 
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          ref={headerRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12"
-        >
-          <div>
-            <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-xs font-semibold tracking-widest uppercase"
-              style={{
-                background: "rgba(212, 175, 55, 0.06)",
-                border: "1px solid rgba(212, 175, 55, 0.15)",
-                color: "#D4AF37",
-              }}
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20 items-center">
+        
+        {/* Left: Typography */}
+        <div className="w-full lg:w-1/3 flex flex-col justify-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            <p
+              className="text-[11px] uppercase tracking-[0.22em] font-mono mb-6"
+              style={{ color: "rgba(212, 175, 55, 0.55)" }}
             >
-              Campaign Terbaru
-            </div>
+              Exclusive Access
+            </p>
             <h2
-              className="text-4xl md:text-5xl font-bold tracking-tight leading-tight"
+              className="text-5xl md:text-6xl font-bold tracking-tighter leading-[0.95] mb-8"
               style={{ color: "#F5F5E9" }}
             >
-              Campaign yang bisa
-              <br />
-              kamu mulai{" "}
-              <span
-                className="bg-clip-text text-transparent"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(135deg, #F0D060 0%, #D4AF37 100%)",
-                }}
-              >
-                hari ini
-              </span>
+              Akses ke<br/>
+              <span className="italic font-light text-[#D4AF37]">Ratusan</span><br/>
+              Campaign.
             </h2>
-          </div>
-          <Link
-            href="/campaigns"
-            className="flex items-center gap-2 text-sm font-semibold shrink-0 transition-colors duration-200 hover:text-white"
-            style={{ color: "rgba(212, 175, 55, 0.8)" }}
-          >
-            Lihat Semua <ArrowRight size={16} />
-          </Link>
-        </motion.div>
+            <p className="text-sm leading-relaxed mb-10 max-w-sm" style={{ color: "rgba(245, 245, 233, 0.5)" }}>
+              Tidak perlu membuang waktu mengirim proposal. Semua campaign dari brand otomotif top sudah tersedia dan siap dieksekusi hari ini juga.
+            </p>
+            
+            <Link
+              href="/campaigns"
+              className="group flex items-center gap-4 text-sm font-bold uppercase tracking-widest transition-colors hover:text-[#D4AF37]"
+              style={{ color: "#F5F5E9" }}
+            >
+              <div className="w-12 h-px bg-[#D4AF37] group-hover:w-20 transition-all duration-300" />
+              Lihat Katalog
+            </Link>
+          </motion.div>
+        </div>
 
-        {/* Campaign Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {sampleCampaigns.map((campaign, i) => (
-            <CampaignPreviewCard key={campaign.id} campaign={campaign} index={i} />
+        {/* Right: Scattered Cards */}
+        <div className="w-full lg:w-2/3 h-[600px] relative flex justify-center gap-6 md:gap-10 perspective-[1000px]">
+          {sampleCampaigns.map((c, i) => (
+            <motion.div
+              key={c.id}
+              style={{
+                y: transforms[i].y,
+                rotateZ: transforms[i].rotate,
+                zIndex: transforms[i].zIndex,
+                alignSelf: transforms[i].align,
+                marginTop: transforms[i].marginTop,
+              }}
+              className="group relative w-[220px] md:w-[280px] h-[320px] md:h-[400px] rounded-sm overflow-hidden p-3 md:p-4 bg-[#1a1c20] shadow-2xl transition-shadow duration-500 hover:shadow-[#D4AF37]/20 cursor-pointer"
+            >
+              {/* Image */}
+              <div className="relative w-full h-[75%] overflow-hidden rounded-sm mb-4 bg-black">
+                <Image
+                  src={c.image}
+                  alt={c.title}
+                  fill
+                  className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="flex justify-between items-end px-1">
+                <div>
+                  <p className="text-[10px] font-mono tracking-widest uppercase mb-1" style={{ color: "rgba(212,175,55,0.7)" }}>
+                    {c.brand}
+                  </p>
+                  <h3 className="text-lg font-bold leading-none tracking-tight text-[#F5F5E9]">
+                    {c.title}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-mono tracking-wider opacity-40 mb-1">
+                    {c.type}
+                  </p>
+                  <p className="text-sm font-bold text-[#D4AF37]">
+                    {c.reward}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
+        
       </div>
     </section>
   );

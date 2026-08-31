@@ -14,32 +14,32 @@ export function DemoVideoSection() {
     offset: ["start end", "center center"],
   });
 
-  // Transformasi dari ukuran 80% ke 100% (membesar saat di-scroll ke bawah)
+  // Transformasi scale dan radius
   const scale = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
+  const borderRadius = useTransform(scrollYProgress, [0, 1], ["24px", "0px"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [0.5, 1]);
 
   return (
-    <section ref={sectionRef} className="relative py-12 px-6 overflow-hidden">
+    <section ref={sectionRef} className="relative py-32 overflow-hidden flex flex-col items-center">
       {/* Background glow behind the video player */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse at center, rgba(212,175,55,0.05) 0%, transparent 60%)",
         }}
       />
 
-      <div className="max-w-5xl mx-auto relative z-10 flex flex-col items-center">
+      <div className="w-full flex flex-col items-center">
         <motion.div
-          style={{ scale, opacity }}
-          className="relative w-full rounded-2xl overflow-hidden shadow-2xl"
+          style={{ scale, opacity, borderRadius }}
+          className="relative w-full max-w-[1400px] overflow-hidden"
         >
           {/* Aspect ratio container (16:9) */}
           <div 
             className="relative aspect-video w-full"
             style={{
               background: "#111316",
-              border: "1px solid rgba(212,175,55,0.15)",
-              boxShadow: "0 20px 60px -10px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.05)",
+              boxShadow: "0 20px 60px -10px rgba(0,0,0,0.8)",
             }}
           >
             {/* 
