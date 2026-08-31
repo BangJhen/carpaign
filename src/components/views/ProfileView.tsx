@@ -169,10 +169,8 @@ export function ProfileView() {
                   
                   <div className="flex gap-2">
                     <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="bg-[#1A1C20] border-white/10 hover:bg-white/5">
-                          Lihat Portofolio
-                        </Button>
+                      <DialogTrigger className="inline-flex h-9 items-center justify-center rounded-md bg-[#1A1C20] border border-white/10 hover:bg-white/5 px-4 py-2 text-sm font-medium shadow-sm transition-colors">
+                        Lihat Portofolio
                       </DialogTrigger>
                       <DialogContent className="bg-[#111316] border-white/5 text-white max-w-2xl">
                         <DialogHeader>
