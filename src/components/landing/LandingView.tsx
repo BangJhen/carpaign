@@ -1,5 +1,7 @@
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { DemoVideoSection } from "@/components/landing/DemoVideoSection";
+import { TestimonialMarquee } from "@/components/landing/TestimonialMarquee";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { CampaignPreviewSection } from "@/components/landing/CampaignPreviewSection";
@@ -16,6 +18,8 @@ export function LandingView() {
       <LandingNavbar />
       <main>
         <HeroSection />
+        <DemoVideoSection />
+        <TestimonialMarquee />
         <HowItWorksSection />
         <FeaturesSection />
         <CampaignPreviewSection />
