@@ -55,7 +55,7 @@ export function InventoryView() {
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/25 mb-1">Inventory</p>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">Kendaraan</h1>
           <p className="text-sm text-white/40 mt-1">
-            {available} tersedia · {inUse} sedang dipakai
+            {available} tersedia | {inUse} sedang dipakai
           </p>
         </div>
         <Button
@@ -113,7 +113,7 @@ export function InventoryView() {
                 {/* Info */}
                 <div className="px-4 py-4">
                   <h3 className="text-[14px] font-semibold text-white">{vehicle.name}</h3>
-                  <p className="text-[11px] text-white/35 mt-0.5">{vehicle.year} · {vehicle.color}</p>
+                  <p className="text-[11px] text-white/35 mt-0.5">{vehicle.year} | {vehicle.color}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <MapPin className="size-3 text-white/20" />
                     <p className="text-[11px] text-white/30">{vehicle.location}</p>

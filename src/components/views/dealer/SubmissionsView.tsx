@@ -18,10 +18,10 @@ const fadeUp = {
 type SubmissionStatus = "pending" | "approved" | "revision" | "rejected";
 
 const submissions = [
-  { id: 1, creator: "Rifky Andika", campaign: "Honda Brio RS — UGC Challenge", type: "UGC", submittedAt: "14 Sep, 14:30", thumbnail: "https://picsum.photos/seed/ugc-brio/320/180", status: "pending" as SubmissionStatus, note: "" },
-  { id: 2, creator: "Zara Putri", campaign: "Toyota Veloz — Cinematic Shoot", type: "Cinematic", submittedAt: "14 Sep, 11:00", thumbnail: "https://picsum.photos/seed/cinematic-veloz/320/180", status: "pending" as SubmissionStatus, note: "" },
-  { id: 3, creator: "Budi Setiawan", campaign: "Mitsubishi Xpander — Edit Only", type: "Edit", submittedAt: "13 Sep, 16:45", thumbnail: "https://picsum.photos/seed/edit-xpander/320/180", status: "approved" as SubmissionStatus, note: "" },
-  { id: 4, creator: "Ayu Maharani", campaign: "Suzuki Jimny — Publish & Post", type: "Publish", submittedAt: "13 Sep, 09:20", thumbnail: "https://picsum.photos/seed/publish-jimny/320/180", status: "revision" as SubmissionStatus, note: "Audio kurang jelas di detik ke-12. Mohon diperbaiki." },
+  { id: 1, creator: "Rifky Andika", campaign: "Honda Brio RS - UGC Challenge", type: "UGC", submittedAt: "14 Sep, 14:30", thumbnail: "https://picsum.photos/seed/ugc-brio/320/180", status: "pending" as SubmissionStatus, note: "" },
+  { id: 2, creator: "Zara Putri", campaign: "Toyota Veloz - Cinematic Shoot", type: "Cinematic", submittedAt: "14 Sep, 11:00", thumbnail: "https://picsum.photos/seed/cinematic-veloz/320/180", status: "pending" as SubmissionStatus, note: "" },
+  { id: 3, creator: "Budi Setiawan", campaign: "Mitsubishi Xpander - Edit Only", type: "Edit", submittedAt: "13 Sep, 16:45", thumbnail: "https://picsum.photos/seed/edit-xpander/320/180", status: "approved" as SubmissionStatus, note: "" },
+  { id: 4, creator: "Ayu Maharani", campaign: "Suzuki Jimny - Publish & Post", type: "Publish", submittedAt: "13 Sep, 09:20", thumbnail: "https://picsum.photos/seed/publish-jimny/320/180", status: "revision" as SubmissionStatus, note: "Audio kurang jelas di detik ke-12. Mohon diperbaiki." },
 ];
 
 const statusLabel: Record<SubmissionStatus, { text: string; dot: string }> = {
@@ -140,7 +140,7 @@ export function SubmissionsView() {
                     </div>
                   )}
 
-                  {/* Actions — only for pending */}
+                  {/* Actions - only for pending */}
                   <div className="mt-auto">
                     {sub.status === "pending" && (
                       <div className="flex gap-2 mt-4 pt-1">
@@ -161,7 +161,7 @@ export function SubmissionsView() {
                     )}
 
                     {sub.status === "approved" && (
-                      <p className="text-[11px] text-white/25 mt-4 pt-1">Konten disetujui · pembayaran diproses</p>
+                      <p className="text-[11px] text-white/25 mt-4 pt-1">Konten disetujui | pembayaran diproses</p>
                     )}
                   </div>
                 </div>

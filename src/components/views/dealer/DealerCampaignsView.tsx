@@ -23,11 +23,11 @@ const fadeUp = {
 };
 
 const campaigns = [
-  { id: 1, title: "Honda Brio RS — UGC Challenge", vehicle: "Honda Brio RS 2024", type: "UGC", budget: "Rp 500.000", deadline: "20 Sep 2026", applicants: 12, views: "45K", status: "active" },
-  { id: 2, title: "Toyota Veloz — Cinematic Shoot", vehicle: "Toyota Veloz 2023", type: "Cinematic", budget: "Rp 1.200.000", deadline: "25 Sep 2026", applicants: 8, views: "38K", status: "active" },
-  { id: 3, title: "Mitsubishi Xpander — Edit Only", vehicle: "Mitsubishi Xpander 2024", type: "Edit", budget: "Rp 350.000", deadline: "15 Sep 2026", applicants: 5, views: "22K", status: "completed" },
-  { id: 4, title: "Suzuki Jimny — Publish & Post", vehicle: "Suzuki Jimny 2023", type: "Publish", budget: "Rp 800.000", deadline: "30 Sep 2026", applicants: 3, views: "—", status: "active" },
-  { id: 5, title: "Daihatsu Terios — UGC Lifestyle", vehicle: "Daihatsu Terios 2024", type: "UGC", budget: "Rp 450.000", deadline: "10 Oct 2026", applicants: 0, views: "—", status: "draft" },
+  { id: 1, title: "Honda Brio RS - UGC Challenge", vehicle: "Honda Brio RS 2024", type: "UGC", budget: "Rp 500.000", deadline: "20 Sep 2026", applicants: 12, views: "45K", status: "active" },
+  { id: 2, title: "Toyota Veloz - Cinematic Shoot", vehicle: "Toyota Veloz 2023", type: "Cinematic", budget: "Rp 1.200.000", deadline: "25 Sep 2026", applicants: 8, views: "38K", status: "active" },
+  { id: 3, title: "Mitsubishi Xpander - Edit Only", vehicle: "Mitsubishi Xpander 2024", type: "Edit", budget: "Rp 350.000", deadline: "15 Sep 2026", applicants: 5, views: "22K", status: "completed" },
+  { id: 4, title: "Suzuki Jimny - Publish & Post", vehicle: "Suzuki Jimny 2023", type: "Publish", budget: "Rp 800.000", deadline: "30 Sep 2026", applicants: 3, views: "-", status: "active" },
+  { id: 5, title: "Daihatsu Terios - UGC Lifestyle", vehicle: "Daihatsu Terios 2024", type: "UGC", budget: "Rp 450.000", deadline: "10 Oct 2026", applicants: 0, views: "-", status: "draft" },
 ];
 
 const statusStyle: Record<string, { dot: string; text: string }> = {
@@ -61,7 +61,7 @@ export function DealerCampaignsView() {
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/25 mb-1">Manajemen</p>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">Kampanye</h1>
           <p className="text-sm text-white/40 mt-1">
-            {campaigns.filter((c) => c.status === "active").length} aktif · {campaigns.length} total
+            {campaigns.filter((c) => c.status === "active").length} aktif | {campaigns.length} total
           </p>
         </div>
         <Link href="/dealer/campaigns/create">
@@ -110,7 +110,7 @@ export function DealerCampaignsView() {
                     <p className="text-[13px] font-medium text-white truncate">{campaign.title}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <p className="text-[11px] text-white/35 truncate">{campaign.vehicle}</p>
-                      <span className="text-white/15 text-[10px]">·</span>
+                      <span className="text-white/15 text-[10px]">|</span>
                       <span className="text-[10px] text-white/25 font-medium uppercase tracking-wide">{campaign.type}</span>
                     </div>
                   </div>

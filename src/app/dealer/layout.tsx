@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dealer Dashboard — Carpaign",
+  title: "Dealer Dashboard - Carpaign",
   description: "Portal manajemen kampanye dan inventory kendaraan untuk dealer.",
 };
 

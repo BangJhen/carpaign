@@ -3,7 +3,7 @@ import { DealerLayout } from "@/components/layout/DealerLayout";
 import { DealerCampaignsView } from "@/components/views/dealer/DealerCampaignsView";
 
 export const metadata: Metadata = {
-  title: "Manajemen Kampanye — Dealer Dashboard | Carpaign",
+  title: "Manajemen Kampanye - Dealer Dashboard | Carpaign",
 };
 
 export default function DealerCampaignsPage() {

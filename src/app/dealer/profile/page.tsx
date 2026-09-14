@@ -53,7 +53,7 @@ function DealerProfileContent() {
             </div>
             <div className="pb-0.5">
               <h2 className="text-[15px] font-semibold text-white">{session?.user?.name || "Nama Dealer"}</h2>
-              <p className="text-[12px] text-white/30">Dealership · Jakarta</p>
+              <p className="text-[12px] text-white/30">Dealership | Jakarta</p>
             </div>
           </div>
         </Card>

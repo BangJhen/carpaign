@@ -47,16 +47,16 @@ const statCards = [
 ];
 
 const recentSubmissions = [
-  { id: 1, creator: "Rifky Andika", campaign: "UGC — Honda Brio RS", status: "pending", time: "2 jam lalu" },
-  { id: 2, creator: "Zara Putri", campaign: "Cinematic — Toyota Veloz", status: "pending", time: "5 jam lalu" },
-  { id: 3, creator: "Budi Setiawan", campaign: "Edit — Mitsubishi Xpander", status: "approved", time: "1 hari lalu" },
-  { id: 4, creator: "Ayu Maharani", campaign: "UGC — Suzuki Jimny", status: "revision", time: "1 hari lalu" },
+  { id: 1, creator: "Rifky Andika", campaign: "UGC - Honda Brio RS", status: "pending", time: "2 jam lalu" },
+  { id: 2, creator: "Zara Putri", campaign: "Cinematic - Toyota Veloz", status: "pending", time: "5 jam lalu" },
+  { id: 3, creator: "Budi Setiawan", campaign: "Edit - Mitsubishi Xpander", status: "approved", time: "1 hari lalu" },
+  { id: 4, creator: "Ayu Maharani", campaign: "UGC - Suzuki Jimny", status: "revision", time: "1 hari lalu" },
 ];
 
 const topCampaigns = [
-  { id: 1, title: "Honda Brio RS — UGC Challenge", applicants: 12, views: "45K", status: "active" },
-  { id: 2, title: "Toyota Veloz — Cinematic Shoot", applicants: 8, views: "38K", status: "active" },
-  { id: 3, title: "Mitsubishi Xpander — Edit Only", applicants: 5, views: "22K", status: "completed" },
+  { id: 1, title: "Honda Brio RS - UGC Challenge", applicants: 12, views: "45K", status: "active" },
+  { id: 2, title: "Toyota Veloz - Cinematic Shoot", applicants: 8, views: "38K", status: "active" },
+  { id: 3, title: "Mitsubishi Xpander - Edit Only", applicants: 5, views: "22K", status: "completed" },
 ];
 
 const statusLabel: Record<string, { text: string; dot: string }> = {
@@ -106,7 +106,7 @@ export function DealerDashboardView() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        {/* Submissions — 3 col */}
+        {/* Submissions - 3 col */}
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={5} className="lg:col-span-3">
           <Card className="bg-[#111316] border-white/[0.06] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
@@ -145,7 +145,7 @@ export function DealerDashboardView() {
           </Card>
         </motion.div>
 
-        {/* Top Campaigns — 2 col */}
+        {/* Top Campaigns - 2 col */}
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={6} className="lg:col-span-2">
           <Card className="bg-[#111316] border-white/[0.06] overflow-hidden h-full flex flex-col">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">

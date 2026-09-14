@@ -3,7 +3,7 @@ import { DealerLayout } from "@/components/layout/DealerLayout";
 import { BillingView } from "@/components/views/dealer/BillingView";
 
 export const metadata: Metadata = {
-  title: "Keuangan — Dealer Dashboard | Carpaign",
+  title: "Keuangan - Dealer Dashboard | Carpaign",
 };
 
 export default function BillingPage() {

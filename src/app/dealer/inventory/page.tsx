@@ -3,7 +3,7 @@ import { DealerLayout } from "@/components/layout/DealerLayout";
 import { InventoryView } from "@/components/views/dealer/InventoryView";
 
 export const metadata: Metadata = {
-  title: "Inventory Kendaraan — Dealer Dashboard | Carpaign",
+  title: "Inventory Kendaraan - Dealer Dashboard | Carpaign",
 };
 
 export default function InventoryPage() {

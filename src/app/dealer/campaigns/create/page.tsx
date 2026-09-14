@@ -75,7 +75,7 @@ function CreateCampaignContent() {
 
       {/* Step Content */}
       <Card className="bg-[#111316] border-white/[0.06] p-6 sm:p-8">
-        {/* Step 1 — Vehicle */}
+        {/* Step 1 - Vehicle */}
         {step === 1 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <h2 className="text-[15px] font-semibold text-white mb-4">Pilih Unit Kendaraan</h2>
@@ -99,7 +99,7 @@ function CreateCampaignContent() {
           </motion.div>
         )}
 
-        {/* Step 2 — Detail */}
+        {/* Step 2 - Detail */}
         {step === 2 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             <h2 className="text-[15px] font-semibold text-white mb-4">Detail Kampanye</h2>
@@ -108,7 +108,7 @@ function CreateCampaignContent() {
               <Input
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                placeholder="Honda Brio RS — UGC Challenge"
+                placeholder="Honda Brio RS - UGC Challenge"
                 className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20"
               />
             </div>
@@ -143,7 +143,7 @@ function CreateCampaignContent() {
           </motion.div>
         )}
 
-        {/* Step 3 — Budget */}
+        {/* Step 3 - Budget */}
         {step === 3 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             <h2 className="text-[15px] font-semibold text-white mb-4">Budget & Deadline</h2>
@@ -175,17 +175,17 @@ function CreateCampaignContent() {
           </motion.div>
         )}
 
-        {/* Step 4 — Confirm */}
+        {/* Step 4 - Confirm */}
         {step === 4 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <h2 className="text-[15px] font-semibold text-white mb-4">Konfirmasi</h2>
             <div className="space-y-0 divide-y divide-white/[0.05]">
               {[
-                { label: "Kendaraan", value: VEHICLES.find((v) => v.id === selectedVehicle)?.name || "—" },
-                { label: "Tipe", value: selectedType || "—" },
-                { label: "Judul", value: form.title || "—" },
-                { label: "Budget", value: form.budget ? `Rp ${form.budget}` : "—" },
-                { label: "Deadline", value: form.deadline || "—" },
+                { label: "Kendaraan", value: VEHICLES.find((v) => v.id === selectedVehicle)?.name || "-" },
+                { label: "Tipe", value: selectedType || "-" },
+                { label: "Judul", value: form.title || "-" },
+                { label: "Budget", value: form.budget ? `Rp ${form.budget}` : "-" },
+                { label: "Deadline", value: form.deadline || "-" },
               ].map((row) => (
                 <div key={row.label} className="flex justify-between py-3.5">
                   <span className="text-[12px] text-white/35">{row.label}</span>

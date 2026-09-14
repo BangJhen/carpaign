@@ -15,11 +15,11 @@ const fadeUp = {
 };
 
 const transactions = [
-  { id: 1, type: "payment", description: "Pembayaran — Budi Setiawan", detail: "Edit Xpander", amount: "−Rp 350.000", date: "13 Sep 2026" },
+  { id: 1, type: "payment", description: "Pembayaran - Budi Setiawan", detail: "Edit Xpander", amount: "-Rp 350.000", date: "13 Sep 2026" },
   { id: 2, type: "topup", description: "Top-Up Saldo", detail: "Transfer bank", amount: "+Rp 5.000.000", date: "10 Sep 2026" },
-  { id: 3, type: "payment", description: "Pembayaran — Rifky Andika", detail: "UGC Brio · Menunggu", amount: "−Rp 500.000", date: "8 Sep 2026" },
+  { id: 3, type: "payment", description: "Pembayaran - Rifky Andika", detail: "UGC Brio | Menunggu", amount: "-Rp 500.000", date: "8 Sep 2026" },
   { id: 4, type: "topup", description: "Top-Up Saldo", detail: "Transfer bank", amount: "+Rp 5.000.000", date: "1 Sep 2026" },
-  { id: 5, type: "payment", description: "Pembayaran — Zara Putri", detail: "Cinematic Veloz", amount: "−Rp 1.200.000", date: "28 Agu 2026" },
+  { id: 5, type: "payment", description: "Pembayaran - Zara Putri", detail: "Cinematic Veloz", amount: "-Rp 1.200.000", date: "28 Agu 2026" },
 ];
 
 export function BillingView() {
@@ -94,7 +94,7 @@ export function BillingView() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-medium text-white truncate">{tx.description}</p>
-                  <p className="text-[11px] text-white/30 mt-0.5">{tx.detail} · {tx.date}</p>
+                  <p className="text-[11px] text-white/30 mt-0.5">{tx.detail} | {tx.date}</p>
                 </div>
                 <p
                   className="text-[14px] font-semibold flex-shrink-0"
