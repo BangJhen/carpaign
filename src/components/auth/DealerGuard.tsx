@@ -16,7 +16,7 @@ export function DealerGuard({ children }: DealerGuardProps) {
     if (!isPending) {
       if (!session) {
         router.push("/login");
-      } else if ((session.user as any)?.role !== "dealer") {
+      } else if ((session.user as any)?.role !== "dealership") {
         // Creator mengakses dealer dashboard → redirect ke creator dashboard
         router.push("/dashboard");
       }
@@ -34,7 +34,7 @@ export function DealerGuard({ children }: DealerGuardProps) {
     );
   }
 
-  if (!session || (session.user as any)?.role !== "dealer") {
+  if (!session || (session.user as any)?.role !== "dealership") {
     return null;
   }
 
