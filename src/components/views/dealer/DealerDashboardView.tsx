@@ -88,7 +88,7 @@ export function DealerDashboardView() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map((stat, i) => (
           <motion.div key={stat.label} initial="hidden" animate="show" variants={fadeUp} custom={i + 1}>
-            <Card className="bg-[#111316] border-white/[0.06] p-5 hover:border-white/10 transition-colors">
+            <Card className="bg-[#111316] border-white/[0.06] p-5 hover:border-white/10 transition-colors h-full flex flex-col justify-between">
               <p className="text-[11px] text-white/35 mb-3">{stat.label}</p>
               <p className="text-2xl font-bold tracking-tight text-white">{stat.value}</p>
               <p className="text-[11px] text-white/30 mt-1.5 flex items-center gap-1">
@@ -147,7 +147,7 @@ export function DealerDashboardView() {
 
         {/* Top Campaigns — 2 col */}
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={6} className="lg:col-span-2">
-          <Card className="bg-[#111316] border-white/[0.06] overflow-hidden h-full">
+          <Card className="bg-[#111316] border-white/[0.06] overflow-hidden h-full flex flex-col">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
               <div>
                 <h2 className="text-[13px] font-semibold text-white">Kampanye Aktif</h2>

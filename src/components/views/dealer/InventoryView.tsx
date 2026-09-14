@@ -73,9 +73,9 @@ export function InventoryView() {
           const s = statusStyle[vehicle.status];
           return (
             <motion.div key={vehicle.id} initial="hidden" animate="show" variants={fadeUp} custom={i + 1}>
-              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors">
+              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors h-full flex flex-col">
                 {/* Image */}
-                <div className="relative h-44 overflow-hidden">
+                <div className="relative h-44 flex-shrink-0 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={vehicle.image}

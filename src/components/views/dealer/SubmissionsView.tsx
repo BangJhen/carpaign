@@ -94,9 +94,9 @@ export function SubmissionsView() {
           const cfg = statusLabel[sub.status];
           return (
             <motion.div key={sub.id} initial="hidden" animate="show" variants={fadeUp} custom={i + 2}>
-              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors">
+              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors h-full flex flex-col">
                 {/* Thumbnail */}
-                <div className="relative h-40 overflow-hidden bg-black/30">
+                <div className="relative h-40 flex-shrink-0 overflow-hidden bg-black/30">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={sub.thumbnail}
@@ -120,7 +120,7 @@ export function SubmissionsView() {
                 </div>
 
                 {/* Info */}
-                <div className="px-5 pt-3.5 pb-5">
+                <div className="px-5 pt-3.5 pb-5 flex-1 flex flex-col">
                   <div className="flex items-start gap-3">
                     <div className="size-8 rounded-md flex-shrink-0 flex items-center justify-center text-[10px] font-semibold bg-white/[0.06] text-white/40 mt-0.5">
                       {sub.creator.split(" ").map((n) => n[0]).join("").substring(0, 2)}
@@ -141,27 +141,29 @@ export function SubmissionsView() {
                   )}
 
                   {/* Actions — only for pending */}
-                  {sub.status === "pending" && (
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        size="sm"
-                        className="flex-1 h-8 rounded-lg text-[11px] font-semibold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/15 transition-colors"
-                      >
-                        Setujui
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="flex-1 h-8 rounded-lg text-[11px] font-semibold text-white/40 hover:text-white/70 hover:bg-white/5 border border-white/[0.06]"
-                      >
-                        Minta Revisi
-                      </Button>
-                    </div>
-                  )}
+                  <div className="mt-auto">
+                    {sub.status === "pending" && (
+                      <div className="flex gap-2 mt-4 pt-1">
+                        <Button
+                          size="sm"
+                          className="flex-1 h-8 rounded-lg text-[11px] font-semibold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/15 transition-colors"
+                        >
+                          Setujui
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="flex-1 h-8 rounded-lg text-[11px] font-semibold text-white/40 hover:text-white/70 hover:bg-white/5 border border-white/[0.06]"
+                        >
+                          Minta Revisi
+                        </Button>
+                      </div>
+                    )}
 
-                  {sub.status === "approved" && (
-                    <p className="text-[11px] text-white/25 mt-4">Konten disetujui · pembayaran diproses</p>
-                  )}
+                    {sub.status === "approved" && (
+                      <p className="text-[11px] text-white/25 mt-4 pt-1">Konten disetujui · pembayaran diproses</p>
+                    )}
+                  </div>
                 </div>
               </Card>
             </motion.div>
