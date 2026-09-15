@@ -19,7 +19,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn.email({
+    const { data, error } = await signIn.email({
       email: form.email,
       password: form.password,
     });
@@ -29,7 +29,12 @@ export default function LoginPage() {
       setLoading(false);
     } else {
       toast.success("Berhasil masuk!");
-      router.push("/dashboard");
+      const role = (data?.user as any)?.role;
+      if (role === "dealership" || role === "dealer") {
+        router.push("/dealer/dashboard");
+      } else {
+        router.push("/creator/dashboard");
+      }
     }
   };
 

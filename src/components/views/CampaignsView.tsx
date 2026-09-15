@@ -69,7 +69,7 @@ export function CampaignsView() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("all");
 
-  const goToJob = (id: number) => router.push(`/campaigns/${id}`);
+  const goToJob = (id: number) => router.push(`/creator/campaigns/${id}`);
 
   const filteredCampaigns = activeTab === "all" 
     ? campaigns 

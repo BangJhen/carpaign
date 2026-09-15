@@ -1,10 +1,5 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { AnalitikView } from "@/components/views/AnalitikView";
+import { redirect } from "next/navigation";
 
-export default function AnalitikPage() {
-  return (
-    <DashboardLayout title="Analitik">
-      <AnalitikView />
-    </DashboardLayout>
-  );
+export default function AnalitikRedirectPage() {
+  redirect("/creator/analitik");
 }

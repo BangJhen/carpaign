@@ -1,10 +1,5 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { LeaderboardView } from "@/components/views/LeaderboardView";
+import { redirect } from "next/navigation";
 
-export default function LeaderboardPage() {
-  return (
-    <DashboardLayout title="Leaderboard">
-      <LeaderboardView />
-    </DashboardLayout>
-  );
+export default function LeaderboardRedirectPage() {
+  redirect("/creator/leaderboard");
 }

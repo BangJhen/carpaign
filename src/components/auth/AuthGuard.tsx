@@ -13,8 +13,16 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
+    if (!isPending) {
+      if (!session) {
+        router.push("/login");
+      } else {
+        const role = (session.user as any)?.role;
+        if (role === "dealership" || role === "dealer") {
+          // Dealer mencoba akses portal kreator → redirect ke portal dealer
+          router.push("/dealer/dashboard");
+        }
+      }
     }
   }, [isPending, session, router]);
 
@@ -22,15 +30,16 @@ export function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-muted-foreground animate-pulse">Memuat sesi...</p>
+          <div className="size-8 rounded-full border-2 border-white/40 border-t-transparent animate-spin" />
+          <p className="text-sm text-muted-foreground animate-pulse">Memverifikasi akses kreator...</p>
         </div>
       </div>
     );
   }
 
-  if (!session) {
-    return null; // Will redirect in useEffect
+  const role = (session?.user as any)?.role;
+  if (!session || role === "dealership" || role === "dealer") {
+    return null;
   }
 
   return <>{children}</>;

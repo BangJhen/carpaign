@@ -1,10 +1,5 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { RankRewardView } from "@/components/views/RankRewardView";
+import { redirect } from "next/navigation";
 
-export default function RankRewardsPage() {
-  return (
-    <DashboardLayout title="Rank & Rewards">
-      <RankRewardView />
-    </DashboardLayout>
-  );
+export default function RankRewardsRedirectPage() {
+  redirect("/creator/rank-rewards");
 }

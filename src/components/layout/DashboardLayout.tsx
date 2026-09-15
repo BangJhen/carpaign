@@ -7,7 +7,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
 export function DashboardLayout({ children, title }: DashboardLayoutProps) {

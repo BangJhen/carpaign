@@ -31,17 +31,17 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navMain = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/analitik", label: "Analitik", icon: BarChart2 },
-  { href: "/pendapatan", label: "Pendapatan", icon: Wallet },
-  { href: "/rank-rewards", label: "Rank & Rewards", icon: Trophy },
-  { href: "/leaderboard", label: "Leaderboard", icon: Crown },
+  { href: "/creator/dashboard", label: "Dashboard", icon: Home },
+  { href: "/creator/campaigns", label: "Campaigns", icon: Megaphone },
+  { href: "/creator/analitik", label: "Analitik", icon: BarChart2 },
+  { href: "/creator/pendapatan", label: "Pendapatan", icon: Wallet },
+  { href: "/creator/rank-rewards", label: "Rank & Rewards", icon: Trophy },
+  { href: "/creator/leaderboard", label: "Leaderboard", icon: Crown },
 ];
 
 const navSupport = [
-  { href: "/bantuan", label: "Hubungi Admin", icon: Headset },
-  { href: "/faq", label: "FAQ & Peraturan", icon: HelpCircle },
+  { href: "/creator/bantuan", label: "Hubungi Admin", icon: Headset },
+  { href: "/creator/faq", label: "FAQ & Peraturan", icon: HelpCircle },
 ];
 
 import { useSession, signOut } from "@/lib/auth-client";
@@ -96,7 +96,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
               {navMain.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || pathname.startsWith(href + "/");
+                const isActive = pathname === href || (href !== "/creator/dashboard" && pathname.startsWith(href));
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton
@@ -129,10 +129,9 @@ export function AppSidebar() {
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  render={<Link href="/campaigns/falcon" />}
+                  render={<Link href="/creator/campaigns" />}
                   className="h-auto py-2.5 px-3 text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all rounded-lg flex items-center gap-3"
                 >
-                  {/* Car Image Placeholder (SVG/Icon) */}
                   <div className="size-10 rounded bg-muted/20 border border-white/5 flex items-center justify-center shrink-0">
                     <span className="text-[10px] text-muted-foreground/50">Car</span>
                   </div>
@@ -153,17 +152,26 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
-              {navSupport.map(({ href, label, icon: Icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    render={<Link href={href} />}
-                    className="h-10 px-3 text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all rounded-lg font-medium"
-                  >
-                    <Icon className="size-[18px] text-muted-foreground/70" />
-                    <span className="ml-2">{label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navSupport.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || pathname.startsWith(href);
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      render={<Link href={href} />}
+                      isActive={isActive}
+                      className={cn(
+                        "h-10 px-3 transition-all rounded-lg font-medium",
+                        isActive
+                          ? "bg-white/10 text-white font-semibold border border-white/10 shadow-xs"
+                          : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                      )}
+                    >
+                      <Icon className={cn("size-[18px]", isActive ? "text-white" : "text-muted-foreground/70")} />
+                      <span className="ml-2">{label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -174,11 +182,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              render={<Link href="/profile" />}
-              isActive={pathname === "/profile"}
+              render={<Link href="/creator/profile" />}
+              isActive={pathname === "/creator/profile"}
               className={cn(
                 "h-auto py-2 px-2 transition-all rounded-xl flex items-center justify-between group",
-                pathname === "/profile"
+                pathname === "/creator/profile"
                   ? "bg-white/10 text-white border border-white/15 shadow-sm"
                   : "hover:bg-white/5 text-muted-foreground hover:text-white"
               )}
@@ -196,7 +204,6 @@ export function AppSidebar() {
                   </span>
                   <div className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full border border-primary/20">
                     <Medal className="size-3" />
-                    {/* Mengambil role dari additional fields jika ada, default ke Kreator */}
                     {formatRole((session?.user as any)?.role)} Level {(session?.user as any)?.tier || 1}
                   </div>
                 </div>

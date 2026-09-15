@@ -1,10 +1,5 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { PendapatanView } from "@/components/views/PendapatanView";
+import { redirect } from "next/navigation";
 
-export default function PendapatanPage() {
-  return (
-    <DashboardLayout title="Pendapatan">
-      <PendapatanView />
-    </DashboardLayout>
-  );
+export default function PendapatanRedirectPage() {
+  redirect("/creator/pendapatan");
 }

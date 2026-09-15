@@ -46,7 +46,6 @@ export default function RegisterPage() {
       name: form.name,
       email: form.email,
       password: form.password,
-      // @ts-expect-error: better-auth client types missing custom additionalFields
       role: role,
     });
 
@@ -55,7 +54,11 @@ export default function RegisterPage() {
       setLoading(false);
     } else {
       toast.success("Akun berhasil dibuat!");
-      router.push("/dashboard");
+      if (role === "dealership") {
+        router.push("/dealer/dashboard");
+      } else {
+        router.push("/creator/dashboard");
+      }
     }
   };
 

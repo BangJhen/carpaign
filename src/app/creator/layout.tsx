@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { DealerLayout } from "@/components/layout/DealerLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Dealer Portal Carpaign",
-  description: "Portal manajemen kampanye dan inventory kendaraan untuk dealer.",
+  title: "Creator Portal Carpaign",
+  description: "Portal kreator otomotif Carpaign untuk eksplorasi kampanye dan reward.",
 };
 
-export default async function DealerRouteLayout({
+export default async function CreatorRouteLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -21,9 +21,9 @@ export default async function DealerRouteLayout({
   }
 
   const role = (session.user as any)?.role;
-  if (role !== "dealership" && role !== "dealer") {
-    redirect("/creator/dashboard");
+  if (role === "dealership" || role === "dealer") {
+    redirect("/dealer/dashboard");
   }
 
-  return <DealerLayout>{children}</DealerLayout>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

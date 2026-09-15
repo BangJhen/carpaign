@@ -7,14 +7,30 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { InviteModal } from "@/components/modals/InviteModal";
 import { NotificationDropdown } from "@/components/modals/NotificationDropdown";
 
+import { usePathname } from "next/navigation";
+
+const ROUTE_TITLES: Record<string, string> = {
+  "/creator/dashboard": "Dashboard Kreator",
+  "/creator/campaigns": "Eksplorasi Kampanye",
+  "/creator/analitik": "Analitik Performa",
+  "/creator/pendapatan": "Pendapatan dan Saldo",
+  "/creator/rank-rewards": "Rank dan Rewards",
+  "/creator/leaderboard": "Leaderboard Kreator",
+  "/creator/profile": "Profil Kreator",
+  "/creator/bantuan": "Hubungi Admin",
+  "/creator/faq": "FAQ dan Peraturan",
+};
+
 interface HeaderProps {
-  title: string;
+  title?: string;
 }
 
 export function Header({ title }: HeaderProps) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(2);
+  const pathname = usePathname();
+  const displayTitle = title || ROUTE_TITLES[pathname] || "Kreator Portal";
 
   return (
     <>
@@ -22,7 +38,7 @@ export function Header({ title }: HeaderProps) {
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-[#0a0a0c]/85 backdrop-blur-xl border-b border-white/5 relative overflow-visible">
         <div className="flex items-center gap-4 relative z-10">
           <SidebarTrigger className="-ml-2 md:hidden text-muted-foreground hover:text-foreground" />
-          <h1 className="text-[15px] font-medium text-foreground">{title}</h1>
+          <h1 className="text-[15px] font-medium text-foreground">{displayTitle}</h1>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 relative z-20">

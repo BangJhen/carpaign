@@ -16,9 +16,12 @@ export function DealerGuard({ children }: DealerGuardProps) {
     if (!isPending) {
       if (!session) {
         router.push("/login");
-      } else if ((session.user as any)?.role !== "dealership") {
-        // Creator mengakses dealer dashboard → redirect ke creator dashboard
-        router.push("/dashboard");
+      } else {
+        const role = (session.user as any)?.role;
+        if (role !== "dealership" && role !== "dealer") {
+          // Creator mencoba akses portal dealer → redirect ke portal kreator
+          router.push("/creator/dashboard");
+        }
       }
     }
   }, [isPending, session, router]);
@@ -27,14 +30,15 @@ export function DealerGuard({ children }: DealerGuardProps) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="size-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#B87333", borderTopColor: "transparent" }} />
-          <p className="text-sm text-muted-foreground animate-pulse">Memuat sesi...</p>
+          <div className="size-8 rounded-full border-2 border-t-transparent animate-spin border-white/40" />
+          <p className="text-sm text-muted-foreground animate-pulse">Memverifikasi akses dealer...</p>
         </div>
       </div>
     );
   }
 
-  if (!session || (session.user as any)?.role !== "dealership") {
+  const role = (session?.user as any)?.role;
+  if (!session || (role !== "dealership" && role !== "dealer")) {
     return null;
   }
 

@@ -414,7 +414,7 @@ export function DashboardView() {
           {activeCampaigns.map((campaign, i) => (
             <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={8 + i}>
               <Card 
-                onClick={() => router.push(`/campaigns/${campaign.id}`)}
+                onClick={() => router.push(`/creator/campaigns/${campaign.id}`)}
                 className="group cursor-pointer border-transparent bg-[#111316] hover:bg-[#15171A] transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col h-full border border-white/5"
               >
                 {/* Image Section */}
