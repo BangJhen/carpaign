@@ -24,9 +24,5 @@ export default async function CreateCampaignPage() {
     dealerVehicles = rows;
   }
 
-  return (
-    <DealerLayout title="Buat Kampanye">
-      <CreateCampaignView vehicles={dealerVehicles} />
-    </DealerLayout>
-  );
+  return <CreateCampaignView vehicles={dealerVehicles} />;
 }

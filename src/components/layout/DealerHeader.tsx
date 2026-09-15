@@ -6,13 +6,26 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationDropdown } from "@/components/modals/NotificationDropdown";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const ROUTE_TITLES: Record<string, string> = {
+  "/dealer/dashboard": "Overview",
+  "/dealer/campaigns": "Kampanye",
+  "/dealer/campaigns/create": "Buat Kampanye",
+  "/dealer/inventory": "Inventory Kendaraan",
+  "/dealer/submissions": "Review Konten",
+  "/dealer/billing": "Keuangan",
+  "/dealer/profile": "Profil Dealer",
+};
 
 interface DealerHeaderProps {
-  title: string;
+  title?: string;
 }
 
 export function DealerHeader({ title }: DealerHeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const pathname = usePathname();
+  const displayTitle = title || ROUTE_TITLES[pathname] || "Dealer Portal";
 
   return (
     <>
@@ -27,7 +40,7 @@ export function DealerHeader({ title }: DealerHeaderProps) {
         
         <div className="flex items-center gap-4 relative z-10">
           <SidebarTrigger className="-ml-2 md:hidden text-muted-foreground hover:text-foreground" />
-          <h1 className="text-[15px] font-medium text-foreground">{title}</h1>
+          <h1 className="text-[15px] font-medium text-foreground">{displayTitle}</h1>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">

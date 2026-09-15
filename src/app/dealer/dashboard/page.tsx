@@ -70,15 +70,13 @@ export default async function DealerDashboardPage() {
   }
 
   return (
-    <DealerLayout title="Overview">
-      <DealerDashboardView
-        topCampaigns={topCampaigns}
-        totalCampaigns={totalCampaigns}
-        activeCampaigns={activeCampaigns}
-        profileCompleteness={profileCompleteness}
-        totalVehicles={totalVehicles}
-        availableVehicles={availableVehicles}
-      />
-    </DealerLayout>
+    <DealerDashboardView
+      topCampaigns={topCampaigns}
+      totalCampaigns={totalCampaigns}
+      activeCampaigns={activeCampaigns}
+      profileCompleteness={profileCompleteness}
+      totalVehicles={totalVehicles}
+      availableVehicles={availableVehicles}
+    />
   );
 }

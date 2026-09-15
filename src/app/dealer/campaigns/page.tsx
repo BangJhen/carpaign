@@ -35,9 +35,5 @@ export default async function DealerCampaignsPage() {
     }));
   }
 
-  return (
-    <DealerLayout title="Kampanye">
-      <DealerCampaignsView campaigns={data} />
-    </DealerLayout>
-  );
+  return <DealerCampaignsView campaigns={data} />;
 }

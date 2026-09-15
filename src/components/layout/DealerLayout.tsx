@@ -7,7 +7,7 @@ import { DealerGuard } from "@/components/auth/DealerGuard";
 
 interface DealerLayoutProps {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
 export function DealerLayout({ children, title }: DealerLayoutProps) {

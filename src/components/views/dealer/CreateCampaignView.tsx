@@ -6,6 +6,7 @@ import { Scissors, Video, Camera } from "lucide-react";
 import type { CampaignType } from "@/db/schema";
 import { ClippingCampaignForm } from "./ClippingCampaignForm";
 import { UgcCampaignForm } from "./UgcCampaignForm";
+import { VideographyCampaignForm } from "./VideographyCampaignForm";
 
 const CAMPAIGN_TYPES: { value: CampaignType; title: string; description: string; objective: string; icon: any }[] = [
   {
@@ -37,7 +38,7 @@ export function CreateCampaignView({ vehicles }: { vehicles: Vehicle[] }) {
   const [selectedType, setSelectedType] = useState<CampaignType | "">("");
 
   return (
-    <div className="flex flex-col max-w-[800px] mx-auto w-full pb-20">
+    <div className="flex flex-col max-w-5xl mx-auto w-full pb-20">
       <AnimatePresence mode="wait">
         {!selectedType ? (
           <motion.div
@@ -90,7 +91,7 @@ export function CreateCampaignView({ vehicles }: { vehicles: Vehicle[] }) {
               <UgcCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
             {selectedType === "Videographer" && (
-              <div className="p-8 text-center text-white/40">Form Videographer belum diimplementasi. <button onClick={() => setSelectedType("")} className="text-primary underline ml-2">Kembali</button></div>
+              <VideographyCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
           </motion.div>
         )}

@@ -29,9 +29,5 @@ export default async function InventoryPage() {
     }));
   }
 
-  return (
-    <DealerLayout title="Inventory Kendaraan">
-      <InventoryView vehicles={data} />
-    </DealerLayout>
-  );
+  return <InventoryView vehicles={data} />;
 }

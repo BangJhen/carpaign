@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin } from "lucide-react";
+import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCampaign } from "@/app/actions/campaigns";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type Vehicle = { id: string; name: string; location: string; image?: string | null };
 
@@ -31,6 +32,17 @@ export function ClippingCampaignForm({
   const [step, setStep] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearFieldError = (field: string) => {
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   // Step 1 State
   const [title, setTitle] = useState("");
@@ -44,22 +56,23 @@ export function ClippingCampaignForm({
   const [sourceMaterial, setSourceMaterial] = useState("");
   const [contentGuidelines, setContentGuidelines] = useState("");
   const [mandatoryPoints, setMandatoryPoints] = useState("");
-  const [videoSpecs, setVideoSpecs] = useState("");
+  const [videoSpecs, setVideoSpecs] = useState("Vertikal (9:16), Durasi maks. 60 detik");
   const [captionHashtagTags, setCaptionHashtagTags] = useState("");
   const [cta, setCta] = useState("");
   const [forbiddenContent, setForbiddenContent] = useState("");
 
   // Step 3 State
-  const [budget, setBudget] = useState("");
-  const [cpm, setCpm] = useState("");
-  const [maxPayoutPerClipper, setMaxPayoutPerClipper] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [publishDeadline, setPublishDeadline] = useState("");
+  const [budget, setBudget] = useState("1.000.000");
+  const [cpm, setCpm] = useState("15.000");
+  const [maxPayoutPerClipper, setMaxPayoutPerClipper] = useState("250.000");
+  const [startDate, setStartDate] = useState("1 Okt 2026");
+  const [publishDeadline, setPublishDeadline] = useState("15 Okt 2026");
   const [viewsCalculationPeriod, setViewsCalculationPeriod] = useState("7");
-  const [clipperRequirements, setClipperRequirements] = useState("");
+  const [clipperRequirements, setClipperRequirements] = useState("Minimal 1.000 followers, akun publik");
   const [maxContentPerClipper, setMaxContentPerClipper] = useState("1");
 
   const toggleVehicle = (id: string) => {
+    clearFieldError("selectedVehicles");
     if (promotionalFocus === "single_unit") {
       setSelectedVehicles([id]);
     } else {
@@ -69,30 +82,91 @@ export function ClippingCampaignForm({
     }
   };
 
+  const validateStep = (currentStep: number): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (currentStep === 1) {
+      if (!title.trim()) {
+        newErrors.title = "Judul campaign wajib diisi";
+      } else if (title.trim().length < 3) {
+        newErrors.title = "Judul minimal 3 karakter";
+      }
+
+      if (!promotionalFocus) {
+        newErrors.promotionalFocus = "Pilih fokus promosi";
+      }
+
+      if (promotionalFocus !== "dealer" && selectedVehicles.length === 0) {
+        newErrors.selectedVehicles = "Pilih minimal satu unit kendaraan dari inventory";
+      }
+
+      if (!description.trim()) {
+        newErrors.description = "Deskripsi campaign wajib diisi";
+      }
+
+      if (!audienceRegion.trim()) {
+        newErrors.audienceRegion = "Target wilayah audiens wajib diisi";
+      }
+
+      if (!publishPlatforms.trim()) {
+        newErrors.publishPlatforms = "Platform publikasi wajib diisi";
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!sourceMaterial.trim()) {
+        newErrors.sourceMaterial = "Link folder materi sumber wajib diisi";
+      } else if (!sourceMaterial.startsWith("http://") && !sourceMaterial.startsWith("https://") && !sourceMaterial.includes(".")) {
+        newErrors.sourceMaterial = "Format link materi harus berupa URL valid (contoh: https://...)";
+      }
+
+      if (!contentGuidelines.trim()) {
+        newErrors.contentGuidelines = "Arahan konten wajib diisi";
+      }
+
+      if (!videoSpecs.trim()) {
+        newErrors.videoSpecs = "Ketentuan video wajib diisi";
+      }
+    }
+
+    if (currentStep === 3) {
+      const rawBudget = budget.replace(/\D/g, "").trim();
+      const numBudget = parseInt(rawBudget, 10);
+      if (!rawBudget || isNaN(numBudget) || numBudget <= 0) {
+        newErrors.budget = "Total budget harus berupa nominal lebih dari 0";
+      }
+
+      const rawCpm = cpm.replace(/\D/g, "").trim();
+      const numCpm = parseInt(rawCpm, 10);
+      if (!rawCpm || isNaN(numCpm) || numCpm <= 0) {
+        newErrors.cpm = "Tarif CPM harus berupa nominal lebih dari 0";
+      }
+
+      const rawMaxPayout = maxPayoutPerClipper.replace(/\D/g, "").trim();
+      const numMaxPayout = parseInt(rawMaxPayout, 10);
+      if (!rawMaxPayout || isNaN(numMaxPayout) || numMaxPayout <= 0) {
+        newErrors.maxPayoutPerClipper = "Batas pembayaran per clipper harus berupa nominal lebih dari 0";
+      }
+
+      if (!startDate.trim()) {
+        newErrors.startDate = "Tanggal mulai publikasi wajib ditentukan";
+      }
+
+      if (!publishDeadline.trim()) {
+        newErrors.publishDeadline = "Batas publikasi wajib ditentukan";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
     setError("");
-    if (step === 1) {
-      if (!title || !description || !audienceRegion || !publishPlatforms) {
-        setError("Harap isi semua field teks yang diperlukan.");
-        return;
-      }
-      if (promotionalFocus !== "dealer" && selectedVehicles.length === 0) {
-        setError("Harap pilih setidaknya satu unit kendaraan.");
-        return;
-      }
+    if (!validateStep(step)) {
+      return;
     }
-    if (step === 2) {
-      if (!sourceMaterial || !contentGuidelines) {
-        setError("Link materi sumber dan arahan konten wajib diisi.");
-        return;
-      }
-    }
-    if (step === 3) {
-      if (!budget || !cpm || !maxPayoutPerClipper || !startDate || !publishDeadline) {
-        setError("Informasi budget dan tanggal wajib diisi.");
-        return;
-      }
-    }
+    setErrors({});
     setStep((s) => Math.min(4, s + 1));
   };
 
@@ -155,39 +229,44 @@ export function ClippingCampaignForm({
       </div>
 
       {/* Step Indicator */}
-      <div className="flex items-center gap-0 overflow-x-auto pb-2">
-        {steps.map((label, i) => {
-          const num = i + 1;
-          const isActive = step === num;
-          const isDone = step > num;
-          return (
-            <div key={label} className="flex items-center shrink-0">
-              <div className="flex items-center gap-2">
-                <div
-                  className="size-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all"
-                  style={
-                    isDone
-                      ? { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.5)" }
-                      : isActive
-                      ? { background: "var(--primary)", color: "#0a0a0c" }
-                      : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.2)" }
-                  }
-                >
-                  {isDone ? "✓" : num}
+      <div className="w-full bg-[#111316]/60 border border-white/[0.06] rounded-2xl p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 w-full">
+          {steps.map((label, i) => {
+            const num = i + 1;
+            const isActive = step === num;
+            const isDone = step > num;
+            return (
+              <div key={label} className="flex items-center gap-2 sm:gap-3 flex-1 last:flex-initial">
+                <div className="flex items-center gap-2.5 min-w-0 shrink-0">
+                  <div
+                    className="size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-all"
+                    style={
+                      isDone
+                        ? { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.8)" }
+                        : isActive
+                        ? { background: "var(--primary)", color: "#0a0a0c" }
+                        : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.25)" }
+                    }
+                  >
+                    {isDone ? "✓" : num}
+                  </div>
+                  <span
+                    className="text-[12px] sm:text-[13px] font-medium whitespace-nowrap"
+                    style={{ color: isActive ? "white" : isDone ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.3)" }}
+                  >
+                    {label}
+                  </span>
                 </div>
-                <span
-                  className="text-[12px] font-medium hidden sm:block"
-                  style={{ color: isActive ? "white" : "rgba(255,255,255,0.25)" }}
-                >
-                  {label}
-                </span>
+                {i < steps.length - 1 && (
+                  <div
+                    className="h-[1px] flex-1 mx-2 sm:mx-3 transition-colors hidden lg:block"
+                    style={{ background: isDone ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)" }}
+                  />
+                )}
               </div>
-              {i < steps.length - 1 && (
-                <div className="w-6 sm:w-10 h-[1px] mx-2" style={{ background: isDone ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)" }} />
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       <Card className="bg-[#111316] border-white/[0.06] p-6 sm:p-8">
@@ -202,23 +281,28 @@ export function ClippingCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Judul Campaign</label>
+                  <label className="text-[11px] font-medium text-white/40">Judul Campaign <span className="text-red-400">*</span></label>
                   <Input
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      clearFieldError("title");
+                    }}
                     placeholder="Contoh: Kenalan dengan Showroom Mobil Bekas di Jakarta Barat"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.title && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.title && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.title}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi</label>
+                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi <span className="text-red-400">*</span></label>
                   <Select value={promotionalFocus} onValueChange={(val: any) => {
                     setPromotionalFocus(val);
+                    clearFieldError("promotionalFocus");
                     if (val === "dealer") setSelectedVehicles([]);
                     if (val === "single_unit" && selectedVehicles.length > 1) setSelectedVehicles([selectedVehicles[0]]);
                   }}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.promotionalFocus && "border-red-500/60 bg-red-500/[0.03]")}>
                       <SelectValue placeholder="Pilih fokus promosi" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
@@ -227,11 +311,12 @@ export function ClippingCampaignForm({
                       <SelectItem value="multiple_units">Beberapa Unit Kendaraan</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.promotionalFocus && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.promotionalFocus}</p>}
                 </div>
 
                 {promotionalFocus !== "dealer" && (
-                  <div className="space-y-2 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl">
-                    <label className="text-[11px] font-medium text-white/40 mb-2 block">Pilih Unit dari Inventory</label>
+                  <div className={cn("space-y-2 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl", errors.selectedVehicles && "border-red-500/40 bg-red-500/[0.02]")}>
+                    <label className="text-[11px] font-medium text-white/40 mb-2 block">Pilih Unit dari Inventory <span className="text-red-400">*</span></label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                       {vehicles.length === 0 ? (
                         <p className="text-[12px] text-white/30 p-2">Inventory kosong. Harap tambah kendaraan terlebih dahulu.</p>
@@ -261,37 +346,50 @@ export function ClippingCampaignForm({
                         })
                       )}
                     </div>
+                    {errors.selectedVehicles && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.selectedVehicles}</p>}
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Deskripsi Singkat Campaign</label>
+                  <label className="text-[11px] font-medium text-white/40">Deskripsi Singkat Campaign <span className="text-red-400">*</span></label>
                   <Textarea
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      clearFieldError("description");
+                    }}
                     placeholder="Jelaskan pesan utama yang ingin dikenalkan kepada audiens..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20 min-h-[80px]"
+                    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20 min-h-[80px]", errors.description && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.description && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.description}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens</label>
+                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens <span className="text-red-400">*</span></label>
                     <Input
                       value={audienceRegion}
-                      onChange={(e) => setAudienceRegion(e.target.value)}
+                      onChange={(e) => {
+                        setAudienceRegion(e.target.value);
+                        clearFieldError("audienceRegion");
+                      }}
                       placeholder="Contoh: Jakarta dan sekitarnya"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                      className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.audienceRegion && "border-red-500/60 bg-red-500/[0.03]")}
                     />
+                    {errors.audienceRegion && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.audienceRegion}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi</label>
+                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi <span className="text-red-400">*</span></label>
                     <Input
                       value={publishPlatforms}
-                      onChange={(e) => setPublishPlatforms(e.target.value)}
+                      onChange={(e) => {
+                        setPublishPlatforms(e.target.value);
+                        clearFieldError("publishPlatforms");
+                      }}
                       placeholder="TikTok, Instagram Reels, YouTube Shorts"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                      className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.publishPlatforms && "border-red-500/60 bg-red-500/[0.03]")}
                     />
+                    {errors.publishPlatforms && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.publishPlatforms}</p>}
                   </div>
                 </div>
               </div>
@@ -315,23 +413,31 @@ export function ClippingCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Materi Sumber (Link Folder / Drive)</label>
+                  <label className="text-[11px] font-medium text-white/40">Materi Sumber (Link Folder / Drive) <span className="text-red-400">*</span></label>
                   <Input
                     value={sourceMaterial}
-                    onChange={(e) => setSourceMaterial(e.target.value)}
+                    onChange={(e) => {
+                      setSourceMaterial(e.target.value);
+                      clearFieldError("sourceMaterial");
+                    }}
                     placeholder="https://drive.google.com/drive/folders/..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.sourceMaterial && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.sourceMaterial && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.sourceMaterial}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Arahan Konten</label>
+                  <label className="text-[11px] font-medium text-white/40">Arahan Konten <span className="text-red-400">*</span></label>
                   <Textarea
                     value={contentGuidelines}
-                    onChange={(e) => setContentGuidelines(e.target.value)}
+                    onChange={(e) => {
+                      setContentGuidelines(e.target.value);
+                      clearFieldError("contentGuidelines");
+                    }}
                     placeholder="Jelaskan gaya visual, transisi, atau bagian footage yang perlu ditonjolkan..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20 min-h-[80px]"
+                    className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20 min-h-[80px]", errors.contentGuidelines && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.contentGuidelines && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.contentGuidelines}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -346,13 +452,17 @@ export function ClippingCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Ketentuan Video (Durasi, Format)</label>
+                    <label className="text-[11px] font-medium text-white/40">Ketentuan Video (Durasi, Format) <span className="text-red-400">*</span></label>
                     <Input
                       value={videoSpecs}
-                      onChange={(e) => setVideoSpecs(e.target.value)}
+                      onChange={(e) => {
+                        setVideoSpecs(e.target.value);
+                        clearFieldError("videoSpecs");
+                      }}
                       placeholder="Vertikal (9:16), Max 60 detik"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                      className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.videoSpecs && "border-red-500/60 bg-red-500/[0.03]")}
                     />
+                    {errors.videoSpecs && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.videoSpecs}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-[11px] font-medium text-white/40">Caption, Hashtag, & Tag Akun (Opsional)</label>
@@ -398,29 +508,37 @@ export function ClippingCampaignForm({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Total Budget Campaign</label>
+                  <label className="text-[11px] font-medium text-white/40">Total Budget Campaign <span className="text-red-400">*</span></label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                     <Input
                       value={budget}
-                      onChange={(e) => setBudget(e.target.value)}
+                      onChange={(e) => {
+                        setBudget(e.target.value);
+                        clearFieldError("budget");
+                      }}
                       placeholder="1.000.000"
-                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                      className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.budget && "border-red-500/60 bg-red-500/[0.03]")}
                     />
                   </div>
                   <p className="text-[10px] text-white/30">Dana cadangan yang disiapkan.</p>
+                  {errors.budget && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.budget}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tarif per 1.000 Views (CPM)</label>
+                  <label className="text-[11px] font-medium text-white/40">Tarif per 1.000 Views (CPM) <span className="text-red-400">*</span></label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                     <Input
                       value={cpm}
-                      onChange={(e) => setCpm(e.target.value)}
+                      onChange={(e) => {
+                        setCpm(e.target.value);
+                        clearFieldError("cpm");
+                      }}
                       placeholder="15.000"
-                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                      className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.cpm && "border-red-500/60 bg-red-500/[0.03]")}
                     />
                   </div>
+                  {errors.cpm && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.cpm}</p>}
                 </div>
               </div>
 
@@ -434,37 +552,49 @@ export function ClippingCampaignForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-medium text-white/40">Batas Pembayaran per Clipper</label>
+                <label className="text-[11px] font-medium text-white/40">Batas Pembayaran per Clipper <span className="text-red-400">*</span></label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                   <Input
                     value={maxPayoutPerClipper}
-                    onChange={(e) => setMaxPayoutPerClipper(e.target.value)}
+                    onChange={(e) => {
+                      setMaxPayoutPerClipper(e.target.value);
+                      clearFieldError("maxPayoutPerClipper");
+                    }}
                     placeholder="250.000"
-                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20"
+                    className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.maxPayoutPerClipper && "border-red-500/60 bg-red-500/[0.03]")}
                   />
                 </div>
                 <p className="text-[10px] text-white/30">Mencegah budget habis oleh satu kreator saja.</p>
+                {errors.maxPayoutPerClipper && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.maxPayoutPerClipper}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tanggal Mulai Publikasi</label>
+                  <label className="text-[11px] font-medium text-white/40">Tanggal Mulai Publikasi <span className="text-red-400">*</span></label>
                   <Input
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white [color-scheme:dark]"
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      clearFieldError("startDate");
+                    }}
+                    className={cn("bg-white/5 border-white/10 text-white [color-scheme:dark]", errors.startDate && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.startDate && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.startDate}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Publikasi</label>
+                  <label className="text-[11px] font-medium text-white/40">Batas Publikasi <span className="text-red-400">*</span></label>
                   <Input
                     type="date"
                     value={publishDeadline}
-                    onChange={(e) => setPublishDeadline(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white [color-scheme:dark]"
+                    onChange={(e) => {
+                      setPublishDeadline(e.target.value);
+                      clearFieldError("publishDeadline");
+                    }}
+                    className={cn("bg-white/5 border-white/10 text-white [color-scheme:dark]", errors.publishDeadline && "border-red-500/60 bg-red-500/[0.03]")}
                   />
+                  {errors.publishDeadline && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.publishDeadline}</p>}
                 </div>
               </div>
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DealerLayout } from "@/components/layout/DealerLayout";
 
 export const metadata: Metadata = {
   title: "Dealer Dashboard - Carpaign",
@@ -10,7 +11,5 @@ export default function DealerRouteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // The actual layout (sidebar, header) is handled per-page via DealerLayout component.
-  // This layout.tsx only injects metadata at the route group level.
-  return <>{children}</>;
+  return <DealerLayout>{children}</DealerLayout>;
 }

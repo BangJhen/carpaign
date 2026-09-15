@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BillingPage() {
-  return (
-    <DealerLayout title="Keuangan">
-      <BillingView />
-    </DealerLayout>
-  );
+  return <BillingView />;
 }

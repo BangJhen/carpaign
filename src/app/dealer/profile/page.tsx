@@ -25,9 +25,5 @@ export default async function DealerProfilePage() {
     }
   }
 
-  return (
-    <DealerLayout title="Profil Dealer">
-      <DealerProfileView initialProfile={profile} />
-    </DealerLayout>
-  );
+  return <DealerProfileView initialProfile={profile} />;
 }

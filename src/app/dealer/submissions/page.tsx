@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SubmissionsPage() {
-  return (
-    <DealerLayout title="Review Konten">
-      <SubmissionsView />
-    </DealerLayout>
-  );
+  return <SubmissionsView />;
 }
