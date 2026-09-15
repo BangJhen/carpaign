@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Scissors, Video, Camera } from "lucide-react";
 import type { CampaignType } from "@/db/schema";
 import { ClippingCampaignForm } from "./ClippingCampaignForm";
+import { UgcCampaignForm } from "./UgcCampaignForm";
 
 const CAMPAIGN_TYPES: { value: CampaignType; title: string; description: string; objective: string; icon: any }[] = [
   {
@@ -86,7 +87,7 @@ export function CreateCampaignView({ vehicles }: { vehicles: Vehicle[] }) {
               <ClippingCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
             {selectedType === "UGC/Review Konten" && (
-              <div className="p-8 text-center text-white/40">Form UGC/Review Konten belum diimplementasi. <button onClick={() => setSelectedType("")} className="text-primary underline ml-2">Kembali</button></div>
+              <UgcCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
             {selectedType === "Videographer" && (
               <div className="p-8 text-center text-white/40">Form Videographer belum diimplementasi. <button onClick={() => setSelectedType("")} className="text-primary underline ml-2">Kembali</button></div>
