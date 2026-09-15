@@ -14,11 +14,12 @@ interface HeaderProps {
 export function Header({ title }: HeaderProps) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(2);
 
   return (
     <>
       {/* Premium Glassmorphic Header */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-gradient-to-r from-[#0a0a0c]/80 via-[#12100A]/80 to-[#0a0a0c]/80 backdrop-blur-2xl border-b border-white/5 shadow-sm relative overflow-hidden">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-gradient-to-r from-[#0a0a0c]/80 via-[#12100A]/80 to-[#0a0a0c]/80 backdrop-blur-2xl border-b border-white/5 shadow-sm relative overflow-visible">
         {/* Subtle top/bottom ambient glows */}
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[150%] bg-[#D4AF37]/[0.03] blur-[30px] rounded-[100%] pointer-events-none" />
@@ -31,7 +32,7 @@ export function Header({ title }: HeaderProps) {
           <h1 className="text-[15px] font-medium text-foreground">{title}</h1>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 relative z-20">
           {/* CTA Button Redesigned to be less identical to konten.com */}
           <Button
             size="sm"
@@ -60,18 +61,28 @@ export function Header({ title }: HeaderProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() => setNotifOpen((v) => !v)}
-                className="size-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5"
+                className={`size-9 rounded-lg transition-all ${
+                  notifOpen 
+                    ? "bg-white/10 text-white border border-white/15" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                }`}
+                aria-label="Buka notifikasi"
               >
                 <Bell className="size-4" />
               </Button>
-              <span className="absolute top-1.5 right-1.5 flex size-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none border-[1.5px] border-[#0a0a0c]">
-                2
-              </span>
+
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black leading-none border-[1.5px] border-[#0a0a0c] shadow-sm pointer-events-none">
+                  {unreadCount}
+                </span>
+              )}
 
               {/* Notification Dropdown */}
               <NotificationDropdown
                 open={notifOpen}
                 onClose={() => setNotifOpen(false)}
+                role="creator"
+                onUnreadCountChange={setUnreadCount}
               />
             </div>
           </div>
