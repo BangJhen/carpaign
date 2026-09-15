@@ -386,11 +386,9 @@ export function DashboardView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Tipe</SelectItem>
-                <SelectItem value="shoot">Shoot</SelectItem>
-                <SelectItem value="ugc">UGC</SelectItem>
-                <SelectItem value="edit">Edit</SelectItem>
-                <SelectItem value="clip">Clip</SelectItem>
-                <SelectItem value="publish">Publish</SelectItem>
+                <SelectItem value="clipping">Clipping</SelectItem>
+                <SelectItem value="ugc">UGC/Review Konten</SelectItem>
+                <SelectItem value="videographer">Videographer</SelectItem>
               </SelectContent>
             </Select>
             

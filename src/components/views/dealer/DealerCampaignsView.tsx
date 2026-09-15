@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, MoreHorizontal } from "lucide-react";
+import { ArrowUpRight, MoreHorizontal, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -22,13 +22,19 @@ const fadeUp = {
   }),
 };
 
-const campaigns = [
-  { id: 1, title: "Honda Brio RS - UGC Challenge", vehicle: "Honda Brio RS 2024", type: "UGC", budget: "Rp 500.000", deadline: "20 Sep 2026", applicants: 12, views: "45K", status: "active" },
-  { id: 2, title: "Toyota Veloz - Cinematic Shoot", vehicle: "Toyota Veloz 2023", type: "Cinematic", budget: "Rp 1.200.000", deadline: "25 Sep 2026", applicants: 8, views: "38K", status: "active" },
-  { id: 3, title: "Mitsubishi Xpander - Edit Only", vehicle: "Mitsubishi Xpander 2024", type: "Edit", budget: "Rp 350.000", deadline: "15 Sep 2026", applicants: 5, views: "22K", status: "completed" },
-  { id: 4, title: "Suzuki Jimny - Publish & Post", vehicle: "Suzuki Jimny 2023", type: "Publish", budget: "Rp 800.000", deadline: "30 Sep 2026", applicants: 3, views: "-", status: "active" },
-  { id: 5, title: "Daihatsu Terios - UGC Lifestyle", vehicle: "Daihatsu Terios 2024", type: "UGC", budget: "Rp 450.000", deadline: "10 Oct 2026", applicants: 0, views: "-", status: "draft" },
-];
+export type CampaignStatus = "active" | "draft" | "completed" | "cancelled";
+
+export type Campaign = {
+  id: string;
+  title: string;
+  vehicle: string;
+  type: string;
+  budget: string;
+  deadline: string;
+  applicants: number;
+  views: string;
+  status: CampaignStatus;
+};
 
 const statusStyle: Record<string, { color: string; text: string }> = {
   active: { color: "text-primary/90", text: "Aktif" },
@@ -39,7 +45,7 @@ const statusStyle: Record<string, { color: string; text: string }> = {
 
 const filterTabs = ["Semua", "Aktif", "Selesai", "Draft"];
 
-export function DealerCampaignsView() {
+export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [activeFilter, setActiveFilter] = useState("Semua");
 
   const filtered = campaigns.filter((c) => {
@@ -61,7 +67,7 @@ export function DealerCampaignsView() {
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/25 mb-1">Manajemen</p>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">Kampanye</h1>
           <p className="text-sm text-white/40 mt-1">
-            {campaigns.filter((c) => c.status === "active").length} aktif | {campaigns.length} total
+            {campaigns.filter((c) => c.status === "active").length} aktif dari {campaigns.length} total
           </p>
         </div>
         <Link href="/dealer/campaigns/create">
@@ -69,7 +75,7 @@ export function DealerCampaignsView() {
             size="sm"
             className="h-9 px-5 rounded-lg text-[12px] font-semibold gap-2 bg-primary/10 border border-primary/25 text-primary hover:bg-primary/15 transition-colors"
           >
-            Buat Kampanye
+            <Plus className="size-3.5" /> Buat Kampanye
           </Button>
         </Link>
       </motion.div>
@@ -97,65 +103,81 @@ export function DealerCampaignsView() {
       {/* Campaign List */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={2}>
         <Card className="bg-[#111316] border-white/[0.06] overflow-hidden">
-          <div className="divide-y divide-white/[0.05]">
-            {filtered.map((campaign) => {
-              const s = statusStyle[campaign.status];
-              return (
-                <div
-                  key={campaign.id}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.015] transition-colors group"
-                >
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-white truncate">{campaign.title}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-[11px] text-white/35 truncate">{campaign.vehicle}</p>
-                      <span className="text-white/15 text-[10px]">|</span>
-                      <span className="text-[10px] text-white/25 font-medium uppercase tracking-wide">{campaign.type}</span>
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-[13px] text-white/30">Belum ada kampanye</p>
+              <p className="text-[11px] text-white/20 mt-1">Buat kampanye pertama Anda untuk mulai menarik kreator</p>
+              <Link href="/dealer/campaigns/create" className="mt-4">
+                <Button size="sm" className="h-8 px-4 rounded-lg text-[12px] gap-2 bg-primary/10 border border-primary/25 text-primary hover:bg-primary/15">
+                  <Plus className="size-3.5" /> Buat Sekarang
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/[0.05]">
+              {filtered.map((campaign) => {
+                const s = statusStyle[campaign.status] ?? statusStyle.draft;
+                return (
+                  <div
+                    key={campaign.id}
+                    className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.015] transition-colors group"
+                  >
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-white truncate">{campaign.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[11px] text-white/35 truncate">{campaign.vehicle}</p>
+                        <span className="text-white/15 text-[10px]">|</span>
+                        <span className="text-[10px] text-white/25 font-medium">{campaign.type}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Stats */}
-                  <div className="hidden md:flex items-center gap-6 text-center flex-shrink-0">
-                    <div>
-                      <p className="text-[13px] font-semibold text-white">{campaign.applicants}</p>
-                      <p className="text-[10px] text-white/25 mt-0.5">kreator</p>
+                    {/* Stats */}
+                    <div className="hidden md:flex items-center gap-6 text-center flex-shrink-0">
+                      <div>
+                        <p className="text-[13px] font-semibold text-white">{campaign.applicants}</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">kreator</p>
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-semibold text-white">{campaign.views}</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">views</p>
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-semibold text-white">{campaign.budget}</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">budget</p>
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-semibold text-white">{campaign.deadline}</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">deadline</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-white">{campaign.views}</p>
-                      <p className="text-[10px] text-white/25 mt-0.5">views</p>
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-white">{campaign.budget}</p>
-                      <p className="text-[10px] text-white/25 mt-0.5">budget</p>
-                    </div>
-                  </div>
 
-                  {/* Status + Action */}
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`text-[11px] font-medium ${s.color}`}>{s.text}</span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <div
-                          className="flex items-center justify-center size-7 rounded-md text-white/20 hover:text-white/60 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-                        >
-                          <MoreHorizontal className="size-3.5" />
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-[#1a1c20] border-white/10 text-white">
-                        <DropdownMenuItem className="gap-2 text-[13px] hover:bg-white/5">
-                          <ArrowUpRight className="size-3.5" /> Lihat Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 text-[13px] text-white/40 hover:bg-white/5 hover:text-white/70">
-                          Batalkan
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Status + Action */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className={`text-[11px] font-medium ${s.color}`}>{s.text}</span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <div
+                            className="flex items-center justify-center size-7 rounded-md text-white/20 hover:text-white/60 hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                          >
+                            <MoreHorizontal className="size-3.5" />
+                          </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-[#1a1c20] border-white/10 text-white">
+                          <DropdownMenuItem className="gap-2 text-[13px] hover:bg-white/5">
+                            <ArrowUpRight className="size-3.5" /> Lihat Detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 text-[13px] text-white/40 hover:bg-white/5 hover:text-white/70">
+                            Batalkan
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </Card>
       </motion.div>
     </div>
