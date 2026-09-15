@@ -99,3 +99,39 @@ export const dealerProfilesRelations = relations(dealerProfiles, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const creatorProfiles = pgTable("creator_profiles", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  fullName: text("full_name"),
+  username: text("username"),
+  phone: text("phone"),
+  city: text("city"),
+  bio: text("bio"),
+  bankName: text("bank_name"),
+  accountNumber: text("account_number"),
+  accountHolderName: text("account_holder_name"),
+  tiktokUsername: text("tiktok_username"),
+  instagramUsername: text("instagram_username"),
+  youtubeUsername: text("youtube_username"),
+  avatarImage: text("avatar_image"),
+  coverImage: text("cover_image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const creatorProfilesRelations = relations(creatorProfiles, ({ one }) => ({
+  user: one(user, {
+    fields: [creatorProfiles.userId],
+    references: [user.id],
+  }),
+}));
+

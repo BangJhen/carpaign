@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 
 export const metadata = {
-  title: "Profil Dealer - Carpaign",
+  title: "Profil Dealer Carpaign",
 };
 
 export default async function DealerProfilePage() {

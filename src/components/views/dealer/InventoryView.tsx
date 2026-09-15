@@ -302,7 +302,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
             Kendaraan Showroom
           </h1>
           <p className="text-sm text-white/40 mt-1">
-            {available} unit siap campaign | {inUse} sedang digunakan
+            {available} unit siap kampanye, {inUse} sedang digunakan
           </p>
         </div>
         <Button

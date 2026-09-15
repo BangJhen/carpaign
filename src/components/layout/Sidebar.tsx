@@ -78,12 +78,15 @@ export function AppSidebar() {
     <Sidebar className="border-r-white/5 bg-[#0a0a0c]" variant="sidebar">
       {/* Logo Section */}
       <SidebarHeader className="py-8">
-        <div className="flex items-center justify-center w-full">
+        <div className="flex flex-col items-center justify-center w-full gap-2">
           <img 
             src="/carpaign-logo.png" 
             alt="Carpaign Logo" 
-            className="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+            className="h-12 w-auto object-contain" 
           />
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">
+            Kreator Portal
+          </div>
         </div>
       </SidebarHeader>
 
@@ -172,7 +175,13 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               render={<Link href="/profile" />}
-              className="h-auto py-2 px-2 hover:bg-white/5 transition-all rounded-lg flex items-center justify-between group"
+              isActive={pathname === "/profile"}
+              className={cn(
+                "h-auto py-2 px-2 transition-all rounded-xl flex items-center justify-between group",
+                pathname === "/profile"
+                  ? "bg-white/10 text-white border border-white/15 shadow-sm"
+                  : "hover:bg-white/5 text-muted-foreground hover:text-white"
+              )}
             >
               <div className="flex items-center gap-3">
                 <Avatar className="size-9 border border-white/10">

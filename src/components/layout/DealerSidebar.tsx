@@ -38,12 +38,11 @@ const navMain = [
   { href: "/dealer/campaigns", label: "Manajemen Kampanye", icon: Megaphone },
   { href: "/dealer/submissions", label: "Review Konten", icon: InboxIcon },
   { href: "/dealer/billing", label: "Keuangan", icon: CreditCard },
-  { href: "/dealer/profile", label: "Profil Dealer", icon: Building2 },
 ];
 
 const navSupport = [
-  { href: "/bantuan", label: "Hubungi Admin", icon: Headset },
-  { href: "/faq", label: "FAQ & Peraturan", icon: HelpCircle },
+  { href: "/dealer/bantuan", label: "Hubungi Admin", icon: Headset },
+  { href: "/dealer/faq", label: "FAQ & Peraturan", icon: HelpCircle },
 ];
 
 export function DealerSidebar() {
@@ -79,9 +78,9 @@ export function DealerSidebar() {
           <img 
             src="/carpaign-logo.png" 
             alt="Carpaign Logo" 
-            className="h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+            className="h-12 w-auto object-contain" 
           />
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">
             Dealer Portal
           </div>
         </div>
@@ -124,17 +123,27 @@ export function DealerSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
-              {navSupport.map(({ href, label, icon: Icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    render={<Link href={href} />}
-                    className="h-10 px-3 text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all rounded-lg font-medium"
-                  >
-                    <Icon className="size-[18px] text-muted-foreground/70" />
-                    <span className="ml-2">{label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navSupport.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || pathname.startsWith(href);
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      render={<Link href={href} />}
+                      isActive={isActive}
+                      tooltip={label}
+                      className={cn(
+                        "h-10 px-3 transition-all rounded-lg font-medium",
+                        isActive
+                          ? "bg-white/10 text-white font-semibold border border-white/10 shadow-xs"
+                          : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                      )}
+                    >
+                      <Icon className={cn("size-[18px]", isActive ? "text-white" : "text-muted-foreground/70")} />
+                      <span className="ml-2">{label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -146,7 +155,13 @@ export function DealerSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               render={<Link href="/dealer/profile" />}
-              className="h-auto py-2 px-2 hover:bg-white/5 transition-all rounded-lg flex items-center justify-between group"
+              isActive={pathname === "/dealer/profile"}
+              className={cn(
+                "h-auto py-2 px-2 transition-all rounded-xl flex items-center justify-between group",
+                pathname === "/dealer/profile"
+                  ? "bg-white/10 text-white border border-white/15 shadow-sm"
+                  : "hover:bg-white/5 text-muted-foreground hover:text-white"
+              )}
             >
               <div className="flex items-center gap-3">
                 <Avatar className="size-9 border border-white/10">
@@ -159,9 +174,9 @@ export function DealerSidebar() {
                   <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
                     {session?.user?.name || "Memuat..."}
                   </span>
-                  <div className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full border border-primary/20">
-                    <Medal className="size-3" />
-                    {formatRole((session?.user as any)?.role)}
+                  <div className="flex items-center gap-1 text-[10px] font-medium text-white/70 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                    <Building2 className="size-3 text-white/60" />
+                    <span>{formatRole((session?.user as any)?.role)}</span>
                   </div>
                 </div>
               </div>

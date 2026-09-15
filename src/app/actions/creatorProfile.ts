@@ -1,54 +1,57 @@
 "use server";
 
 import { db } from "@/db/db";
-import { dealerProfiles } from "@/db/schema";
+import { creatorProfiles } from "@/db/schema";
 import { user } from "@/db/auth-schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export type UpdateDealerProfileInput = {
-  dealerName?: string;
-  picName?: string;
+export type UpdateCreatorProfileInput = {
+  fullName?: string;
+  username?: string;
   phone?: string;
-  businessEmail?: string;
-  address?: string;
-  coverImage?: string;
+  city?: string;
+  bio?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolderName?: string;
+  tiktokUsername?: string;
+  instagramUsername?: string;
+  youtubeUsername?: string;
   avatarImage?: string;
+  coverImage?: string;
 };
 
-export async function updateDealerProfile(input: UpdateDealerProfileInput) {
+export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  if (
-    !session?.user ||
-    ((session.user as any).role !== "dealership" && (session.user as any).role !== "dealer")
-  ) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
-  // Check if dealer profile exists
+  // Check if creator profile exists
   const existingProfile = await db
     .select()
-    .from(dealerProfiles)
-    .where(eq(dealerProfiles.userId, session.user.id));
+    .from(creatorProfiles)
+    .where(eq(creatorProfiles.userId, session.user.id));
 
   if (existingProfile.length > 0) {
     await db
-      .update(dealerProfiles)
+      .update(creatorProfiles)
       .set(input)
-      .where(eq(dealerProfiles.userId, session.user.id));
+      .where(eq(creatorProfiles.userId, session.user.id));
   } else {
-    await db.insert(dealerProfiles).values({
+    await db.insert(creatorProfiles).values({
       userId: session.user.id,
       ...input,
     });
   }
 
-  // Also sync user name and avatar/coverImage if present
+  // Sync user name, avatar, and coverImage if provided
   const userUpdates: Record<string, any> = {};
-  if (input.dealerName) userUpdates.name = input.dealerName;
+  if (input.fullName) userUpdates.name = input.fullName;
   if (input.avatarImage) userUpdates.image = input.avatarImage;
   if (input.coverImage) userUpdates.coverImage = input.coverImage;
 
@@ -59,7 +62,7 @@ export async function updateDealerProfile(input: UpdateDealerProfileInput) {
       .where(eq(user.id, session.user.id));
   }
 
-  revalidatePath("/dealer/profile");
-  revalidatePath("/dealer/dashboard");
+  revalidatePath("/profile");
+  revalidatePath("/dashboard");
   return { success: true };
 }
