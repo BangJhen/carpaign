@@ -451,21 +451,16 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
               className="relative w-full max-w-4xl max-h-[90vh] my-auto bg-[#111316] border border-white/[0.08] rounded-3xl shadow-2xl overflow-hidden flex flex-col z-10"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-gradient-to-r from-[#14171c] to-[#111316]">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                    {modalMode === "edit" ? <Pencil className="size-5" /> : <Car className="size-5" />}
-                  </div>
-                  <div>
-                    <h2 className="text-[17px] font-semibold text-white">
-                      {modalMode === "edit" ? "Edit Detail Unit Kendaraan" : "Tambah Unit Kendaraan"}
-                    </h2>
-                    <p className="text-[12px] text-white/40">
-                      {modalMode === "edit"
-                        ? "Perbarui informasi dan spesifikasi unit inventori"
-                        : "Lengkapi detail mobil untuk materi kampanye kreator"}
-                    </p>
-                  </div>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06] bg-[#14171c]">
+                <div>
+                  <h2 className="text-[17px] font-semibold text-white">
+                    {modalMode === "edit" ? "Edit Detail Unit Kendaraan" : "Tambah Unit Kendaraan"}
+                  </h2>
+                  <p className="text-[12px] text-white/40 mt-0.5">
+                    {modalMode === "edit"
+                      ? "Perbarui informasi dan spesifikasi unit inventori"
+                      : "Lengkapi detail mobil untuk materi kampanye kreator"}
+                  </p>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -893,18 +888,13 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full max-w-md bg-[#14161a] border border-white/10 rounded-2xl p-6 shadow-2xl z-10 space-y-5"
             >
-              <div className="flex items-start gap-4">
-                <div className="size-11 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
-                  <AlertTriangle className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-[16px] font-semibold text-white">
-                    Hapus Unit Kendaraan?
-                  </h3>
-                  <p className="text-[12px] text-white/50 mt-1 leading-relaxed">
-                    Apakah Anda yakin ingin menghapus unit <strong className="text-white font-semibold">{vehicleToDelete.name}</strong> ({vehicleToDelete.year}) dari inventori showroom Anda?
-                  </p>
-                </div>
+              <div className="space-y-1.5">
+                <h3 className="text-[16px] font-semibold text-white">
+                  Hapus Unit Kendaraan?
+                </h3>
+                <p className="text-[12px] text-white/50 leading-relaxed">
+                  Apakah Anda yakin ingin menghapus unit <strong className="text-white font-semibold">{vehicleToDelete.name}</strong> ({vehicleToDelete.year}) dari inventori showroom Anda?
+                </p>
               </div>
 
               {/* Vehicle Preview Card in Alert */}
