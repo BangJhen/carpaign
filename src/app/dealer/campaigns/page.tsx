@@ -25,7 +25,7 @@ export default async function DealerCampaignsPage() {
     data = rows.map((r) => ({
       id: r.id,
       title: r.title,
-      vehicle: r.vehicle,
+      focus: r.promotionalFocus === "dealer" ? "Dealer Keseluruhan" : r.promotionalFocus === "single_unit" ? "1 Unit Kendaraan" : "Beberapa Unit",
       type: r.type,
       budget: `Rp ${r.budget.toLocaleString("id-ID")}`,
       deadline: r.deadline.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),

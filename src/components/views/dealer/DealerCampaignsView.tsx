@@ -27,7 +27,7 @@ export type CampaignStatus = "active" | "draft" | "completed" | "cancelled";
 export type Campaign = {
   id: string;
   title: string;
-  vehicle: string;
+  focus: string;
   type: string;
   budget: string;
   deadline: string;
@@ -126,7 +126,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-medium text-white truncate">{campaign.title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-[11px] text-white/35 truncate">{campaign.vehicle}</p>
+                        <p className="text-[11px] text-white/35 truncate">{campaign.focus}</p>
                         <span className="text-white/15 text-[10px]">|</span>
                         <span className="text-[10px] text-white/25 font-medium">{campaign.type}</span>
                       </div>

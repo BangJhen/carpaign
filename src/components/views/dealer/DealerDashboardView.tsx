@@ -22,9 +22,19 @@ type Props = {
   topCampaigns: TopCampaign[];
   totalCampaigns: number;
   activeCampaigns: number;
+  profileCompleteness: number;
+  totalVehicles: number;
+  availableVehicles: number;
 };
 
-export function DealerDashboardView({ topCampaigns, totalCampaigns, activeCampaigns }: Props) {
+export function DealerDashboardView({
+  topCampaigns,
+  totalCampaigns,
+  activeCampaigns,
+  profileCompleteness,
+  totalVehicles,
+  availableVehicles,
+}: Props) {
   const { data: session } = useSession();
   const dealerName = session?.user?.name?.split(" ")[0] || "Dealer";
 
@@ -36,15 +46,15 @@ export function DealerDashboardView({ topCampaigns, totalCampaigns, activeCampai
       trend: "neutral",
     },
     {
-      label: "Menunggu Review",
-      value: "0",
-      sub: "Belum ada kiriman",
+      label: "Profil Dealer",
+      value: `${profileCompleteness}%`,
+      sub: profileCompleteness === 100 ? "Lengkap" : "Perlu dilengkapi",
       trend: "neutral",
     },
     {
-      label: "Total Views",
-      value: "0",
-      sub: "Dari semua kampanye",
+      label: "Unit Kendaraan",
+      value: String(totalVehicles),
+      sub: `${availableVehicles} unit tersedia`,
       trend: "neutral",
     },
     {
@@ -165,7 +175,7 @@ export function DealerDashboardView({ topCampaigns, totalCampaigns, activeCampai
               <Link href="/dealer/inventory" className="flex items-center justify-between group">
                 <div>
                   <p className="text-[12px] font-medium text-white">Inventory Kendaraan</p>
-                  <p className="text-[10px] text-white/30 mt-0.5">6 unit tersedia</p>
+                  <p className="text-[10px] text-white/30 mt-0.5">{availableVehicles} unit tersedia</p>
                 </div>
                 <ArrowUpRight className="size-4 text-white/15 group-hover:text-white/40 transition-colors" />
               </Link>

@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
@@ -18,10 +19,12 @@ export const campaigns = pgTable("campaigns", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
-  vehicle: text("vehicle").notNull(),
+  promotionalFocus: text("promotional_focus").default("dealer").notNull(),
+  vehicles: jsonb("vehicles"), // array of vehicle IDs
   type: text("type").$type<CampaignType>().notNull(),
-  brief: text("brief"),
+  details: jsonb("details"), // generic payload for specific campaign type
   budget: integer("budget").notNull(),
+  startDate: timestamp("start_date"),
   deadline: timestamp("deadline").notNull(),
   status: text("status").$type<CampaignStatus>().notNull().default("draft"),
   applicantsCount: integer("applicants_count").default(0).notNull(),
@@ -36,6 +39,63 @@ export const campaigns = pgTable("campaigns", {
 export const campaignsRelations = relations(campaigns, ({ one }) => ({
   dealer: one(user, {
     fields: [campaigns.dealerId],
+    references: [user.id],
+  }),
+}));
+
+export const vehicles = pgTable("vehicles", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  dealerId: text("dealer_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  year: integer("year").notNull(),
+  color: text("color").notNull(),
+  location: text("location").notNull(),
+  status: text("status").notNull().default("available"), // available, in_use
+  image: text("image"),
+  campaignsCount: integer("campaigns_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const vehiclesRelations = relations(vehicles, ({ one }) => ({
+  dealer: one(user, {
+    fields: [vehicles.dealerId],
+    references: [user.id],
+  }),
+}));
+
+export const dealerProfiles = pgTable("dealer_profiles", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  dealerName: text("dealer_name"),
+  picName: text("pic_name"),
+  phone: text("phone"),
+  businessEmail: text("business_email"),
+  address: text("address"),
+  coverImage: text("cover_image"),
+  avatarImage: text("avatar_image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const dealerProfilesRelations = relations(dealerProfiles, ({ one }) => ({
+  user: one(user, {
+    fields: [dealerProfiles.userId],
     references: [user.id],
   }),
 }));

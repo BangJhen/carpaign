@@ -4,16 +4,19 @@ import { db } from "@/db/db";
 import { campaigns } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import type { CampaignType } from "@/db/schema";
+import { revalidatePath } from "next/cache";
+import type { CampaignType, CampaignStatus } from "@/db/schema";
 
 export type CreateCampaignInput = {
-  vehicle: string;
-  type: CampaignType;
   title: string;
-  brief: string;
+  promotionalFocus: "dealer" | "single_unit" | "multiple_units";
+  vehicles: string[];
+  type: CampaignType;
   budget: number;
+  startDate: string;
   deadline: string;
+  status: CampaignStatus;
+  details: any;
 };
 
 export async function createCampaign(input: CreateCampaignInput) {
@@ -26,13 +29,16 @@ export async function createCampaign(input: CreateCampaignInput) {
   await db.insert(campaigns).values({
     dealerId: session.user.id,
     title: input.title,
-    vehicle: input.vehicle,
+    promotionalFocus: input.promotionalFocus,
+    vehicles: input.vehicles,
     type: input.type,
-    brief: input.brief,
+    details: input.details,
     budget: input.budget,
+    startDate: new Date(input.startDate),
     deadline: new Date(input.deadline),
-    status: "active",
+    status: input.status,
   });
 
-  redirect("/dealer/campaigns");
+  revalidatePath("/dealer/campaigns");
+  return { success: true };
 }
