@@ -27,3 +27,10 @@ Whenever the user asks to convert a design, pitchdeck, or image into code:
 1. Actively analyze the layout, typography, and color palette.
 2. Utilize the design system configured in `globals.css` and `tailwind.config.ts`.
 3. Build responsive and pixel-perfect layouts, applying smooth `framer-motion` scroll animations where appropriate to elevate the UX.
+
+## 3. Anti-AI Slop & UI Craftsmanship Rules
+To preserve authentic, enterprise-grade, human-crafted design quality:
+- **Strictly No Emojis in UI / Copy**: Never use emojis (e.g. ⚠️, ✨, 🚀, 💡, 🔥, 🚗, etc.) in user interfaces, buttons, notifications, alerts, headings, or marketing copy.
+- **No Decorative Non-Alphabetical ASCII Glyphs**: Avoid artificial text decorations and ASCII symbols (e.g. ✦, ❖, ▶, etc.) used as faux icons or bullet dividers. Use semantic typographic spacing, subtle opacity dividers, or genuine SVG icons.
+- **Avoid Generic / Overused Icons**: Do not add arbitrary sparkles or decorative novelty icons. Only use purposeful, semantically meaningful icons (e.g., `Plus`, `Trash2`, `Pencil`, `MapPin`, `ChevronRight`) rendered with appropriate muted opacities (`text-white/40`, `text-white/60`).
+- **Clean, Professional Indonesian Copy**: Write direct, natural, human Indonesian text without AI cliches, hyperbole, or robotic phrasing.
