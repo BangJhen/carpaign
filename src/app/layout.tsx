@@ -11,7 +11,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Carpaign | Turn Vehicle Inventory Into Content",
+  title: "Carpaign - Turn Vehicle Inventory Into Content",
   description: "Platform yang menghubungkan inventory kendaraan, production creator, distribution, dan outcome sales dalam satu workflow.",
 };
 
@@ -21,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id" className={cn(plusJakartaSans.variable, "dark")}>
-      <body className="antialiased min-h-screen font-sans">
+    <html lang="id" className={cn(plusJakartaSans.variable, "dark")} suppressHydrationWarning>
+      <body className="antialiased min-h-screen font-sans" suppressHydrationWarning>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster
             theme="dark"
