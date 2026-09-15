@@ -348,9 +348,9 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                 variants={fadeUp}
                 custom={i + 1}
               >
-                <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/15 transition-all duration-300 h-full flex flex-col rounded-2xl hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/15 transition-all duration-300 h-full flex flex-col rounded-2xl hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-0">
                   {/* Image */}
-                  <div className="relative h-48 flex-shrink-0 overflow-hidden bg-black/40">
+                  <div className="relative h-48 w-full flex-shrink-0 overflow-hidden bg-black/40">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={vehicle.image || "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80"}

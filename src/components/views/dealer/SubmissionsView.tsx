@@ -94,9 +94,9 @@ export function SubmissionsView() {
           const cfg = statusLabel[sub.status];
           return (
             <motion.div key={sub.id} initial="hidden" animate="show" variants={fadeUp} custom={i + 2}>
-              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors h-full flex flex-col">
+              <Card className="bg-[#111316] border-white/[0.06] overflow-hidden group hover:border-white/10 transition-colors h-full flex flex-col p-0">
                 {/* Thumbnail */}
-                <div className="relative h-40 flex-shrink-0 overflow-hidden bg-black/30">
+                <div className="relative h-40 w-full flex-shrink-0 overflow-hidden bg-black/30">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={sub.thumbnail}
