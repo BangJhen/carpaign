@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Camera,
   User,
@@ -259,9 +258,9 @@ export function ProfileView({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <AvatarFallback className="text-xl font-bold bg-[#14161a] text-muted-foreground">
+                    <span className="text-xl font-bold text-muted-foreground select-none">
                       {getInitials(form.fullName)}
-                    </AvatarFallback>
+                    </span>
                   )}
 
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/60">
