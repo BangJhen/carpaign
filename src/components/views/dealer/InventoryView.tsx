@@ -35,9 +35,9 @@ const vehicles = [
   { id: 6, name: "Honda HR-V Turbo", year: 2023, color: "Sonic Gray Pearl", location: "Jakarta Selatan", status: "available", campaigns: 0, image: "https://picsum.photos/seed/honda-hrv-turbo/400/240" },
 ];
 
-const statusStyle: Record<string, { dot: string; text: string }> = {
-  available: { dot: "bg-white/30", text: "Tersedia" },
-  in_use: { dot: "bg-primary/60", text: "Dipakai" },
+const statusStyle: Record<string, { color: string; text: string }> = {
+  available: { color: "text-white/60", text: "Tersedia" },
+  in_use: { color: "text-primary/80", text: "Dipakai" },
 };
 
 export function InventoryView() {
@@ -85,9 +85,8 @@ export function InventoryView() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-transparent to-transparent" />
 
                   {/* Status pill */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/[0.08]">
-                    <div className={`size-1.5 rounded-full ${s.dot}`} />
-                    <span className="text-[10px] font-medium text-white/60">{s.text}</span>
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/[0.08]">
+                    <span className={`text-[10px] font-medium ${s.color}`}>{s.text}</span>
                   </div>
 
                   {/* Menu */}

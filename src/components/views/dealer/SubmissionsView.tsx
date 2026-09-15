@@ -24,11 +24,11 @@ const submissions = [
   { id: 4, creator: "Ayu Maharani", campaign: "Suzuki Jimny - Publish & Post", type: "Publish", submittedAt: "13 Sep, 09:20", thumbnail: "https://picsum.photos/seed/publish-jimny/320/180", status: "revision" as SubmissionStatus, note: "Audio kurang jelas di detik ke-12. Mohon diperbaiki." },
 ];
 
-const statusLabel: Record<SubmissionStatus, { text: string; dot: string }> = {
-  pending: { text: "Menunggu Review", dot: "bg-yellow-500/60" },
-  approved: { text: "Disetujui", dot: "bg-white/30" },
-  revision: { text: "Perlu Revisi", dot: "bg-red-500/60" },
-  rejected: { text: "Ditolak", dot: "bg-white/10" },
+const statusLabel: Record<SubmissionStatus, { text: string; color: string }> = {
+  pending: { text: "Menunggu Review", color: "text-yellow-500/80" },
+  approved: { text: "Disetujui", color: "text-white/70" },
+  revision: { text: "Perlu Revisi", color: "text-red-500/80" },
+  rejected: { text: "Ditolak", color: "text-white/40" },
 };
 
 const filterTabs: { key: SubmissionStatus | "all"; label: string }[] = [
@@ -113,9 +113,8 @@ export function SubmissionsView() {
                   </button>
 
                   {/* Status */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
-                    <div className={`size-1.5 rounded-full ${cfg.dot}`} />
-                    <span className="text-[10px] font-medium text-white/70">{cfg.text}</span>
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
+                    <span className={`text-[10px] font-medium ${cfg.color}`}>{cfg.text}</span>
                   </div>
                 </div>
 

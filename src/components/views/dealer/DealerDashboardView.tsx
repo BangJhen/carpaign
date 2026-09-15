@@ -59,10 +59,10 @@ const topCampaigns = [
   { id: 3, title: "Mitsubishi Xpander - Edit Only", applicants: 5, views: "22K", status: "completed" },
 ];
 
-const statusLabel: Record<string, { text: string; dot: string }> = {
-  pending: { text: "Menunggu", dot: "bg-yellow-500/70" },
-  approved: { text: "Disetujui", dot: "bg-white/40" },
-  revision: { text: "Revisi", dot: "bg-red-500/70" },
+const statusLabel: Record<string, { text: string; color: string }> = {
+  pending: { text: "Menunggu", color: "text-yellow-500/70" },
+  approved: { text: "Disetujui", color: "text-white/40" },
+  revision: { text: "Revisi", color: "text-red-500/70" },
 };
 
 export function DealerDashboardView() {
@@ -134,8 +134,7 @@ export function DealerDashboardView() {
                       <p className="text-[11px] text-white/35 truncate">{sub.campaign}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className={`size-1.5 rounded-full ${cfg.dot}`} />
-                      <span className="text-[11px] text-white/40">{cfg.text}</span>
+                      <span className={`text-[11px] font-medium ${cfg.color}`}>{cfg.text}</span>
                       <span className="text-[10px] text-white/20 hidden sm:block">{sub.time}</span>
                     </div>
                   </div>

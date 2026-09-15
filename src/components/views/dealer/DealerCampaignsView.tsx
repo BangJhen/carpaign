@@ -30,11 +30,11 @@ const campaigns = [
   { id: 5, title: "Daihatsu Terios - UGC Lifestyle", vehicle: "Daihatsu Terios 2024", type: "UGC", budget: "Rp 450.000", deadline: "10 Oct 2026", applicants: 0, views: "-", status: "draft" },
 ];
 
-const statusStyle: Record<string, { dot: string; text: string }> = {
-  active: { dot: "bg-primary/70", text: "Aktif" },
-  completed: { dot: "bg-white/25", text: "Selesai" },
-  draft: { dot: "bg-white/15", text: "Draft" },
-  cancelled: { dot: "bg-red-500/60", text: "Dibatalkan" },
+const statusStyle: Record<string, { color: string; text: string }> = {
+  active: { color: "text-primary/90", text: "Aktif" },
+  completed: { color: "text-white/60", text: "Selesai" },
+  draft: { color: "text-white/40", text: "Draft" },
+  cancelled: { color: "text-red-500/80", text: "Dibatalkan" },
 };
 
 const filterTabs = ["Semua", "Aktif", "Selesai", "Draft"];
@@ -133,10 +133,7 @@ export function DealerCampaignsView() {
 
                   {/* Status + Action */}
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="flex items-center gap-1.5">
-                      <div className={`size-1.5 rounded-full ${s.dot}`} />
-                      <span className="text-[11px] text-white/40">{s.text}</span>
-                    </div>
+                    <span className={`text-[11px] font-medium ${s.color}`}>{s.text}</span>
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <Button
