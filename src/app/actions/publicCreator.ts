@@ -28,6 +28,7 @@ export async function getPublicCreatorByRef(
   const rows = await db
     .select({
       fullName: creatorProfiles.fullName,
+      userNameFallback: user.name,
       username: creatorProfiles.username,
       city: creatorProfiles.city,
       bio: creatorProfiles.bio,
@@ -36,6 +37,7 @@ export async function getPublicCreatorByRef(
       instagramUsername: creatorProfiles.instagramUsername,
       youtubeUsername: creatorProfiles.youtubeUsername,
       avatarImage: creatorProfiles.avatarImage,
+      userImageFallback: user.image,
       coverImage: creatorProfiles.coverImage,
       referralCode: creatorProfiles.referralCode,
       tier: user.tier,
@@ -47,5 +49,20 @@ export async function getPublicCreatorByRef(
     .limit(1);
 
   if (rows.length === 0) return null;
-  return rows[0] as PublicCreatorProfile;
+  const row = rows[0];
+  return {
+    fullName: row.fullName || row.userNameFallback,
+    username: row.username,
+    city: row.city,
+    bio: row.bio,
+    phone: row.phone,
+    tiktokUsername: row.tiktokUsername,
+    instagramUsername: row.instagramUsername,
+    youtubeUsername: row.youtubeUsername,
+    avatarImage: row.avatarImage || row.userImageFallback,
+    coverImage: row.coverImage,
+    referralCode: row.referralCode,
+    tier: row.tier,
+    joinedAt: row.joinedAt,
+  };
 }
