@@ -103,15 +103,177 @@ const escapeCsvCell = (val: string | number | undefined | null) => {
   return str;
 };
 
+const escapeXml = (unsafe: string | number | undefined | null) => {
+  const str = String(unsafe ?? "");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+};
+
+const triggerDownload = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+
+  // Berikan jeda waktu agar download manager browser selesai mengambil file sebelum blob URL direvoke
+  setTimeout(() => {
+    if (document.body.contains(link)) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(url);
+  }, 10000);
+};
+
+const generateXlsContent = (
+  periodLabel: string,
+  formattedDate: string,
+  metrics: { totalViews: string; totalCampaign: string; totalVideo: string; totalApproved: string },
+  chartData: { date: string; views: number; growth: number }[]
+) => {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>Carpaign</Author>
+  <Company>Carpaign Indonesia</Company>
+ </DocumentProperties>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#000000"/>
+  </Style>
+  <Style ss:ID="HeaderTitle">
+   <Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1" ss:Color="#111827"/>
+   <Alignment ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="MetaLabel">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#4B5563"/>
+  </Style>
+  <Style ss:ID="MetaVal">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#111827"/>
+  </Style>
+  <Style ss:ID="SectionHeader">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#111827"/>
+   <Interior ss:Color="#E5E7EB" ss:Pattern="Solid"/>
+   <Alignment ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="TableTh">
+   <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#1A1C20" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#0F172A"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="TableCell">
+   <Alignment ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="TableCellCenter">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="TableCellNumber">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E5E7EB"/>
+   </Borders>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Analitik Performa">
+  <Table>
+   <Column ss:Width="40"/>
+   <Column ss:Width="160"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="160"/>
+
+   <Row ss:Height="26">
+    <Cell ss:MergeAcross="4" ss:StyleID="HeaderTitle"><Data ss:Type="String">LAPORAN ANALITIK PERFORMA KREATOR CARPAIGN</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="MetaLabel"><Data ss:Type="String">Tanggal Ekspor</Data></Cell>
+    <Cell ss:MergeAcross="3" ss:StyleID="MetaVal"><Data ss:Type="String">${escapeXml(formattedDate)} WIB</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="MetaLabel"><Data ss:Type="String">Periode</Data></Cell>
+    <Cell ss:MergeAcross="3" ss:StyleID="MetaVal"><Data ss:Type="String">${escapeXml(periodLabel)}</Data></Cell>
+   </Row>
+   <Row ss:Height="10"/>
+
+   <Row ss:Height="22">
+    <Cell ss:MergeAcross="4" ss:StyleID="SectionHeader"><Data ss:Type="String">RINGKASAN METRIK PERFORMA</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">Total Views</Data></Cell>
+    <Cell ss:StyleID="TableCellNumber"><Data ss:Type="String">${escapeXml(metrics.totalViews)}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">Total Campaign</Data></Cell>
+    <Cell ss:StyleID="TableCellNumber"><Data ss:Type="String">${escapeXml(metrics.totalCampaign)}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">Total Video</Data></Cell>
+    <Cell ss:StyleID="TableCellNumber"><Data ss:Type="String">${escapeXml(metrics.totalVideo)}</Data></Cell>
+   </Row>
+   <Row ss:Height="18">
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">Total Disetujui</Data></Cell>
+    <Cell ss:StyleID="TableCellNumber"><Data ss:Type="String">${escapeXml(metrics.totalApproved)}</Data></Cell>
+   </Row>
+   <Row ss:Height="10"/>
+
+   <Row ss:Height="22">
+    <Cell ss:MergeAcross="4" ss:StyleID="SectionHeader"><Data ss:Type="String">RINCIAN TREN PENAYANGAN KONTEN</Data></Cell>
+   </Row>
+   <Row ss:Height="22">
+    <Cell ss:StyleID="TableTh"><Data ss:Type="String">No</Data></Cell>
+    <Cell ss:StyleID="TableTh"><Data ss:Type="String">Periode / Tanggal</Data></Cell>
+    <Cell ss:StyleID="TableTh"><Data ss:Type="String">Jumlah Views</Data></Cell>
+    <Cell ss:StyleID="TableTh"><Data ss:Type="String">Pertumbuhan (%)</Data></Cell>
+    <Cell ss:StyleID="TableTh"><Data ss:Type="String">Status Tren</Data></Cell>
+   </Row>
+   ${chartData.map((d, idx) => {
+     const trend = d.growth > 0 ? "Kenaikan Positif" : d.growth < 0 ? "Penurunan / Koreksi" : "Stabil";
+     const growthText = d.growth > 0 ? `+${d.growth}%` : `${d.growth}%`;
+     return `
+   <Row ss:Height="18">
+    <Cell ss:StyleID="TableCellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">${escapeXml(d.date)}</Data></Cell>
+    <Cell ss:StyleID="TableCellNumber"><Data ss:Type="Number">${d.views}</Data></Cell>
+    <Cell ss:StyleID="TableCellCenter"><Data ss:Type="String">${escapeXml(growthText)}</Data></Cell>
+    <Cell ss:StyleID="TableCell"><Data ss:Type="String">${escapeXml(trend)}</Data></Cell>
+   </Row>`;
+   }).join("")}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+};
+
 export function AnalitikView() {
   const [chartTab, setChartTab] = useState<"total" | "kenaikan">("total");
   const [timeRange, setTimeRange] = useState("28_days");
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExporting, setIsExporting] = useState<"csv" | "xls" | null>(null);
 
   const currentData = analyticsByRange[timeRange] || analyticsByRange["28_days"];
 
-  const handleExportCSV = () => {
-    setIsExporting(true);
+  const handleExport = (format: "csv" | "xls") => {
+    setIsExporting(format);
 
     setTimeout(() => {
       try {
@@ -122,63 +284,74 @@ export function AnalitikView() {
         }).format(now);
 
         const periodLabel = rangeLabels[timeRange] || "28 hari terakhir";
-
-        const lines: string[] = [];
-
-        // 1. Header Metadata Laporan
-        lines.push("LAPORAN ANALITIK PERFORMA KREATOR CARPAIGN");
-        lines.push(`Tanggal Ekspor,${escapeCsvCell(formattedDate)} WIB`);
-        lines.push(`Periode Filter,${escapeCsvCell(periodLabel)}`);
-        lines.push("");
-
-        // 2. Ringkasan Metrik (KPI)
-        lines.push("RINGKASAN METRIK PERFORMA");
-        lines.push(`Total Views,${escapeCsvCell(currentData.metrics.totalViews)}`);
-        lines.push(`Total Campaign,${escapeCsvCell(currentData.metrics.totalCampaign)}`);
-        lines.push(`Total Video,${escapeCsvCell(currentData.metrics.totalVideo)}`);
-        lines.push(`Total Video Disetujui,${escapeCsvCell(currentData.metrics.totalApproved)}`);
-        lines.push("");
-
-        // 3. Rincian Tren Data Harian
-        lines.push("RINCIAN TREN PENAYANGAN KONTEN");
-        lines.push("No,Periode / Tanggal,Jumlah Penayangan (Views),Pertumbuhan (%),Status Tren");
-
-        currentData.chartData.forEach((item, index) => {
-          const trendStatus = item.growth > 0 ? "Kenaikan Positif" : item.growth < 0 ? "Penurunan / Koreksi" : "Stabil";
-          const growthFormatted = item.growth > 0 ? `+${item.growth}%` : `${item.growth}%`;
-          lines.push([
-            index + 1,
-            escapeCsvCell(item.date),
-            item.views,
-            escapeCsvCell(growthFormatted),
-            escapeCsvCell(trendStatus),
-          ].join(","));
-        });
-
-        lines.push("");
-        lines.push("Catatan: Data diperbarui secara berkala berdasarkan performa analitik video terverifikasi pada platform Carpaign.");
-
-        const csvContent = lines.join("\r\n");
-        // Gunakan UTF-8 BOM (\uFEFF) agar spreadsheet seperti Excel & Google Sheets membacanya dengan akurat
-        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
         const dateSlug = now.toISOString().split("T")[0];
-        link.setAttribute("href", url);
-        link.setAttribute("download", `laporan_analitik_carpaign_${timeRange}_${dateSlug}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
 
-        toast.success("File CSV analitik berhasil diunduh", {
-          description: `Laporan analitik periode ${periodLabel} telah tersimpan.`,
-        });
+        if (format === "csv") {
+          const lines: string[] = [];
+
+          // 1. Header Metadata Laporan
+          lines.push("LAPORAN ANALITIK PERFORMA KREATOR CARPAIGN");
+          lines.push(`Tanggal Ekspor,${escapeCsvCell(formattedDate)} WIB`);
+          lines.push(`Periode Filter,${escapeCsvCell(periodLabel)}`);
+          lines.push("");
+
+          // 2. Ringkasan Metrik (KPI)
+          lines.push("RINGKASAN METRIK PERFORMA");
+          lines.push(`Total Views,${escapeCsvCell(currentData.metrics.totalViews)}`);
+          lines.push(`Total Campaign,${escapeCsvCell(currentData.metrics.totalCampaign)}`);
+          lines.push(`Total Video,${escapeCsvCell(currentData.metrics.totalVideo)}`);
+          lines.push(`Total Video Disetujui,${escapeCsvCell(currentData.metrics.totalApproved)}`);
+          lines.push("");
+
+          // 3. Rincian Tren Data Harian
+          lines.push("RINCIAN TREN PENAYANGAN KONTEN");
+          lines.push("No,Periode / Tanggal,Jumlah Penayangan (Views),Pertumbuhan (%),Status Tren");
+
+          currentData.chartData.forEach((item, index) => {
+            const trendStatus = item.growth > 0 ? "Kenaikan Positif" : item.growth < 0 ? "Penurunan / Koreksi" : "Stabil";
+            const growthFormatted = item.growth > 0 ? `+${item.growth}%` : `${item.growth}%`;
+            lines.push([
+              index + 1,
+              escapeCsvCell(item.date),
+              item.views,
+              escapeCsvCell(growthFormatted),
+              escapeCsvCell(trendStatus),
+            ].join(","));
+          });
+
+          lines.push("");
+          lines.push("Catatan: Data diperbarui secara berkala berdasarkan performa analitik video terverifikasi pada platform Carpaign.");
+
+          const csvContent = lines.join("\r\n");
+          // Gunakan UTF-8 BOM (\uFEFF) dan MIME text/csv agar langsung dikenali sebagai CSV
+          const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8" });
+          const filename = `laporan_analitik_carpaign_${timeRange}_${dateSlug}.csv`;
+          triggerDownload(blob, filename);
+
+          toast.success("File CSV (.csv) berhasil diunduh", {
+            description: `Laporan analitik periode ${periodLabel} tersimpan sebagai file .csv.`,
+          });
+        } else {
+          // Format Excel (.xls) via XML Spreadsheet
+          const xmlContent = generateXlsContent(
+            periodLabel,
+            formattedDate,
+            currentData.metrics,
+            currentData.chartData
+          );
+          const blob = new Blob([xmlContent], { type: "application/vnd.ms-excel;charset=utf-8" });
+          const filename = `laporan_analitik_carpaign_${timeRange}_${dateSlug}.xls`;
+          triggerDownload(blob, filename);
+
+          toast.success("File Excel (.xls) berhasil diunduh", {
+            description: `Laporan analitik periode ${periodLabel} tersimpan sebagai file .xls.`,
+          });
+        }
       } catch (error) {
-        console.error("Gagal mengunduh CSV:", error);
-        toast.error("Gagal mengunduh file CSV. Silakan coba kembali.");
+        console.error("Gagal mengunduh laporan:", error);
+        toast.error("Gagal mengunduh file laporan. Silakan coba kembali.");
       } finally {
-        setIsExporting(false);
+        setIsExporting(null);
       }
     }, 350);
   };
@@ -233,27 +406,55 @@ export function AnalitikView() {
         custom={0}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
-        <h2 className="text-2xl sm:text-[28px] font-bold text-foreground tracking-tight">
-          Analitik Performa Kamu
-        </h2>
-        <Button
-          variant="outline"
-          onClick={handleExportCSV}
-          disabled={isExporting}
-          className="bg-transparent border-white/10 hover:bg-white/5 text-foreground h-10 px-5 rounded-xl gap-2 font-medium transition-all"
-        >
-          {isExporting ? (
-            <>
-              <Loader2 className="size-4 animate-spin text-primary" />
-              <span>Mengekspor...</span>
-            </>
-          ) : (
-            <>
-              <Download className="size-4 text-primary" />
-              <span>Export CSV</span>
-            </>
-          )}
-        </Button>
+        <div>
+          <h2 className="text-2xl sm:text-[28px] font-bold text-foreground tracking-tight">
+            Analitik Performa Kamu
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Pantau statistik penayangan dan ekspor laporan berkala dalam format CSV atau Excel.
+          </p>
+        </div>
+
+        {/* Action Buttons: Export CSV & Export Excel (.xls) */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => handleExport("csv")}
+            disabled={isExporting !== null}
+            className="bg-transparent border-white/10 hover:bg-white/5 text-foreground h-10 px-4 rounded-xl gap-2 font-medium transition-all text-xs sm:text-sm"
+          >
+            {isExporting === "csv" ? (
+              <>
+                <Loader2 className="size-4 animate-spin text-emerald-400" />
+                <span>Mengekspor...</span>
+              </>
+            ) : (
+              <>
+                <Download className="size-4 text-emerald-400" />
+                <span>Export CSV (.csv)</span>
+              </>
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => handleExport("xls")}
+            disabled={isExporting !== null}
+            className="bg-transparent border-white/10 hover:bg-white/5 text-foreground h-10 px-4 rounded-xl gap-2 font-medium transition-all text-xs sm:text-sm"
+          >
+            {isExporting === "xls" ? (
+              <>
+                <Loader2 className="size-4 animate-spin text-blue-400" />
+                <span>Mengekspor...</span>
+              </>
+            ) : (
+              <>
+                <Download className="size-4 text-blue-400" />
+                <span>Export Excel (.xls)</span>
+              </>
+            )}
+          </Button>
+        </div>
       </motion.div>
 
       {/* 4 Summary Cards */}
