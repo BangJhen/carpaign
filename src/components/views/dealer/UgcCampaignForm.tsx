@@ -208,7 +208,7 @@ export function UgcCampaignForm({
           title,
           promotionalFocus,
           vehicles: selectedVehicles,
-          type: "UGC/Review Konten" as const,
+          type: "UGC/Review" as const,
           budget: numBudget,
           startDate: productionDateRange.split(" - ")[0] || draftDeadline, // fallback to draftDeadline if range format is weird
           deadline: publishDeadline,
@@ -241,11 +241,12 @@ export function UgcCampaignForm({
           }
         };
 
-        await createCampaign(payload);
-        router.push("/dealer/campaigns");
-      } catch (e) {
-        console.error(e);
-        setError("Gagal menyimpan campaign. Silakan coba lagi.");
+        const res = await createCampaign(payload);
+        if (res.success) {
+          router.push("/dealer/campaigns");
+        }
+      } catch (err: any) {
+        setError(err.message || "Gagal menyimpan kampanye");
       }
     });
   };
@@ -257,7 +258,7 @@ export function UgcCampaignForm({
           <ChevronLeft className="size-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-white">Buat Campaign Review / UGC</h1>
+          <h1 className="text-xl font-semibold text-white">Buat Campaign UGC/Review</h1>
           <p className="text-[12px] text-white/40">Membangun kepercayaan dan mendorong sales</p>
         </div>
       </div>

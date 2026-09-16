@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Lock, CheckCircle2, Star, Clock, Settings, Gauge } from "lucide-react";
+import { ChevronRight, Lock, CheckCircle2, Star, Clock, Settings, Gauge, Timer, Layers } from "lucide-react";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -24,15 +24,15 @@ const getTiers = (role: Role) => [
     badgeClass: "from-zinc-700 via-zinc-500 to-zinc-800",
     shadowClass: "shadow-[0_0_30px_rgba(113,113,122,0.3)]",
     textClass: "text-zinc-300",
-    requirements: "0 - 10 Job Selesai",
+    requirements: "0 sampai 10 Job Selesai",
     benefits: role === "creator" ? [
       "Potongan platform 15%",
       "Akses job dasar (Review statis)",
-      "Pencairan dana reguler (3-5 hari kerja)"
+      "Pencairan dana reguler (3 sampai 5 hari kerja)"
     ] : [
       "Potongan platform 15%",
       "Akses raw footage publik",
-      "Pencairan dana reguler (3-5 hari kerja)"
+      "Pencairan dana reguler (3 sampai 5 hari kerja)"
     ],
     unlocked: true,
     isCurrent: false,
@@ -43,7 +43,7 @@ const getTiers = (role: Role) => [
     badgeClass: "from-slate-400 via-slate-200 to-slate-500",
     shadowClass: "shadow-[0_0_40px_rgba(148,163,184,0.6)]",
     textClass: "text-slate-300",
-    requirements: "11 - 50 Job Selesai",
+    requirements: "11 sampai 50 Job Selesai",
     benefits: role === "creator" ? [
       "Potongan platform turun menjadi 10%",
       "Akses job UGC Premium",
@@ -64,7 +64,7 @@ const getTiers = (role: Role) => [
     badgeClass: "from-[#F3D578] via-[#D4AF37] to-[#8C6D1F]",
     shadowClass: "shadow-[0_0_50px_rgba(212,175,55,0.7)]",
     textClass: "text-[#D4AF37]",
-    requirements: "51 - 200 Job Selesai",
+    requirements: "51 sampai 200 Job Selesai",
     benefits: role === "creator" ? [
       "Potongan platform turun menjadi 5%",
       "Undangan eksklusif Test Drive dari Dealer",
@@ -72,7 +72,7 @@ const getTiers = (role: Role) => [
       "Bonus 5% tiap job di atas Rp2.000.000"
     ] : [
       "Potongan platform turun menjadi 5%",
-      "Akses gratis ke Premium AI Auto-Caption/Hook Tools",
+      "Akses gratis ke Tools AI Auto-Caption dan Hook",
       "Dedicated Account Manager",
       "Bonus 5% tiap job di atas Rp2.000.000"
     ],
@@ -85,17 +85,17 @@ const getTiers = (role: Role) => [
     badgeClass: "from-blue-400 via-blue-500 to-indigo-900",
     shadowClass: "shadow-[0_0_40px_rgba(59,130,246,0.5)]",
     textClass: "text-blue-400",
-    requirements: "201 - 500 Job Selesai",
+    requirements: "201 sampai 500 Job Selesai",
     benefits: role === "creator" ? [
       "Potongan platform hanya 2%",
       "Fasilitas peminjaman unit mobil 24 jam untuk konten",
-      "Pinjaman dana produksi (0% interest)",
-      "Free tiket GIIAS / IIMS VIP pass"
+      "Pinjaman dana produksi (0% bunga)",
+      "Free tiket GIIAS dan IIMS VIP pass"
     ] : [
       "Potongan platform hanya 2%",
       "Pencairan dana instan tanpa batas (1 jam)",
-      "Akses API/Plugin distribusi massal",
-      "Free tiket GIIAS / IIMS VIP pass"
+      "Akses API dan Plugin distribusi massal",
+      "Free tiket GIIAS dan IIMS VIP pass"
     ],
     unlocked: false,
     isCurrent: false,
@@ -106,17 +106,17 @@ const getTiers = (role: Role) => [
     badgeClass: "from-red-600 via-red-500 to-black",
     shadowClass: "shadow-[0_0_50px_rgba(239,68,68,0.6)]",
     textClass: "text-red-500",
-    requirements: "> 500 Job Selesai & Rating 4.9+",
+    requirements: "Lebih dari 500 Job Selesai dan Rating 4.9+",
     benefits: role === "creator" ? [
       "0% Potongan platform selamanya",
       "Kontrak Eksklusif Brand Ambassador Dealer",
       "Prioritas akses mobil baru sebelum peluncuran resmi",
-      "Sponsorship peralatan (Kamera, Drone, dll)"
+      "Sponsorship peralatan kamera dan drone"
     ] : [
       "0% Potongan platform selamanya",
       "Retainer eksklusif untuk clipping campaign brand nasional",
-      "Mendapat cut dari profit penjualan unit (Revenue Share)",
-      "Sponsorship peralatan (MacBook Pro, Software M1/M2)"
+      "Mendapat bagian dari profit penjualan unit (Revenue Share)",
+      "Sponsorship peralatan MacBook Pro dan software produksi"
     ],
     unlocked: false,
     isCurrent: false,
@@ -142,7 +142,7 @@ export function RankRewardView() {
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0} className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <h2 className="text-2xl sm:text-[28px] font-bold text-foreground tracking-tight">
-            Engine Class (Rank & Rewards)
+            Engine Class: Peringkat dan Reward
           </h2>
           <p className="text-muted-foreground text-[14px] mt-1">
             Pacu performa Anda. Tingkatkan kelas mesin untuk membuka limit fitur tersembunyi.
@@ -213,7 +213,7 @@ export function RankRewardView() {
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent pt-12 pb-4 flex flex-col items-center justify-center">
             <div className="w-full max-w-[80%] sm:max-w-[400px] bg-black/50 border border-white/5 backdrop-blur-md p-3 rounded-xl flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               <span className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                <Settings className="size-3.5" /> Maintenance In:
+                <Timer className="size-3.5" /> Maintenance In:
               </span>
               <div className="flex items-center gap-1">
                 <span className="text-white font-mono font-bold text-[14px]">14</span>
@@ -247,7 +247,7 @@ export function RankRewardView() {
                 <div className="flex justify-between items-end mb-3">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Job Diselesaikan</span>
-                    <span className="text-2xl font-black text-white">{jobsDone} <span className="text-sm text-muted-foreground font-medium">/ {jobsNeeded}</span></span>
+                    <span className="text-2xl font-black text-white">{jobsDone} <span className="text-sm text-muted-foreground font-medium">dari {jobsNeeded}</span></span>
                   </div>
                   <span className={`text-[13px] font-bold ${nextTier.textClass}`}>
                     {jobsNeeded - jobsDone} Job lagi menuju {nextTier.name.split(" ")[0]}
@@ -275,7 +275,7 @@ export function RankRewardView() {
       {/* Engine Tier List */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={3}>
         <div className="mb-6 flex items-center gap-2">
-          <Settings className="size-5 text-[#D4AF37]" />
+          <Layers className="size-5 text-[#D4AF37]" />
           <h3 className="text-xl font-bold text-foreground tracking-tight">Spesifikasi Seluruh Kelas Mesin</h3>
         </div>
 

@@ -47,8 +47,8 @@ const dealerFaqData = [
     icon: Megaphone,
     items: [
       {
-        q: "Apa perbedaan kampanye Clipping, UGC, dan Videographer?",
-        a: "Kampanye Clipping berfokus pada pendistribusian potongan video pendek dari materi yang sudah ada oleh kreator kliping. UGC (User Generated Content) melibatkan kreator membuat video ulasan asli. Sedangkan Videographer mengharuskan kreator profesional datang langsung ke showroom untuk pengambilan gambar sinematik unit mobil.",
+        q: "Apa perbedaan kampanye Clipping, UGC/Review, dan Videographer/Edit?",
+        a: "Kampanye Clipping berfokus pada pendistribusian klip video pendek dari materi yang sudah ada oleh kreator kliping. UGC/Review melibatkan kreator membuat video ulasan asli dan testimonial autentik. Sedangkan Videographer/Edit mengharuskan kreator atau videografer profesional datang langsung ke showroom untuk pengambilan footage sinematik atau pengeditan materi video.",
       },
       {
         q: "Bagaimana cara menentukan budget dan batas pengumpulan (deadline)?",

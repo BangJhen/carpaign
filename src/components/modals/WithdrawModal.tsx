@@ -182,7 +182,7 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
             ) : success ? (
               <><Check className="size-4 mr-2" /> Berhasil!</>
             ) : (
-              <><Power className="size-4 mr-2" /> Engine Start — Tarik Dana</>
+              <><Power className="size-4 mr-2" /> Konfirmasi Tarik Dana</>
             )}
           </Button>
           <p className="text-center text-xs text-muted-foreground">

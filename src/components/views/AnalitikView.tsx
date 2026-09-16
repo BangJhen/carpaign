@@ -3,7 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, PlayCircle, Megaphone, Video, CheckCircle2, Calendar, ChevronDown } from "lucide-react";
+import { Download, Eye, Megaphone, Video, CheckCircle2, Calendar, ChevronDown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { useState } from "react";
 
@@ -16,43 +16,43 @@ const fadeUp: Variants = {
   }),
 };
 
-// 4 Metric Cards data corresponding to the layout analysis
+// 4 Metric Cards with unified cohesive palette
 const metricCards = [
   {
     label: "Total Views",
     value: "142.5K",
     suffix: "Views",
-    icon: PlayCircle,
-    glowColor: "rgba(242, 101, 34, 0.15)", // Orange
-    waveColor: "from-[#f26522]/0 via-[#f26522]/30 to-[#f26522]/0",
-    valueColor: "text-[#f26522]",
+    icon: Eye,
+    glowColor: "rgba(212, 175, 55, 0.08)",
+    waveColor: "from-primary/0 via-primary/25 to-primary/0",
+    valueColor: "text-foreground",
   },
   {
     label: "Total Campaign",
     value: "12",
     suffix: "Campaign",
     icon: Megaphone,
-    glowColor: "rgba(168, 85, 247, 0.15)", // Purple
-    waveColor: "from-purple-500/0 via-purple-500/30 to-purple-500/0",
-    valueColor: "text-purple-400",
+    glowColor: "rgba(212, 175, 55, 0.06)",
+    waveColor: "from-primary/0 via-primary/20 to-primary/0",
+    valueColor: "text-foreground",
   },
   {
     label: "Total Video",
     value: "45",
     suffix: "Video",
     icon: Video,
-    glowColor: "rgba(59, 130, 246, 0.15)", // Blue
-    waveColor: "from-blue-500/0 via-blue-500/30 to-blue-500/0",
-    valueColor: "text-blue-400",
+    glowColor: "rgba(255, 255, 255, 0.03)",
+    waveColor: "from-white/0 via-white/10 to-white/0",
+    valueColor: "text-foreground",
   },
   {
     label: "Total Approved",
     value: "42",
     suffix: "Videos",
     icon: CheckCircle2,
-    glowColor: "rgba(34, 197, 94, 0.15)", // Green
-    waveColor: "from-green-500/0 via-green-500/30 to-green-500/0",
-    valueColor: "text-green-400",
+    glowColor: "rgba(255, 255, 255, 0.03)",
+    waveColor: "from-white/0 via-white/10 to-white/0",
+    valueColor: "text-foreground",
   },
 ];
 
@@ -63,7 +63,7 @@ const chartData = [
   { date: '8 Aug', views: 9800 },
   { date: '12 Aug', views: 3908 },
   { date: '16 Aug', views: 4800 },
-  { date: '20 Aug', views: 18000 }, // Peak from a viral test drive
+  { date: '20 Aug', views: 18000 },
   { date: '24 Aug', views: 8300 },
   { date: '28 Aug', views: 11000 },
 ];
@@ -144,7 +144,7 @@ export function AnalitikView() {
                   onClick={() => setChartTab("total")}
                   className={`px-6 py-2 rounded-md text-[13px] font-bold transition-all ${
                     chartTab === "total" 
-                    ? "bg-[#f26522] text-white shadow-[0_0_10px_rgba(242,101,34,0.3)]" 
+                    ? "bg-primary text-primary-foreground shadow-[0_0_10px_rgba(212,175,55,0.3)]" 
                     : "text-muted-foreground hover:text-white"
                   }`}
                 >
@@ -154,7 +154,7 @@ export function AnalitikView() {
                   onClick={() => setChartTab("kenaikan")}
                   className={`px-6 py-2 rounded-md text-[13px] font-bold transition-all ${
                     chartTab === "kenaikan" 
-                    ? "bg-[#f26522] text-white shadow-[0_0_10px_rgba(242,101,34,0.3)]" 
+                    ? "bg-primary text-primary-foreground shadow-[0_0_10px_rgba(212,175,55,0.3)]" 
                     : "text-muted-foreground hover:text-white"
                   }`}
                 >
@@ -182,8 +182,8 @@ export function AnalitikView() {
               >
                 <defs>
                   <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f26522" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#f26522" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -210,16 +210,16 @@ export function AnalitikView() {
                     boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
                     color: '#fff'
                   }}
-                  itemStyle={{ color: '#f26522', fontWeight: 'bold' }}
+                  itemStyle={{ color: '#D4AF37', fontWeight: 'bold' }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="views" 
-                  stroke="#f26522" 
+                  stroke="#D4AF37" 
                   strokeWidth={3}
                   fillOpacity={1} 
                   fill="url(#colorViews)" 
-                  activeDot={{ r: 6, fill: '#f26522', stroke: '#fff', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: '#D4AF37', stroke: '#fff', strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>

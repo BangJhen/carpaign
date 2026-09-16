@@ -18,7 +18,22 @@ export default async function CreatorProfilePage() {
 
   if (session?.user?.id) {
     const rows = await db
-      .select()
+      .select({
+        fullName: creatorProfiles.fullName,
+        username: creatorProfiles.username,
+        phone: creatorProfiles.phone,
+        city: creatorProfiles.city,
+        bio: creatorProfiles.bio,
+        bankName: creatorProfiles.bankName,
+        accountNumber: creatorProfiles.accountNumber,
+        accountHolderName: creatorProfiles.accountHolderName,
+        tiktokUsername: creatorProfiles.tiktokUsername,
+        instagramUsername: creatorProfiles.instagramUsername,
+        youtubeUsername: creatorProfiles.youtubeUsername,
+        avatarImage: creatorProfiles.avatarImage,
+        coverImage: creatorProfiles.coverImage,
+        referralCode: creatorProfiles.referralCode,
+      })
       .from(creatorProfiles)
       .where(eq(creatorProfiles.userId, session.user.id));
     if (rows.length > 0) {
@@ -28,3 +43,4 @@ export default async function CreatorProfilePage() {
 
   return <ProfileView initialProfile={profile} />;
 }
+

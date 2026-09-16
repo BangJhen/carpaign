@@ -13,6 +13,7 @@ import {
   Users,
   CircleDollarSign,
   CheckCircle2,
+  Check,
   FileText,
   Wrench,
   Car,
@@ -129,7 +130,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                 <span className="text-[13px] font-semibold text-white">{campaign.location}</span>
               </div>
               <div className="flex items-center gap-2 bg-[#111316] border border-white/5 rounded-xl px-4 py-2.5">
-                <Clock className="size-4 text-blue-400" />
+                <Clock className="size-4 text-[#D4AF37]" />
                 <span className="text-[13px] font-semibold text-white">Deadline: {campaign.deadline}</span>
               </div>
               {campaign.tags.map((tag) => (
@@ -184,7 +185,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                   {campaign.requirements.map((req, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="size-5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 flex items-center justify-center shrink-0 mt-0.5">
-                        <CheckCircle2 className="size-3 text-[#D4AF37]" />
+                        <Check className="size-3 text-[#D4AF37]" />
                       </div>
                       <span className="text-[14px] text-white/80 leading-relaxed">{req}</span>
                     </div>
@@ -207,7 +208,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                     <Car className="size-5 text-[#D4AF37]" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest">Dealer / Brand</p>
+                    <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest">Dealer dan Brand</p>
                     <p className="text-[15px] font-bold text-white leading-tight">{campaign.brand}</p>
                   </div>
                 </div>

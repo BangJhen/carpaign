@@ -201,7 +201,7 @@ export function VideographyCampaignForm({
           title,
           promotionalFocus,
           vehicles: selectedVehicles,
-          type: "Videographer" as const,
+          type: "Videographer/Edit" as const,
           budget: numFeeAmount,
           startDate: productionSchedule.split(" - ")[0] || sourceMaterialDate || draftDeadline,
           deadline: finalDeadline,
@@ -236,11 +236,13 @@ export function VideographyCampaignForm({
           }
         };
 
-        await createCampaign(payload);
-        router.push("/dealer/campaigns");
-      } catch (e) {
+        const res = await createCampaign(payload);
+        if (res.success) {
+          router.push("/dealer/campaigns");
+        }
+      } catch (e: any) {
         console.error(e);
-        setError("Gagal menyimpan campaign. Silakan coba lagi.");
+        setError(e.message || "Gagal menyimpan campaign. Silakan coba lagi.");
       }
     });
   };
@@ -252,7 +254,7 @@ export function VideographyCampaignForm({
           <ChevronLeft className="size-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-white">Buat Campaign Videography / Edit</h1>
+          <h1 className="text-xl font-semibold text-white">Buat Campaign Videographer/Edit</h1>
           <p className="text-[12px] text-white/40">Produksi aset konten visual untuk dealer</p>
         </div>
       </div>

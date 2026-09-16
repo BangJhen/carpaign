@@ -70,7 +70,7 @@ const DEFAULT_CREATOR_NOTIFICATIONS: NotificationItem[] = [
     message: "BMW 330i M Sport: Review video UGC Anda telah disetujui oleh BMW Tunas.",
     time: "2 menit lalu",
     unread: true,
-    link: "/konten",
+    link: "/creator/campaigns",
   },
   {
     id: "creator-2",
@@ -79,7 +79,7 @@ const DEFAULT_CREATOR_NOTIFICATIONS: NotificationItem[] = [
     message: "Pembayaran Rp3.500.000 berhasil ditransfer ke rekening BCA Anda.",
     time: "1 jam lalu",
     unread: true,
-    link: "/earnings",
+    link: "/creator/pendapatan",
   },
   {
     id: "creator-3",
@@ -88,7 +88,7 @@ const DEFAULT_CREATOR_NOTIFICATIONS: NotificationItem[] = [
     message: "Auto2000 Sudirman membuka slot video untuk Toyota Alphard 2025.",
     time: "3 jam lalu",
     unread: false,
-    link: "/campaigns",
+    link: "/creator/campaigns",
   },
   {
     id: "creator-4",
@@ -97,7 +97,7 @@ const DEFAULT_CREATOR_NOTIFICATIONS: NotificationItem[] = [
     message: "Selamat, performa Anda meningkat ke tier V6 Engine dengan penyesuaian rate.",
     time: "Kemarin",
     unread: false,
-    link: "/tier",
+    link: "/creator/rank-rewards",
   },
 ];
 
@@ -294,12 +294,12 @@ export function NotificationDropdown({
                         notif.unread ? "bg-white/[0.015]" : "opacity-80 hover:opacity-100"
                       }`}
                     >
-                      {/* Minimal Unread Dot */}
-                      <div className="pt-1.5 shrink-0">
+                      {/* Unread Indicator Bar */}
+                      <div className="pt-1 shrink-0">
                         <div
-                          className={`size-2 rounded-full transition-colors ${
+                          className={`w-1 h-3.5 rounded-full transition-colors ${
                             notif.unread
-                              ? "bg-white shadow-[0_0_6px_rgba(255,255,255,0.6)]"
+                              ? "bg-[#D4AF37]"
                               : "bg-transparent"
                           }`}
                         />

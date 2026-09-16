@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Eye, Video, Star, Medal, ArrowUp, ArrowDown, User } from "lucide-react";
+import { Trophy, ArrowUp, ArrowDown, User } from "lucide-react";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -112,7 +112,7 @@ export function LeaderboardView() {
         <div className="w-[30%] sm:w-[240px] flex flex-col items-center">
           <div className="relative size-16 sm:size-24 rounded-full bg-[#111316] border-4 border-slate-300 z-10 flex items-center justify-center -mb-8 sm:-mb-12 shadow-[0_0_30px_rgba(203,213,225,0.3)]">
             <span className="text-xl sm:text-3xl font-black text-slate-300">{top3[1].avatar}</span>
-            <div className="absolute -bottom-3 bg-slate-300 text-black text-[10px] sm:text-[12px] font-black px-3 rounded-full border-2 border-[#111316]">#2</div>
+            <div className="absolute -bottom-3 bg-slate-300 text-black text-[10px] sm:text-[12px] font-black px-3 rounded-full border-2 border-[#111316]">2</div>
           </div>
           <Card className={`w-full ${getPodiumStyles(2).height} bg-gradient-to-t from-[#111316] to-[#1a1c22] border-t-2 border-slate-300/50 rounded-t-xl rounded-b-none flex flex-col items-center justify-end pb-6 sm:pb-8 pt-10 sm:pt-14`}>
             <h3 className="text-[12px] sm:text-[16px] font-bold text-white text-center truncate w-full px-2">{top3[1].name}</h3>
@@ -130,7 +130,7 @@ export function LeaderboardView() {
           <div className="relative size-20 sm:size-32 rounded-full bg-[#111316] border-[4px] sm:border-[6px] border-[#D4AF37] z-20 flex items-center justify-center -mb-10 sm:-mb-16 shadow-[0_0_50px_rgba(212,175,55,0.6)]">
             <Trophy className="absolute -top-6 sm:-top-10 size-8 sm:size-12 text-[#D4AF37] drop-shadow-[0_0_15px_rgba(212,175,55,1)]" />
             <span className="text-2xl sm:text-4xl font-black text-[#D4AF37]">{top3[0].avatar}</span>
-            <div className="absolute -bottom-3 sm:-bottom-4 bg-[#D4AF37] text-black text-[12px] sm:text-[14px] font-black px-4 rounded-full border-2 border-[#111316]">#1</div>
+            <div className="absolute -bottom-3 sm:-bottom-4 bg-[#D4AF37] text-black text-[12px] sm:text-[14px] font-black px-4 rounded-full border-2 border-[#111316]">1</div>
           </div>
           <Card className={`w-full ${getPodiumStyles(1).height} bg-gradient-to-t from-[#111316] to-[#1e1c15] border-t-2 border-[#D4AF37] rounded-t-xl rounded-b-none flex flex-col items-center justify-end pb-8 sm:pb-12 pt-14 sm:pt-20 shadow-[0_-10px_40px_rgba(212,175,55,0.15)] z-10`}>
             <h3 className="text-[14px] sm:text-[18px] font-black text-white text-center truncate w-full px-2">{top3[0].name}</h3>
@@ -147,7 +147,7 @@ export function LeaderboardView() {
         <div className="w-[30%] sm:w-[240px] flex flex-col items-center">
           <div className="relative size-16 sm:size-24 rounded-full bg-[#111316] border-4 border-[#CD7F32] z-10 flex items-center justify-center -mb-8 sm:-mb-12 shadow-[0_0_30px_rgba(205,127,50,0.3)]">
             <span className="text-xl sm:text-3xl font-black text-[#CD7F32]">{top3[2].avatar}</span>
-            <div className="absolute -bottom-3 bg-[#CD7F32] text-black text-[10px] sm:text-[12px] font-black px-3 rounded-full border-2 border-[#111316]">#3</div>
+            <div className="absolute -bottom-3 bg-[#CD7F32] text-black text-[10px] sm:text-[12px] font-black px-3 rounded-full border-2 border-[#111316]">3</div>
           </div>
           <Card className={`w-full ${getPodiumStyles(3).height} bg-gradient-to-t from-[#111316] to-[#1f1915] border-t-2 border-[#CD7F32]/50 rounded-t-xl rounded-b-none flex flex-col items-center justify-end pb-6 sm:pb-8 pt-10 sm:pt-14`}>
             <h3 className="text-[12px] sm:text-[16px] font-bold text-white text-center truncate w-full px-2">{top3[2].name}</h3>

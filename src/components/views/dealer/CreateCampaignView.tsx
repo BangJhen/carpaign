@@ -17,15 +17,15 @@ const CAMPAIGN_TYPES: { value: CampaignType; title: string; description: string;
     icon: Scissors,
   },
   {
-    value: "UGC/Review Konten",
-    title: "Review / UGC",
+    value: "UGC/Review",
+    title: "UGC/Review",
     objective: "Mendukung peningkatan sales",
     description: "Konten kreator yang menjelaskan produk dan membangun kepercayaan calon pembeli",
     icon: Video,
   },
   {
-    value: "Videographer",
-    title: "Videography / Edit",
+    value: "Videographer/Edit",
+    title: "Videographer/Edit",
     objective: "Memenuhi kebutuhan konten",
     description: "Jasa pengambilan footage, produksi video, atau pengeditan konten",
     icon: Camera,
@@ -87,10 +87,10 @@ export function CreateCampaignView({ vehicles }: { vehicles: Vehicle[] }) {
             {selectedType === "Clipping" && (
               <ClippingCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
-            {selectedType === "UGC/Review Konten" && (
+            {selectedType === "UGC/Review" && (
               <UgcCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
-            {selectedType === "Videographer" && (
+            {selectedType === "Videographer/Edit" && (
               <VideographyCampaignForm onBack={() => setSelectedType("")} vehicles={vehicles} />
             )}
           </motion.div>

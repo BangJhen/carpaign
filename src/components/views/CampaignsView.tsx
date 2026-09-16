@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Video, Scissors, Film, Share2, Search, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { campaigns } from "@/lib/campaigns-data";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -28,20 +28,20 @@ const fadeUp: Variants = {
 };
 
 const jobTypes = [
-  { id: "all", label: "Semua", icon: Search, color: "text-muted-foreground" },
-  { id: "clipping", label: "Clipping", icon: Scissors, color: "text-muted-foreground" },
-  { id: "ugc", label: "UGC/Review Konten", icon: Video, color: "text-muted-foreground" },
-  { id: "videographer", label: "Videographer", icon: Camera, color: "text-muted-foreground" },
+  { id: "all", label: "Semua", icon: LayoutGrid, color: "text-muted-foreground", campaignType: "all" },
+  { id: "clipping", label: "Clipping", icon: Scissors, color: "text-muted-foreground", campaignType: "Clipping" },
+  { id: "ugc", label: "UGC/Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC/Review" },
+  { id: "videographer", label: "Videographer/Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Videographer/Edit" },
 ];
 
 const featuredCampaigns = [
   {
     id: 1,
     image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1600",
-    title: "BMW X5 Test Drive & Review Experience",
+    title: "BMW X5 Test Drive dan Review Experience",
     brand: "BMW Tunas",
     brandLogo: "BMW",
-    type: "TEST DRIVE / UGC",
+    type: "UGC/Review",
     reward: "Rp5.000",
   },
   {
@@ -50,7 +50,7 @@ const featuredCampaigns = [
     title: "Lexus RX Luxury Review",
     brand: "Lexus Gallery",
     brandLogo: "L",
-    type: "SHOOT / REVIEW",
+    type: "Videographer/Edit",
     reward: "Rp7.500",
   },
   {
@@ -59,7 +59,7 @@ const featuredCampaigns = [
     title: "Porsche 911 Carrera S Cinematic",
     brand: "Porsche Centre",
     brandLogo: "P",
-    type: "EDIT / CINEMATIC",
+    type: "Clipping",
     reward: "Rp10.000",
   }
 ];
@@ -71,9 +71,10 @@ export function CampaignsView() {
 
   const goToJob = (id: number) => router.push(`/creator/campaigns/${id}`);
 
+  const selectedJobType = jobTypes.find(t => t.id === activeTab);
   const filteredCampaigns = activeTab === "all" 
     ? campaigns 
-    : campaigns.filter(c => c.type.toLowerCase() === activeTab);
+    : campaigns.filter(c => c.type === selectedJobType?.campaignType);
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
@@ -107,7 +108,7 @@ export function CampaignsView() {
 
                 {/* Content Overlay */}
                 <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-[700px]">
-                  <Badge className="bg-[#f26522] hover:bg-[#d6571a] text-white font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(242,101,34,0.4)]">
+                  <Badge className="bg-primary text-primary-foreground font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(212,175,55,0.3)]">
                     FEATURED
                   </Badge>
 
@@ -124,7 +125,6 @@ export function CampaignsView() {
                       </div>
                       <span className="text-sm font-semibold text-white/90">{featured.brand}</span>
                     </div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                     <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3">
                       {featured.type}
                     </Badge>
@@ -136,13 +136,13 @@ export function CampaignsView() {
                     <div>
                       <p className="text-sm font-medium text-white/60 mb-0.5">Reward</p>
                       <p className="text-2xl font-bold text-white tracking-tight">
-                        {featured.reward} <span className="text-sm font-normal text-white/70">/ 1K Views</span>
+                        {featured.reward} <span className="text-sm font-normal text-white/70">per 1.000 Views</span>
                       </p>
                     </div>
                     
                     <Button
                       onClick={() => goToJob(featured.id)}
-                      className="bg-[#f26522] hover:bg-[#d6571a] text-white font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(242,101,34,0.25)] transition-all sm:ml-auto w-full sm:w-auto z-10"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(212,175,55,0.2)] transition-all sm:ml-auto w-full sm:w-auto z-10"
                     >
                       Lihat Detail
                     </Button>
@@ -154,8 +154,8 @@ export function CampaignsView() {
 
           {/* Navigation Arrows */}
           <div className="absolute bottom-6 right-8 sm:right-12 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <CarouselPrevious className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
-            <CarouselNext className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-[#f26522] border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
+            <CarouselPrevious className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-primary hover:text-black border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
+            <CarouselNext className="static translate-y-0 size-10 rounded-full bg-black/40 hover:bg-primary hover:text-black border border-white/10 hover:border-transparent text-white backdrop-blur-md transition-all" />
           </div>
         </Carousel>
       </motion.div>
@@ -193,7 +193,7 @@ export function CampaignsView() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div className="flex items-center gap-3">
             <h3 className="text-[19px] font-semibold text-foreground tracking-tight">
-              {activeTab === 'all' ? 'Semua Job Tersedia' : `Job ${activeTab.toUpperCase()} Tersedia`}
+              {activeTab === 'all' ? 'Semua Job Tersedia' : `Job ${selectedJobType?.label} Tersedia`}
             </h3>
             <Badge variant="secondary" className="bg-[#15171A] text-muted-foreground border-white/5">
               {filteredCampaigns.length} Job

@@ -43,7 +43,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
             <Zap className="size-7 text-[#D4AF37] fill-[#D4AF37]/20" />
           </div>
           <DialogTitle className="text-xl font-black text-white">
-            Undang & Cuan Bareng
+            Undang Teman Kreator
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-[320px]">
             Ajak kreator otomotif bergabung. Setiap teman aktif yang mendaftar, Anda mendapat{" "}
@@ -117,7 +117,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
                 onClick={() => window.open(`https://twitter.com/intent/tweet?text=Cuan%20konten%20otomotif%20bareng%20Carpaign!&url=${REFERRAL_LINK}`, "_blank")}
               >
                 <Share2 className="size-4 text-sky-400" />
-                X / Twitter
+                Twitter atau X
               </Button>
             </div>
           </div>

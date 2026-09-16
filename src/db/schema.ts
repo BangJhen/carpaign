@@ -9,7 +9,7 @@ import {
 import { user } from "./auth-schema";
 
 export type CampaignStatus = "active" | "draft" | "completed" | "cancelled";
-export type CampaignType = "Clipping" | "UGC/Review Konten" | "Videographer";
+export type CampaignType = "Clipping" | "UGC/Review" | "Videographer/Edit";
 
 export const campaigns = pgTable("campaigns", {
   id: text("id")
@@ -121,6 +121,7 @@ export const creatorProfiles = pgTable("creator_profiles", {
   youtubeUsername: text("youtube_username"),
   avatarImage: text("avatar_image"),
   coverImage: text("cover_image"),
+  referralCode: text("referral_code").unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Info, ShieldAlert, CreditCard, HelpCircle } from "lucide-react";
+import { UserCheck, ShieldAlert, CreditCard, Briefcase } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -16,12 +16,12 @@ const fadeUp = {
 
 const faqData = [
   {
-    category: "Pendaftaran & Akun",
-    icon: Info,
+    category: "Pendaftaran dan Akun",
+    icon: UserCheck,
     items: [
       {
         q: "Bagaimana cara menjadi kreator di Carpaign?",
-        a: "Anda cukup mendaftar dengan akun Google, lengkapi profil media sosial Anda (TikTok/Instagram/YouTube), dan tim kami akan melakukan verifikasi dalam 1x24 jam."
+        a: "Anda cukup mendaftar dengan akun Google, lengkapi profil media sosial Anda (TikTok, Instagram, atau YouTube), dan tim kami akan melakukan verifikasi dalam 1x24 jam."
       },
       {
         q: "Apakah ada syarat jumlah followers?",
@@ -30,26 +30,26 @@ const faqData = [
     ]
   },
   {
-    category: "Mekanisme Campaign & Job",
-    icon: HelpCircle,
+    category: "Mekanisme Campaign dan Job",
+    icon: Briefcase,
     items: [
       {
         q: "Berapa lama batas waktu pengerjaan job?",
-        a: "Mayoritas job memberikan tenggat waktu (deadline) 3 - 7 hari sejak job di-approve oleh admin. Detail spesifik selalu tertera pada halaman masing-masing job."
+        a: "Mayoritas job memberikan tenggat waktu (deadline) 3 sampai 7 hari sejak job disetujui. Detail spesifik selalu tertera pada halaman masing-masing job."
       },
       {
         q: "Apakah saya perlu datang ke dealer untuk semua job?",
-        a: "Tidak. Hanya job berkategori 'SHOOT' yang umumnya mengharuskan Anda datang ke lokasi/dealer. Kategori seperti EDIT, CLIP, atau PUBLISH bisa dikerjakan secara remote."
+        a: "Tidak. Hanya job berkategori SHOOT yang umumnya mengharuskan Anda datang ke lokasi showroom atau dealer. Kategori seperti EDIT, CLIP, atau PUBLISH bisa dikerjakan secara remote."
       }
     ]
   },
   {
-    category: "Pencairan Dana & Saldo",
+    category: "Pencairan Dana dan Saldo",
     icon: CreditCard,
     items: [
       {
-        q: "Kapan saya bisa mencairkan dana (Withdraw)?",
-        a: "Dana dapat dicairkan kapan saja asalkan batas minimum penarikan (Rp50.000) telah terpenuhi. Proses transfer biasanya memakan waktu 1x24 jam di hari kerja."
+        q: "Kapan saya bisa mencairkan dana saldo?",
+        a: "Dana dapat dicairkan kapan saja asalkan batas minimum penarikan (Rp50.000) telah terpenuhi. Proses transfer biasanya memakan waktu 1 hari kerja."
       },
       {
         q: "Apakah ada biaya admin saat pencairan?",
@@ -58,16 +58,16 @@ const faqData = [
     ]
   },
   {
-    category: "Peraturan & Pelanggaran",
+    category: "Peraturan dan Ketentuan",
     icon: ShieldAlert,
     items: [
       {
         q: "Apa yang terjadi jika saya terlambat mengumpulkan tugas?",
-        a: "Keterlambatan berturut-turut akan menurunkan Trust Score akun Anda, yang dapat berakibat pada penalti berupa pemotongan reward hingga penangguhan akun (suspend)."
+        a: "Keterlambatan berturut-turut akan menurunkan Trust Score akun Anda, yang dapat berakibat pada penalti berupa pemotongan reward hingga penangguhan akun."
       },
       {
         q: "Bolehkah saya menghapus konten setelah dibayar?",
-        a: "Sangat dilarang. Konten harus tayang secara permanen kecuali ada instruksi khusus dari brand/dealer. Penghapusan konten secara sepihak akan mengakibatkan pemblokiran akun dan penarikan saldo."
+        a: "Sangat dilarang. Konten harus tayang secara permanen kecuali ada instruksi khusus dari brand atau dealer. Penghapusan konten secara sepihak akan mengakibatkan pemblokiran akun dan penarikan saldo."
       }
     ]
   }
@@ -77,7 +77,7 @@ export function FaqView() {
   return (
     <div className="flex flex-col gap-8 max-w-[800px] mx-auto w-full pb-20">
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0} className="text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">FAQ & Peraturan</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">FAQ dan Peraturan</h2>
         <p className="text-muted-foreground">Temukan jawaban untuk pertanyaan umum dan aturan main di Carpaign.</p>
       </motion.div>
 

@@ -14,7 +14,8 @@ import {
   HelpCircle,
   ChevronRight,
   Medal,
-  LogOut
+  LogOut,
+  Car
 } from "lucide-react";
 import {
   Sidebar,
@@ -132,8 +133,8 @@ export function AppSidebar() {
                   render={<Link href="/creator/campaigns" />}
                   className="h-auto py-2.5 px-3 text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all rounded-lg flex items-center gap-3"
                 >
-                  <div className="size-10 rounded bg-muted/20 border border-white/5 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] text-muted-foreground/50">Car</span>
+                  <div className="size-10 rounded bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <Car className="size-4 text-white/50" />
                   </div>
                   <div className="flex flex-col gap-0.5 overflow-hidden">
                     <span className="text-sm font-medium text-foreground truncate">Falcon Pictures</span>

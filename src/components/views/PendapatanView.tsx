@@ -3,7 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, ArrowUpRight, ArrowDownRight, Clock, Car, ChevronRight, Power, Activity } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight, Clock, Car, ChevronRight, Power, Activity, Landmark } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useState } from "react";
 import { WithdrawModal } from "@/components/modals/WithdrawModal";
@@ -40,7 +40,7 @@ const transactions = [
   },
   {
     id: "TRX-8271",
-    vehicle: "Penarikan Dana (Withdrawal)",
+    vehicle: "Penarikan Dana ke Rekening Bank",
     type: "Transfer ke BCA",
     dealer: "Admin Carpaign",
     amount: "- Rp3.500.000",
@@ -139,11 +139,11 @@ export function PendapatanView() {
         {/* Secondary Metrics */}
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={1} className="w-full lg:w-1/3 flex flex-col gap-6">
           <Card className="bg-[#111316] border-white/5 rounded-[20px] overflow-hidden relative group">
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardContent className="p-6 flex flex-col h-full justify-center">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-emerald-500/10">
-                  <ArrowUpRight className="size-5 text-emerald-400" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ArrowUpRight className="size-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-muted-foreground">Pemasukan Tertunda</h3>
@@ -155,7 +155,7 @@ export function PendapatanView() {
           </Card>
 
           <Card className="bg-[#111316] border-white/5 rounded-[20px] overflow-hidden relative group grow">
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
             <CardContent className="p-6 flex flex-col h-full justify-center">
               <h3 className="text-sm font-semibold text-muted-foreground mb-4">Target Tier Berikutnya (Pro)</h3>
               <div className="mb-2 flex justify-between items-center text-[12px] font-bold">
@@ -245,11 +245,11 @@ export function PendapatanView() {
                   <CardContent className="p-4 sm:p-5 flex items-center gap-4">
                     
                     {/* Icon based on type */}
-                    <div className={`shrink-0 size-10 sm:size-12 rounded-full flex items-center justify-center ${trx.isPositive ? 'bg-[#D4AF37]/10' : 'bg-red-500/10'}`}>
+                    <div className={`shrink-0 size-10 sm:size-12 rounded-full flex items-center justify-center ${trx.isPositive ? 'bg-[#D4AF37]/10' : 'bg-white/5 border border-white/10'}`}>
                       {trx.isPositive ? (
                         <Car className="size-4 sm:size-5 text-[#D4AF37]" />
                       ) : (
-                        <Wallet className="size-4 sm:size-5 text-red-400" />
+                        <Landmark className="size-4 sm:size-5 text-white/80" />
                       )}
                     </div>
 
@@ -257,7 +257,7 @@ export function PendapatanView() {
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <h4 className="text-[14px] sm:text-[15px] font-bold text-foreground truncate">{trx.vehicle}</h4>
-                        <span className={`shrink-0 text-[14px] sm:text-[15px] font-bold tracking-tight ${trx.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <span className={`shrink-0 text-[14px] sm:text-[15px] font-bold tracking-tight ${trx.isPositive ? 'text-[#D4AF37]' : 'text-muted-foreground'}`}>
                           {trx.amount}
                         </span>
                       </div>

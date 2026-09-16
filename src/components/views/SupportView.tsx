@@ -36,7 +36,7 @@ export function SupportView() {
                 </div>
                 <div>
                   <h3 className="font-bold text-foreground mb-1">WhatsApp Admin</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Fast response (Senin - Jumat, 09:00 - 17:00 WIB)</p>
+                  <p className="text-xs text-muted-foreground mb-4">Respon cepat (Senin sampai Jumat, 09:00 sampai 17:00 WIB)</p>
                   <Button className="w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/20">
                     Chat Sekarang
                   </Button>
@@ -82,9 +82,9 @@ export function SupportView() {
                       <SelectValue placeholder="Pilih Kendala" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="payment">Pencairan Dana (Withdrawal)</SelectItem>
+                      <SelectItem value="payment">Pencairan Dana Saldo</SelectItem>
                       <SelectItem value="campaign">Masalah Submit Campaign</SelectItem>
-                      <SelectItem value="account">Kendala Akun / Profile</SelectItem>
+                      <SelectItem value="account">Kendala Akun dan Profil</SelectItem>
                       <SelectItem value="other">Lainnya</SelectItem>
                     </SelectContent>
                   </Select>

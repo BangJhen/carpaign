@@ -24,6 +24,19 @@ export type UpdateCreatorProfileInput = {
   coverImage?: string;
 };
 
+/** Generate a URL-safe referral code like "rian-pratama-a3f7" */
+function generateReferralCode(name?: string | null): string {
+  const base = (name || "kreator")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .join("-");
+  const suffix = Math.random().toString(16).slice(2, 6);
+  return `${base}-${suffix}`;
+}
+
 export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
   const session = await auth.api.getSession({ headers: await headers() });
 
@@ -43,10 +56,29 @@ export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
       .set(input)
       .where(eq(creatorProfiles.userId, session.user.id));
   } else {
+    // Auto-generate referral code on first create
+    const referralCode = generateReferralCode(
+      input.fullName || session.user.name
+    );
     await db.insert(creatorProfiles).values({
       userId: session.user.id,
+      referralCode,
       ...input,
     });
+  }
+
+  // Also ensure referral code is generated if existing profile has none
+  if (
+    existingProfile.length > 0 &&
+    !existingProfile[0].referralCode
+  ) {
+    const referralCode = generateReferralCode(
+      input.fullName || existingProfile[0].fullName || session.user.name
+    );
+    await db
+      .update(creatorProfiles)
+      .set({ referralCode })
+      .where(eq(creatorProfiles.userId, session.user.id));
   }
 
   // Sync user name, avatar, and coverImage if provided
@@ -62,7 +94,20 @@ export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
       .where(eq(user.id, session.user.id));
   }
 
-  revalidatePath("/profile");
-  revalidatePath("/dashboard");
+  revalidatePath("/creator/profile");
+  revalidatePath("/creator/dashboard");
   return { success: true };
+}
+
+/** Fetch the referral code for the current logged-in creator */
+export async function getMyReferralCode(): Promise<string | null> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) return null;
+
+  const rows = await db
+    .select({ referralCode: creatorProfiles.referralCode })
+    .from(creatorProfiles)
+    .where(eq(creatorProfiles.userId, session.user.id));
+
+  return rows[0]?.referralCode ?? null;
 }

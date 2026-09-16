@@ -79,10 +79,9 @@ const MONTHLY_PERFORMANCE_DATA = [
 ];
 
 const CAMPAIGN_DISTRIBUTION_DATA = [
-  { type: "UGC Challenge", count: 6, creators: 24, views: 78000 },
-  { type: "Sinematik", count: 4, creators: 14, views: 52000 },
-  { type: "Edit Video", count: 3, creators: 9, views: 26000 },
-  { type: "Clipping", count: 2, creators: 8, views: 18000 },
+  { type: "Clipping", count: 4, creators: 16, views: 36000 },
+  { type: "UGC/Review", count: 6, creators: 24, views: 78000 },
+  { type: "Videographer/Edit", count: 5, creators: 18, views: 62000 },
 ];
 
 const RECENT_SUBMISSIONS_PREVIEW = [

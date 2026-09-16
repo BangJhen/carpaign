@@ -16,10 +16,10 @@ import {
   Wallet,
   Check,
   Loader2,
-  PlaySquare,
+  Film,
   ShieldCheck,
-  Building2,
-  Sparkles,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import {
   Select,
@@ -68,6 +68,7 @@ export type CreatorProfileData = {
   youtubeUsername: string | null;
   avatarImage?: string | null;
   coverImage?: string | null;
+  referralCode?: string | null;
 };
 
 export function ProfileView({
@@ -99,6 +100,16 @@ export function ProfileView({
     avatarImage: initialProfile?.avatarImage || (session?.user as any)?.image || "",
     coverImage: initialProfile?.coverImage || (session?.user as any)?.coverImage || "",
   });
+
+  const referralCode = initialProfile?.referralCode ?? null;
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/c/${referralCode}`;
+    navigator.clipboard.writeText(url).catch(() => {});
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2500);
+  };
 
   const [isPending, startTransition] = useTransition();
 
@@ -290,13 +301,13 @@ export function ProfileView({
                 {/* Portfolio Modal Dialog */}
                 <Dialog>
                   <DialogTrigger className="inline-flex h-9 items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 px-4 text-xs font-semibold text-white transition-all gap-1.5">
-                    <PlaySquare className="size-3.5 text-white/70" />
+                    <Film className="size-3.5 text-white/70" />
                     <span>Lihat Portofolio</span>
                   </DialogTrigger>
                   <DialogContent className="bg-[#111316] border-white/10 text-white max-w-2xl rounded-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-base font-semibold flex items-center gap-2">
-                        <PlaySquare className="size-4 text-white" />
+                        <Film className="size-4 text-white" />
                         <span>Portofolio Konten Kreator</span>
                       </DialogTitle>
                     </DialogHeader>
@@ -355,7 +366,49 @@ export function ProfileView({
         </Card>
       </motion.div>
 
-      {/* Main Form Grids */}
+      {/* Public Shortlink Card */}
+      {referralCode && (
+        <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0.5}>
+          <div className="relative overflow-hidden rounded-2xl bg-[#0f1114] border border-[#D4AF37]/15 p-5 sm:p-6">
+            <div className="absolute top-0 left-[15%] right-[15%] h-[50px] bg-[#D4AF37]/5 blur-2xl pointer-events-none" />
+            <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-[11px] font-bold text-[#D4AF37] uppercase tracking-[0.15em]">
+                  Link Portofolio Publik
+                </p>
+                <p className="text-xs text-white/50 leading-relaxed">
+                  Bagikan link ini kepada dealer agar mereka dapat melihat profil dan statistik Anda.
+                </p>
+                <p className="text-sm font-mono text-white/80 truncate mt-1">
+                  {typeof window !== "undefined" ? `${window.location.origin}/c/${referralCode}` : `/c/${referralCode}`}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href={`/c/${referralCode}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+                >
+                  <ExternalLink className="size-3.5" />
+                  <span>Lihat</span>
+                </a>
+                <button
+                  onClick={handleCopyLink}
+                  className={`inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold transition-all ${
+                    linkCopied
+                      ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
+                      : "bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[#D4AF37] hover:bg-[#D4AF37]/20"
+                  }`}
+                >
+                  {linkCopied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                  <span>{linkCopied ? "Disalin" : "Salin"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Columns: Personal Info & Payout Accounts */}
         <div className="lg:col-span-2 flex flex-col gap-6">

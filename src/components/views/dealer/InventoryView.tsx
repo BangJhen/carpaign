@@ -326,7 +326,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
               Belum Ada Unit Kendaraan
             </h3>
             <p className="text-white/40 text-sm max-w-md mb-6">
-              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Review/UGC, Clipping, atau Video Production.
+              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Clipping, UGC/Review, atau Videographer/Edit.
             </p>
             <Button
               onClick={handleOpenAdd}

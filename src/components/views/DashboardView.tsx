@@ -5,10 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, Video, Wallet, Banknote, Flame, Gift, Info, ChevronRight, RefreshCw, Filter, Music, Camera, PlaySquare, MessageCircle, Users } from "lucide-react";
+import { Eye, Video, Wallet, Banknote, Flame, Gift, Info, ChevronRight, RefreshCw, Filter } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -25,42 +27,42 @@ const metricCards = [
     value: "Rp0",
     icon: Wallet,
     accent: "bg-primary/20",
-    glowColor: "rgba(212, 175, 55, 0.15)", // Gold
-    waveColor: "from-primary/0 via-primary/30 to-primary/0",
+    glowColor: "rgba(212, 175, 55, 0.08)",
+    waveColor: "from-primary/0 via-primary/25 to-primary/0",
     valueColor: "text-foreground",
     info: true,
   },
   {
     label: "Bisa Dicairkan",
     value: "Rp0",
-    subtitle: "Available Balance",
+    subtitle: "Saldo siap ditarik",
     icon: Banknote,
-    accent: "bg-emerald-500/20",
-    glowColor: "rgba(16, 185, 129, 0.15)", // Emerald
-    waveColor: "from-emerald-500/0 via-emerald-500/30 to-emerald-500/0",
-    valueColor: "text-emerald-400",
+    accent: "bg-primary/10",
+    glowColor: "rgba(212, 175, 55, 0.06)",
+    waveColor: "from-primary/0 via-primary/20 to-primary/0",
+    valueColor: "text-foreground",
   },
   {
     label: "Total Views",
     value: "0",
     suffix: "Views",
-    subtitle: "Total semua konten",
-    icon: PlayCircle,
-    accent: "bg-orange-500/20",
-    glowColor: "rgba(249, 115, 22, 0.15)", // Orange
-    waveColor: "from-orange-500/0 via-orange-500/30 to-orange-500/0",
-    valueColor: "text-orange-400",
+    subtitle: "Semua konten terpublikasi",
+    icon: Eye,
+    accent: "bg-white/5",
+    glowColor: "rgba(255, 255, 255, 0.03)",
+    waveColor: "from-white/0 via-white/10 to-white/0",
+    valueColor: "text-foreground",
   },
   {
     label: "Total Video",
     value: "0",
     suffix: "Video",
-    subtitle: "Total video dibuat",
+    subtitle: "Total video terselesaikan",
     icon: Video,
-    accent: "bg-blue-500/20",
-    glowColor: "rgba(59, 130, 246, 0.15)", // Blue
-    waveColor: "from-blue-500/0 via-blue-500/30 to-blue-500/0",
-    valueColor: "text-blue-400",
+    accent: "bg-white/5",
+    glowColor: "rgba(255, 255, 255, 0.03)",
+    waveColor: "from-white/0 via-white/10 to-white/0",
+    valueColor: "text-foreground",
   },
 ];
 
@@ -71,17 +73,15 @@ const campaignCategories = [
   { id: "rejected", label: "Ditolak" }
 ];
 
-import { useSession } from "@/lib/auth-client";
-
 const activeCampaigns = [
   {
     id: 1,
-    title: "Review Singkat All New HRV - Tipe RS",
+    title: "Review Singkat All New HRV Tipe RS",
     category: "Promo Dealer",
     brand: "Honda Jakarta Center",
-    reward: "Rp5.000 / 1K Views",
+    reward: "Rp5.000 per 1.000 Views",
     image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
-    type: "CLIPPING",
+    type: "Clipping",
     views: "24.844",
     socials: ["tiktok", "instagram"],
     categoryTag: "OTOMOTIF"
@@ -91,9 +91,9 @@ const activeCampaigns = [
     title: "Promo Akhir Tahun Avanza Veloz",
     category: "Review",
     brand: "Toyota Auto2000",
-    reward: "Rp3.000 / 1K Views",
+    reward: "Rp3.000 per 1.000 Views",
     image: "https://images.unsplash.com/photo-1629897048514-3dd741427cb1?auto=format&fit=crop&q=80&w=600",
-    type: "CLIPPING",
+    type: "Clipping",
     views: "33.328",
     socials: ["tiktok", "instagram", "youtube"],
     categoryTag: "DEALER"
@@ -103,9 +103,9 @@ const activeCampaigns = [
     title: "Test Drive Hyundai Ioniq 5 UGC Contest",
     category: "Test Drive",
     brand: "Hyundai Motors ID",
-    reward: "Rp7.000 / 1K Views",
+    reward: "Rp7.000 per 1.000 Views",
     image: "https://images.unsplash.com/photo-1663248386850-8b173ccff5d8?auto=format&fit=crop&q=80&w=600",
-    type: "SHOOT",
+    type: "UGC/Review",
     views: "1.712",
     socials: ["tiktok", "youtube"],
     categoryTag: "EV"
@@ -134,9 +134,8 @@ export function DashboardView() {
         </h2>
         <Badge
           variant="outline"
-          className="border border-[#382C10] text-[#D4AF37] bg-[#1F190B] px-3 py-0.5 text-[10px] font-medium rounded-full shadow-[0_0_10px_rgba(212,175,55,0.1)] gap-1.5"
+          className="border border-[#382C10] text-[#D4AF37] bg-[#1F190B] px-3 py-0.5 text-[10px] font-medium rounded-full shadow-[0_0_10px_rgba(212,175,55,0.1)]"
         >
-          <div className="size-2 rounded-full bg-primary" />
           {roleName}
         </Badge>
       </motion.div>
@@ -199,7 +198,7 @@ export function DashboardView() {
                   MISI UANG GRATIS!
                 </h3>
                 <p className="text-sm text-muted-foreground/80">
-                  Submit 1/hari sampai 7 kali
+                  Submit 1 video per hari sampai 7 kali
                 </p>
               </div>
             </div>
@@ -235,13 +234,13 @@ export function DashboardView() {
           <div className="flex items-center gap-3 mb-8">
             <div className="flex -space-x-2">
               <Avatar className="size-7 border-2 border-[#111316]">
-                <AvatarFallback className="bg-emerald-900/60 text-emerald-400 text-[9px] font-bold">DA</AvatarFallback>
+                <AvatarFallback className="bg-white/10 text-white/90 text-[9px] font-bold border border-white/10">DA</AvatarFallback>
               </Avatar>
               <Avatar className="size-7 border-2 border-[#111316]">
-                <AvatarFallback className="bg-orange-900/60 text-orange-400 text-[9px] font-bold">RE</AvatarFallback>
+                <AvatarFallback className="bg-white/10 text-white/90 text-[9px] font-bold border border-white/10">RE</AvatarFallback>
               </Avatar>
               <Avatar className="size-7 border-2 border-[#111316]">
-                <AvatarFallback className="bg-blue-900/60 text-blue-400 text-[9px] font-bold">NC</AvatarFallback>
+                <AvatarFallback className="bg-white/10 text-white/90 text-[9px] font-bold border border-white/10">NC</AvatarFallback>
               </Avatar>
             </div>
             <p className="text-sm">
@@ -261,7 +260,7 @@ export function DashboardView() {
                 <span className="text-sm font-medium text-foreground">Onboarding Progress</span>
                 <div className="flex items-center gap-1.5 bg-[#1F190B] border border-primary/20 rounded-full px-3 py-1">
                   <div className="size-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-[spin_3s_linear_infinite]" />
-                  <span className="text-[11px]"><span className="text-primary font-bold">1/3 steps</span> <span className="text-muted-foreground">completed</span></span>
+                  <span className="text-[11px]"><span className="text-primary font-bold">1 dari 3 langkah</span> <span className="text-muted-foreground">selesai</span></span>
                 </div>
               </div>
             </div>
@@ -270,7 +269,7 @@ export function DashboardView() {
           {/* Footer Text */}
           <div className="flex items-center justify-between mt-4 px-1">
             <p className="text-[13px] text-muted-foreground">
-              0/7 hari &middot; <span className="text-foreground font-semibold">Tinggal 7 lagi</span>
+              0 dari 7 hari, <span className="text-foreground font-semibold">tersisa 7 hari lagi</span>
             </p>
             <Button variant="link" className="text-muted-foreground hover:text-foreground text-[13px] h-auto p-0 gap-1">
               Aturan misi
@@ -290,7 +289,7 @@ export function DashboardView() {
         <span className="text-[13px] font-medium text-foreground">Onboarding Progress</span>
         <div className="flex items-center gap-1.5 bg-[#1F190B] border border-primary/20 rounded-full px-3 py-1">
           <div className="size-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-[spin_3s_linear_infinite]" />
-          <span className="text-[11px]"><span className="text-primary font-bold">1/3 steps</span> <span className="text-muted-foreground">completed</span></span>
+          <span className="text-[11px]"><span className="text-primary font-bold">1 dari 3 langkah</span> <span className="text-muted-foreground">selesai</span></span>
         </div>
       </motion.div>
 
@@ -321,7 +320,7 @@ export function DashboardView() {
                     <TabsTrigger
                       key={cat.id}
                       value={cat.id}
-                      className="rounded-none border-b-[3px] border-transparent data-[state=active]:border-[#f26522] data-[state=active]:text-foreground data-[state=active]:bg-transparent text-muted-foreground/60 text-[13px] font-medium px-1 pb-3 pt-3 transition-colors shrink-0"
+                      className="rounded-none border-b-[3px] border-transparent data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent text-muted-foreground/60 text-[13px] font-medium px-1 pb-3 pt-3 transition-colors shrink-0"
                     >
                       {cat.label}
                     </TabsTrigger>
@@ -381,30 +380,27 @@ export function DashboardView() {
               </SelectContent>
             </Select>
             <Select defaultValue="all">
-              <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[100px] rounded-lg shrink-0 font-medium">
+              <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
                 <SelectValue placeholder="Tipe" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Tipe</SelectItem>
                 <SelectItem value="clipping">Clipping</SelectItem>
-                <SelectItem value="ugc">UGC/Review Konten</SelectItem>
-                <SelectItem value="videographer">Videographer</SelectItem>
+                <SelectItem value="ugc">UGC/Review</SelectItem>
+                <SelectItem value="videographer">Videographer/Edit</SelectItem>
               </SelectContent>
             </Select>
             
             {/* Social Icons Filters */}
             <div className="flex items-center gap-2 ml-2">
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
-                <Music className="size-4" /> {/* TikTok Proxy */}
+              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="TikTok">
+                <TikTokIcon className="size-4" />
               </Button>
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
-                <Camera className="size-4" />
+              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="Instagram">
+                <InstagramIcon className="size-4" />
               </Button>
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
-                <PlaySquare className="size-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
-                <MessageCircle className="size-4" /> {/* Threads Proxy */}
+              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="YouTube">
+                <YouTubeIcon className="size-4" />
               </Button>
             </div>
           </div>
@@ -461,16 +457,15 @@ export function DashboardView() {
                   <div className="flex flex-wrap items-center gap-2 mt-auto">
                     {/* Social Icons */}
                     <div className="flex items-center gap-1.5 mr-2 text-muted-foreground/70">
-                      {campaign.socials.includes('tiktok') && <Music className="size-3.5" />}
-                      {campaign.socials.includes('instagram') && <Camera className="size-3.5" />}
-                      {campaign.socials.includes('youtube') && <PlaySquare className="size-3.5" />}
+                      {campaign.socials.includes('tiktok') && <TikTokIcon className="size-3.5" />}
+                      {campaign.socials.includes('instagram') && <InstagramIcon className="size-3.5" />}
+                      {campaign.socials.includes('youtube') && <YouTubeIcon className="size-3.5" />}
                     </div>
-                    <div className="w-1 h-1 rounded-full bg-white/10 mr-1" />
                     <Badge variant="secondary" className="text-[9px] uppercase tracking-wider bg-white/5 text-muted-foreground/80 hover:bg-white/10 transition-colors px-2.5 py-0.5 rounded font-bold border-transparent">
                       {campaign.categoryTag}
                     </Badge>
                     <div className="flex items-center gap-1.5 ml-auto text-muted-foreground/60 bg-white/5 px-2.5 py-0.5 rounded-full">
-                      <Users className="size-3" />
+                      <Eye className="size-3" />
                       <span className="text-[10px] font-semibold">{campaign.views}</span>
                     </div>
                   </div>
