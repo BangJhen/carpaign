@@ -15,6 +15,8 @@ import { toast } from "sonner";
 interface WithdrawModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: (amount: number, bankName: string) => void;
+  currentBalance?: number;
 }
 
 const BANKS = [
@@ -24,14 +26,14 @@ const BANKS = [
   { id: "bri", name: "Bank BRI", logo: "BRI" },
 ];
 
-export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
+export function WithdrawModal({ open, onOpenChange, onSuccess, currentBalance = 8450000 }: WithdrawModalProps) {
   const [selectedBank, setSelectedBank] = useState(BANKS[0]);
   const [bankOpen, setBankOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const BALANCE = 8450000;
+  const BALANCE = currentBalance;
 
   const formatRupiah = (val: string) => {
     const num = val.replace(/\D/g, "");
@@ -58,6 +60,9 @@ export function WithdrawModal({ open, onOpenChange }: WithdrawModalProps) {
     await new Promise((r) => setTimeout(r, 1800));
     setIsLoading(false);
     setSuccess(true);
+    if (onSuccess) {
+      onSuccess(numericAmount, selectedBank.name);
+    }
     toast.success("Penarikan dana berhasil diproses!", {
       description: `Rp${amount} akan tiba dalam 1 hari kerja ke ${selectedBank.name}.`,
     });

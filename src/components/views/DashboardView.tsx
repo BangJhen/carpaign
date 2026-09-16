@@ -1,16 +1,18 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Eye, Video, Wallet, Banknote, Flame, Gift, Info, ChevronRight, RefreshCw, Filter } from "lucide-react";
+import { Eye, Video, Wallet, Banknote, Flame, Gift, Info, ChevronRight, RefreshCw, Filter, ExternalLink, RotateCcw } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
+import { toast } from "sonner";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -67,10 +69,74 @@ const metricCards = [
 ];
 
 const campaignCategories = [
-  { id: "all", label: "Semua Campaign" },
+  { id: "all", label: "Semua Video" },
   { id: "active", label: "Aktif" },
   { id: "pending", label: "Review" },
   { id: "rejected", label: "Ditolak" }
+];
+
+const initialCreatorVideos = [
+  {
+    id: "vid-1",
+    title: "Review Singkat All New HRV Tipe RS",
+    campaignName: "Honda Jakarta Center",
+    campaignId: "honda",
+    platform: "tiktok",
+    views: "18.420",
+    rawViews: 18420,
+    earnings: "Rp92.100",
+    rawEarnings: 92100,
+    date: "14 Sep 2026",
+    status: "active",
+    statusLabel: "Aktif",
+    url: "https://tiktok.com/@kreator/video/73918231",
+  },
+  {
+    id: "vid-2",
+    title: "Promo Akhir Tahun Avanza Veloz",
+    campaignName: "Toyota Auto2000",
+    campaignId: "toyota",
+    platform: "instagram",
+    views: "12.890",
+    rawViews: 12890,
+    earnings: "Rp38.670",
+    rawEarnings: 38670,
+    date: "12 Sep 2026",
+    status: "active",
+    statusLabel: "Aktif",
+    url: "https://instagram.com/reel/C8_veloz",
+  },
+  {
+    id: "vid-3",
+    title: "Test Drive Hyundai Ioniq 5 UGC Contest",
+    campaignName: "Hyundai Motors ID",
+    campaignId: "hyundai",
+    platform: "youtube",
+    views: "0",
+    rawViews: 0,
+    earnings: "Dalam Review",
+    rawEarnings: 0,
+    date: "15 Sep 2026",
+    status: "pending",
+    statusLabel: "Review",
+    url: "https://youtube.com/shorts/ioniq5_rev",
+  },
+  {
+    id: "vid-4",
+    title: "Footage B-Roll Pajero Sport Dakar",
+    campaignName: "Mitsubishi Dipo",
+    campaignId: "mitsubishi",
+    platform: "tiktok",
+    views: "0",
+    rawViews: 0,
+    earnings: "Rp0",
+    rawEarnings: 0,
+    date: "08 Sep 2026",
+    status: "rejected",
+    statusLabel: "Ditolak",
+    rejectReason: "Kualitas audio kurang jernih, silakan upload ulang dengan mic eksternal.",
+    url: "https://tiktok.com/@kreator/video/7390192",
+  },
 ];
 
 const activeCampaigns = [
@@ -130,10 +196,63 @@ export function DashboardView({
   const userName = session?.user?.name || "Kreator";
   const roleName = (session?.user as any)?.role === "dealership" ? "Dealership" : "Kreator";
 
+  const [activeVideoTab, setActiveVideoTab] = useState<string>("all");
+  const [videoCampaignFilter, setVideoCampaignFilter] = useState<string>("all");
+  const [videoSortFilter, setVideoSortFilter] = useState<string>("newest");
+
+  // Filters for "Semua Campaign Aktif"
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [socialFilter, setSocialFilter] = useState<string | null>(null);
+
   const campaignsList =
     initialCampaigns && initialCampaigns.length > 0
       ? initialCampaigns
       : activeCampaigns;
+
+  // Filtered Video Kamu
+  const filteredVideos = useMemo(() => {
+    return initialCreatorVideos
+      .filter((v) => {
+        if (activeVideoTab !== "all" && v.status !== activeVideoTab) return false;
+        if (videoCampaignFilter !== "all" && v.campaignId !== videoCampaignFilter) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (videoSortFilter === "highest_pay") return b.rawEarnings - a.rawEarnings;
+        if (videoSortFilter === "oldest") return a.id.localeCompare(b.id);
+        return b.id.localeCompare(a.id); // newest
+      });
+  }, [activeVideoTab, videoCampaignFilter, videoSortFilter]);
+
+  // Filtered Campaign List
+  const filteredCampaigns = useMemo(() => {
+    return campaignsList.filter((c) => {
+      if (categoryFilter !== "all") {
+        const cat = (c.category || "").toLowerCase();
+        if (categoryFilter === "dealer" && !cat.includes("dealer") && !cat.includes("promo")) return false;
+        if (categoryFilter === "test-drive" && !cat.includes("test drive")) return false;
+      }
+      if (typeFilter !== "all") {
+        const type = (c.type || "").toLowerCase();
+        if (typeFilter === "clipping" && !type.includes("clipping")) return false;
+        if (typeFilter === "ugc" && !type.includes("ugc") && !type.includes("review")) return false;
+        if (typeFilter === "videographer" && !type.includes("video") && !type.includes("edit")) return false;
+      }
+      if (socialFilter) {
+        if (!c.socials || !c.socials.includes(socialFilter)) return false;
+      }
+      return true;
+    });
+  }, [campaignsList, categoryFilter, typeFilter, socialFilter]);
+
+  const hasActiveCampaignFilters = categoryFilter !== "all" || typeFilter !== "all" || socialFilter !== null;
+
+  const resetCampaignFilters = () => {
+    setCategoryFilter("all");
+    setTypeFilter("all");
+    setSocialFilter(null);
+  };
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
@@ -328,8 +447,8 @@ export function DashboardView({
               </div>
             </div>
 
-            {/* Tabs */}
-            <Tabs defaultValue="all" className="w-full">
+            {/* Tabs & Filters */}
+            <Tabs value={activeVideoTab} onValueChange={setActiveVideoTab} className="w-full">
               <div className="w-full overflow-x-auto no-scrollbar border-b border-white/5 px-6">
                 <TabsList className="bg-transparent gap-8 h-auto p-0 inline-flex justify-start">
                   {campaignCategories.map((cat) => (
@@ -346,36 +465,134 @@ export function DashboardView({
 
               {/* Tab Content */}
               <div className="p-6">
-                {campaignCategories.map((cat) => (
-                  <TabsContent key={cat.id} value={cat.id} className="mt-0 outline-none">
-                    <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                      <Select defaultValue="all">
-                        <SelectTrigger className="w-full sm:w-[200px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg">
-                          <SelectValue placeholder="Semua Campaign" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Semua Campaign</SelectItem>
-                          <SelectItem value="honda">Honda Jakarta</SelectItem>
-                          <SelectItem value="toyota">Toyota Auto2000</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select defaultValue="newest">
-                        <SelectTrigger className="w-full sm:w-[160px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg font-medium">
-                          <SelectValue placeholder="Terbaru" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="newest">Terbaru</SelectItem>
-                          <SelectItem value="highest_pay">Bayaran Tertinggi</SelectItem>
-                          <SelectItem value="oldest">Terlama</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent py-20 text-center">
-                      <p className="text-[13px] text-muted-foreground/60">Belum ada submission untuk campaign ini.</p>
-                    </div>
-                  </TabsContent>
-                ))}
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <Select value={videoCampaignFilter} onValueChange={setVideoCampaignFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg">
+                      <SelectValue placeholder="Semua Campaign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua Campaign</SelectItem>
+                      <SelectItem value="honda">Honda Jakarta Center</SelectItem>
+                      <SelectItem value="toyota">Toyota Auto2000</SelectItem>
+                      <SelectItem value="hyundai">Hyundai Motors ID</SelectItem>
+                      <SelectItem value="mitsubishi">Mitsubishi Dipo</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={videoSortFilter} onValueChange={setVideoSortFilter}>
+                    <SelectTrigger className="w-full sm:w-[160px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg font-medium">
+                      <SelectValue placeholder="Terbaru" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Terbaru</SelectItem>
+                      <SelectItem value="highest_pay">Bayaran Tertinggi</SelectItem>
+                      <SelectItem value="oldest">Terlama</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(videoCampaignFilter !== "all" || videoSortFilter !== "newest" || activeVideoTab !== "all") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setActiveVideoTab("all");
+                        setVideoCampaignFilter("all");
+                        setVideoSortFilter("newest");
+                      }}
+                      className="text-xs text-muted-foreground hover:text-white h-9 px-3 gap-1.5 self-start"
+                    >
+                      <RotateCcw className="size-3.5" />
+                      Reset
+                    </Button>
+                  )}
+                </div>
+
+                {filteredVideos.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredVideos.map((vid) => (
+                      <div
+                        key={vid.id}
+                        className="rounded-xl border border-white/5 bg-[#111316] p-4 flex flex-col justify-between gap-4 hover:border-white/10 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 min-w-0">
+                            <div className="size-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                              {vid.platform === "tiktok" && <TikTokIcon className="size-4 text-white" />}
+                              {vid.platform === "instagram" && <InstagramIcon className="size-4 text-white" />}
+                              {vid.platform === "youtube" && <YouTubeIcon className="size-4 text-white" />}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-semibold text-white truncate leading-snug">
+                                {vid.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-0.5">{vid.campaignName}</p>
+                            </div>
+                          </div>
+
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 font-medium ${
+                              vid.status === "active"
+                                ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                                : vid.status === "pending"
+                                ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
+                                : "border-rose-500/30 text-rose-400 bg-rose-500/10"
+                            }`}
+                          >
+                            {vid.statusLabel}
+                          </Badge>
+                        </div>
+
+                        {vid.rejectReason && (
+                          <p className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5">
+                            {vid.rejectReason}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
+                          <div className="flex items-center gap-4">
+                            <span className="text-muted-foreground">
+                              Views: <strong className="text-white font-semibold">{vid.views}</strong>
+                            </span>
+                            <span className="text-muted-foreground">
+                              Hasil: <strong className="text-primary font-semibold">{vid.earnings}</strong>
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(vid.url);
+                              toast.success("Link video disalin ke clipboard!");
+                            }}
+                            className="h-7 text-[11px] text-muted-foreground hover:text-white gap-1 px-2"
+                          >
+                            <ExternalLink className="size-3" />
+                            Tautan
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent py-16 text-center">
+                    <p className="text-[13px] text-muted-foreground/60 mb-3">
+                      Belum ada submission yang sesuai dengan filter ini.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setActiveVideoTab("all");
+                        setVideoCampaignFilter("all");
+                        setVideoSortFilter("newest");
+                      }}
+                      className="text-xs border-white/10 text-white hover:bg-white/5"
+                    >
+                      Reset Filter Video
+                    </Button>
+                  </div>
+                )}
               </div>
             </Tabs>
           </CardContent>
@@ -385,13 +602,30 @@ export function DashboardView({
       {/* Semua Campaign Aktif */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={7} className="mb-8 mt-4">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4">
-          <h3 className="text-[19px] font-semibold text-foreground tracking-tight">Semua Campaign Aktif</h3>
+          <div>
+            <h3 className="text-[19px] font-semibold text-foreground tracking-tight">Semua Campaign Aktif</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Menampilkan {filteredCampaigns.length} dari {campaignsList.length} campaign yang tersedia
+            </p>
+          </div>
           
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={resetCampaignFilters}
+              disabled={!hasActiveCampaignFilters}
+              title={hasActiveCampaignFilters ? "Reset semua filter" : "Filter"}
+              className={`size-9 rounded-lg shrink-0 transition-colors ${
+                hasActiveCampaignFilters
+                  ? "bg-primary/20 border-primary/40 text-primary hover:bg-primary/30"
+                  : "bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground"
+              }`}
+            >
               <Filter className="size-4" />
             </Button>
-            <Select defaultValue="all">
+
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
                 <SelectValue placeholder="Semua Kategori" />
               </SelectTrigger>
@@ -401,7 +635,8 @@ export function DashboardView({
                 <SelectItem value="test-drive">Test Drive</SelectItem>
               </SelectContent>
             </Select>
-            <Select defaultValue="all">
+
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
                 <SelectValue placeholder="Semua Tipe" />
               </SelectTrigger>
@@ -413,89 +648,137 @@ export function DashboardView({
               </SelectContent>
             </Select>
             
-            {/* Social Icons Filters */}
+            {/* Social Icons Interactive Filters */}
             <div className="flex items-center gap-2 ml-2">
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="TikTok">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSocialFilter(socialFilter === "tiktok" ? null : "tiktok")}
+                className={`size-9 rounded-lg shrink-0 transition-all ${
+                  socialFilter === "tiktok"
+                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(212,175,55,0.25)]"
+                    : "bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+                title="Filter TikTok"
+              >
                 <TikTokIcon className="size-4" />
               </Button>
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="Instagram">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSocialFilter(socialFilter === "instagram" ? null : "instagram")}
+                className={`size-9 rounded-lg shrink-0 transition-all ${
+                  socialFilter === "instagram"
+                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(212,175,55,0.25)]"
+                    : "bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+                title="Filter Instagram"
+              >
                 <InstagramIcon className="size-4" />
               </Button>
-              <Button variant="outline" size="icon" className="size-9 bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg shrink-0" title="YouTube">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSocialFilter(socialFilter === "youtube" ? null : "youtube")}
+                className={`size-9 rounded-lg shrink-0 transition-all ${
+                  socialFilter === "youtube"
+                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(212,175,55,0.25)]"
+                    : "bg-[#15171A] border-transparent hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+                title="Filter YouTube"
+              >
                 <YouTubeIcon className="size-4" />
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {campaignsList.map((campaign, i) => (
-            <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={8 + i}>
-              <Card 
-                onClick={() => router.push(`/creator/campaigns/${campaign.id}`)}
-                className="group cursor-pointer border-transparent bg-[#111316] hover:bg-[#15171A] transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col h-full border border-white/5"
-              >
-                {/* Image Section */}
-                <div className="relative h-[220px] w-full bg-muted/20 overflow-hidden">
-                  <img 
-                    src={campaign.image} 
-                    alt={campaign.brand}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/60 to-transparent" />
-                  
-                  {/* Top Badge */}
-                  <div className="absolute top-4 right-4 z-10">
-                    <span className="text-[11px] font-bold text-foreground/80 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded">
-                      Film <span className="text-primary">{campaign.category}</span>
-                    </span>
-                  </div>
-                  
-                  {/* Bottom Elements (Inside Image Area) */}
-                  <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between z-10">
-                    <div className="flex items-center gap-2">
-                      <div className="size-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
-                        <span className="text-[8px] font-bold text-white">Car</span>
+        {filteredCampaigns.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {filteredCampaigns.map((campaign, i) => (
+              <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={8 + i}>
+                <Card 
+                  onClick={() => router.push(`/creator/campaigns/${campaign.id}`)}
+                  className="group cursor-pointer border-transparent bg-[#111316] hover:bg-[#15171A] transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col h-full border border-white/5"
+                >
+                  {/* Image Section */}
+                  <div className="relative h-[220px] w-full bg-muted/20 overflow-hidden">
+                    <img 
+                      src={campaign.image} 
+                      alt={campaign.brand}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {/* Dark Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/60 to-transparent" />
+                    
+                    {/* Top Badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="text-[11px] font-bold text-foreground/80 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded">
+                        Film <span className="text-primary">{campaign.category}</span>
+                      </span>
+                    </div>
+                    
+                    {/* Bottom Elements (Inside Image Area) */}
+                    <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between z-10">
+                      <div className="flex items-center gap-2">
+                        <div className="size-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
+                          <span className="text-[8px] font-bold text-white">Car</span>
+                        </div>
+                        <span className="text-[12px] font-medium text-foreground">{campaign.brand}</span>
                       </div>
-                      <span className="text-[12px] font-medium text-foreground">{campaign.brand}</span>
+                      <Badge className="bg-black/50 hover:bg-black/70 backdrop-blur-md text-[10px] text-muted-foreground uppercase border-white/10 px-3 font-semibold">
+                        {campaign.type}
+                      </Badge>
                     </div>
-                    <Badge className="bg-black/50 hover:bg-black/70 backdrop-blur-md text-[10px] text-muted-foreground uppercase border-white/10 px-3 font-semibold">
-                      {campaign.type}
-                    </Badge>
                   </div>
-                </div>
 
-                {/* Details Section */}
-                <CardContent className="p-5 pt-4 flex flex-col grow">
-                  <h4 className="font-bold text-[15px] text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
-                    {campaign.title}
-                  </h4>
-                  
-                  <div className="flex items-center gap-1.5 mb-5 mt-1">
-                    <p className="text-[15px] font-bold text-foreground">{campaign.reward}</p>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-2 mt-auto">
-                    {/* Social Icons */}
-                    <div className="flex items-center gap-1.5 mr-2 text-muted-foreground/70">
-                      {campaign.socials.includes('tiktok') && <TikTokIcon className="size-3.5" />}
-                      {campaign.socials.includes('instagram') && <InstagramIcon className="size-3.5" />}
-                      {campaign.socials.includes('youtube') && <YouTubeIcon className="size-3.5" />}
+                  {/* Details Section */}
+                  <CardContent className="p-5 pt-4 flex flex-col grow">
+                    <h4 className="font-bold text-[15px] text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                      {campaign.title}
+                    </h4>
+                    
+                    <div className="flex items-center gap-1.5 mb-5 mt-1">
+                      <p className="text-[15px] font-bold text-foreground">{campaign.reward}</p>
                     </div>
-                    <Badge variant="secondary" className="text-[9px] uppercase tracking-wider bg-white/5 text-muted-foreground/80 hover:bg-white/10 transition-colors px-2.5 py-0.5 rounded font-bold border-transparent">
-                      {campaign.categoryTag}
-                    </Badge>
-                    <div className="flex items-center gap-1.5 ml-auto text-muted-foreground/60 bg-white/5 px-2.5 py-0.5 rounded-full">
-                      <Eye className="size-3" />
-                      <span className="text-[10px] font-semibold">{campaign.views}</span>
+                    
+                    <div className="flex flex-wrap items-center gap-2 mt-auto">
+                      {/* Social Icons */}
+                      <div className="flex items-center gap-1.5 mr-2 text-muted-foreground/70">
+                        {campaign.socials?.includes('tiktok') && <TikTokIcon className="size-3.5" />}
+                        {campaign.socials?.includes('instagram') && <InstagramIcon className="size-3.5" />}
+                        {campaign.socials?.includes('youtube') && <YouTubeIcon className="size-3.5" />}
+                      </div>
+                      <Badge variant="secondary" className="text-[9px] uppercase tracking-wider bg-white/5 text-muted-foreground/80 hover:bg-white/10 transition-colors px-2.5 py-0.5 rounded font-bold border-transparent">
+                        {campaign.categoryTag || "KAMPANYE"}
+                      </Badge>
+                      <div className="flex items-center gap-1.5 ml-auto text-muted-foreground/60 bg-white/5 px-2.5 py-0.5 rounded-full">
+                        <Eye className="size-3" />
+                        <span className="text-[10px] font-semibold">{campaign.views || "0"}</span>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#111316]/50 py-20 text-center">
+            <Filter className="size-8 text-muted-foreground/40 mb-3" />
+            <p className="text-sm font-semibold text-white mb-1">Tidak ada campaign yang sesuai</p>
+            <p className="text-xs text-muted-foreground max-w-sm mb-5">
+              Coba sesuaikan pilihan kategori, tipe campaign, atau matikan filter platform sosial media.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetCampaignFilters}
+              className="text-xs border-white/10 text-white hover:bg-white/5"
+            >
+              Reset Semua Filter
+            </Button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

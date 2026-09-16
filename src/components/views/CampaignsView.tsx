@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -68,14 +68,45 @@ const featuredCampaigns = [
 export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaign[] } = {}) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("newest");
 
   const allCampaigns = initialCampaigns && initialCampaigns.length > 0 ? initialCampaigns : campaigns;
   const goToJob = (id: number | string) => router.push(`/creator/campaigns/${id}`);
 
   const selectedJobType = jobTypes.find(t => t.id === activeTab);
-  const filteredCampaigns = activeTab === "all" 
-    ? allCampaigns 
-    : allCampaigns.filter(c => c.type === selectedJobType?.campaignType);
+
+  const filteredCampaigns = useMemo(() => {
+    let result = activeTab === "all" 
+      ? allCampaigns 
+      : allCampaigns.filter(c => c.type === selectedJobType?.campaignType);
+
+    if (selectedBrand !== "all") {
+      result = result.filter(c => 
+        (c.brand || "").toLowerCase().includes(selectedBrand.toLowerCase()) || 
+        (c.vehicle || "").toLowerCase().includes(selectedBrand.toLowerCase())
+      );
+    }
+
+    if (selectedSort === "highest_pay") {
+      result = [...result].sort((a, b) => {
+        const getPay = (r: string) => parseInt(r.replace(/[^0-9]/g, "")) || 0;
+        return getPay(b.reward) - getPay(a.reward);
+      });
+    } else if (selectedSort === "newest") {
+      result = [...result].sort((a, b) => Number(b.id) - Number(a.id));
+    }
+
+    return result;
+  }, [allCampaigns, activeTab, selectedJobType, selectedBrand, selectedSort]);
+
+  const hasActiveFilters = selectedBrand !== "all" || selectedSort !== "newest" || activeTab !== "all";
+
+  const resetFilters = () => {
+    setActiveTab("all");
+    setSelectedBrand("all");
+    setSelectedSort("newest");
+  };
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
@@ -202,10 +233,21 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="size-9 bg-[#111316] border-white/5 hover:bg-white/10 text-muted-foreground rounded-lg shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+              title={hasActiveFilters ? "Reset filter" : "Filter"}
+              className={`size-9 rounded-lg shrink-0 transition-colors ${
+                hasActiveFilters
+                  ? "bg-primary/20 border-primary/40 text-primary hover:bg-primary/30"
+                  : "bg-[#111316] border-white/5 hover:bg-white/10 text-muted-foreground"
+              }`}
+            >
               <Filter className="size-4" />
             </Button>
-            <Select defaultValue="all">
+            <Select value={selectedBrand} onValueChange={setSelectedBrand}>
               <SelectTrigger className="h-9 text-[13px] bg-[#111316] border-white/5 hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
                 <SelectValue placeholder="Semua Brand" />
               </SelectTrigger>
@@ -214,10 +256,13 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                 <SelectItem value="toyota">Toyota</SelectItem>
                 <SelectItem value="honda">Honda</SelectItem>
                 <SelectItem value="hyundai">Hyundai</SelectItem>
+                <SelectItem value="lexus">Lexus</SelectItem>
+                <SelectItem value="porsche">Porsche</SelectItem>
+                <SelectItem value="bmw">BMW</SelectItem>
               </SelectContent>
             </Select>
-            <Select defaultValue="newest">
-              <SelectTrigger className="h-9 text-[13px] bg-[#111316] border-white/5 hover:bg-white/10 w-[120px] rounded-lg shrink-0 font-medium">
+            <Select value={selectedSort} onValueChange={setSelectedSort}>
+              <SelectTrigger className="h-9 text-[13px] bg-[#111316] border-white/5 hover:bg-white/10 w-[150px] rounded-lg shrink-0 font-medium">
                 <SelectValue placeholder="Terbaru" />
               </SelectTrigger>
               <SelectContent>
@@ -229,75 +274,87 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
         </div>
 
         {/* Campaign Grid with Automotive focus */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {filteredCampaigns.map((campaign, i) => (
-            <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={3 + i}>
-              <Card
-                onClick={() => goToJob(campaign.id)}
-                className="group cursor-pointer border-white/5 bg-[#111316] hover:bg-[#15171A] hover:border-white/10 transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col sm:flex-row h-full"
-              >
-                
-                {/* Image Section - Left side on desktop, top on mobile */}
-                <div className="relative w-full sm:w-[200px] h-[200px] sm:h-full bg-muted/20 shrink-0 overflow-hidden">
-                  <img 
-                    src={campaign.image} 
-                    alt={campaign.vehicle}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[#111316] via-[#111316]/50 to-transparent sm:via-transparent" />
-                  
-                  {/* Job Type Badge */}
-                  <div className="absolute top-3 left-3">
-                    <Badge className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 border ${campaign.typeColor}`}>
-                      {campaign.type}
+        {filteredCampaigns.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {filteredCampaigns.map((campaign, i) => (
+              <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={3 + i}>
+                <Card
+                  onClick={() => goToJob(campaign.id)}
+                  className="group cursor-pointer border-white/5 bg-[#111316] hover:bg-[#15171A] hover:border-white/10 transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col sm:flex-row h-full"
+                >
+                  {/* Image Section */}
+                  <div className="relative w-full sm:w-[220px] h-[180px] sm:h-auto shrink-0 overflow-hidden">
+                    <img 
+                      src={campaign.image} 
+                      alt={campaign.brand} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111316] sm:bg-gradient-to-r sm:from-transparent sm:to-[#111316] opacity-60" />
+                    
+                    <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border-white/10 text-white font-semibold text-[10px] px-2.5 py-0.5 rounded">
+                      {campaign.brand}
                     </Badge>
                   </div>
-                </div>
 
-                {/* Content Section */}
-                <CardContent className="p-5 sm:p-6 flex flex-col grow justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 text-muted-foreground/80 text-[12px] font-medium">
-                        <Car className="size-3.5" />
-                        <span>{campaign.brand}</span>
+                  {/* Content Section */}
+                  <CardContent className="p-5 flex flex-col justify-between grow">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-[11px] font-bold text-primary tracking-wider uppercase">
+                          {campaign.type}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground/80">
+                          {campaign.deadline || "Tersedia"}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded text-[11px] text-muted-foreground/80">
-                        <Users className="size-3" />
-                        <span>{campaign.quota}</span>
-                      </div>
+                      
+                      <h4 className="font-bold text-[17px] text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {campaign.vehicle}
+                      </h4>
+                      
+                      <p className="text-[13px] text-muted-foreground/80 line-clamp-2 leading-relaxed mb-4">
+                        {campaign.description}
+                      </p>
                     </div>
                     
-                    <h4 className="font-bold text-[17px] text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {campaign.vehicle}
-                    </h4>
-                    
-                    <p className="text-[13px] text-muted-foreground/80 line-clamp-2 leading-relaxed mb-4">
-                      {campaign.description}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <CircleDollarSign className="size-4" />
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-2">
+                        <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <CircleDollarSign className="size-4" />
+                        </div>
+                        <p className="text-[14px] font-bold text-foreground">{campaign.reward}</p>
                       </div>
-                      <p className="text-[14px] font-bold text-foreground">{campaign.reward}</p>
+                      
+                      <Button
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); goToJob(campaign.id); }}
+                        className="rounded-full bg-white/10 hover:bg-white/20 text-foreground font-semibold px-4 h-8 text-[12px] transition-colors"
+                      >
+                        Lihat Detail
+                      </Button>
                     </div>
-                    
-                    <Button
-                      size="sm"
-                      onClick={(e) => { e.stopPropagation(); goToJob(campaign.id); }}
-                      className="rounded-full bg-white/10 hover:bg-white/20 text-foreground font-semibold px-4 h-8 text-[12px] transition-colors"
-                    >
-                      Lihat Detail
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#111316]/50 py-20 text-center">
+            <Filter className="size-8 text-muted-foreground/40 mb-3" />
+            <p className="text-sm font-semibold text-white mb-1">Tidak ada job campaign yang sesuai</p>
+            <p className="text-xs text-muted-foreground max-w-sm mb-5">
+              Coba ganti filter brand atau kategori tipe job di atas.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetFilters}
+              className="text-xs border-white/10 text-white hover:bg-white/5"
+            >
+              Reset Filter
+            </Button>
+          </div>
+        )}
 
       </motion.div>
     </div>

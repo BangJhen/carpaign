@@ -15,24 +15,64 @@ const fadeUp: Variants = {
   }),
 };
 
-// Dummy Data
-const leaderboardData = [
-  { rank: 1, name: "Reza Rahadian", handle: "@rezadrift", engine: "V12", views: "14.2M", jobs: 420, trend: "up", avatar: "R" },
-  { rank: 2, name: "Fitra Eri Fans", handle: "@fitrafans", engine: "V10", views: "11.8M", jobs: 315, trend: "up", avatar: "F" },
-  { rank: 3, name: "OtoDriver Official", handle: "@otodriver", engine: "V10", views: "9.5M", jobs: 280, trend: "down", avatar: "O" },
-  { rank: 4, name: "CarVlog Indo", handle: "@carvlogid", engine: "V8", views: "8.1M", jobs: 190, trend: "up", avatar: "C" },
-  { rank: 5, name: "Supercar Spotter", handle: "@spotter.jkt", engine: "V8", views: "6.4M", jobs: 145, trend: "same", avatar: "S" },
-  { rank: 6, name: "JDM Enthusiast", handle: "@jdm_boys", engine: "V6", views: "4.2M", jobs: 98, trend: "up", avatar: "J" },
-  { rank: 7, name: "Motomobi Wannabe", handle: "@motowannabe", engine: "V6", views: "3.9M", jobs: 82, trend: "down", avatar: "M" },
-];
+const leaderboardDatasets: Record<string, Array<{
+  rank: number;
+  name: string;
+  handle: string;
+  engine: string;
+  views: string;
+  jobs: number;
+  trend: "up" | "down" | "same";
+  avatar: string;
+}>> = {
+  creator_month: [
+    { rank: 1, name: "Reza Rahadian", handle: "@rezadrift", engine: "V12", views: "14.2M", jobs: 42, trend: "up", avatar: "R" },
+    { rank: 2, name: "Fitra Eri Fans", handle: "@fitrafans", engine: "V10", views: "11.8M", jobs: 35, trend: "up", avatar: "F" },
+    { rank: 3, name: "OtoDriver Official", handle: "@otodriver", engine: "V10", views: "9.5M", jobs: 28, trend: "down", avatar: "O" },
+    { rank: 4, name: "CarVlog Indo", handle: "@carvlogid", engine: "V8", views: "8.1M", jobs: 24, trend: "up", avatar: "C" },
+    { rank: 5, name: "Supercar Spotter", handle: "@spotter.jkt", engine: "V8", views: "6.4M", jobs: 19, trend: "same", avatar: "S" },
+    { rank: 6, name: "JDM Enthusiast", handle: "@jdm_boys", engine: "V6", views: "4.2M", jobs: 14, trend: "up", avatar: "J" },
+    { rank: 7, name: "Motomobi Wannabe", handle: "@motowannabe", engine: "V6", views: "3.9M", jobs: 12, trend: "down", avatar: "M" },
+  ],
+  creator_all: [
+    { rank: 1, name: "Fitra Eri Fans", handle: "@fitrafans", engine: "V12", views: "88.5M", jobs: 340, trend: "up", avatar: "F" },
+    { rank: 2, name: "Reza Rahadian", handle: "@rezadrift", engine: "V12", views: "79.2M", jobs: 295, trend: "up", avatar: "R" },
+    { rank: 3, name: "Lugnutz Auto", handle: "@lugnutz_id", engine: "V10", views: "64.1M", jobs: 210, trend: "down", avatar: "L" },
+    { rank: 4, name: "OtoDriver Official", handle: "@otodriver", engine: "V10", views: "58.7M", jobs: 195, trend: "same", avatar: "O" },
+    { rank: 5, name: "Ridwan Hanif ID", handle: "@ridwanhr", engine: "V8", views: "45.3M", jobs: 160, trend: "up", avatar: "H" },
+    { rank: 6, name: "CarVlog Indo", handle: "@carvlogid", engine: "V8", views: "38.0M", jobs: 130, trend: "up", avatar: "C" },
+    { rank: 7, name: "Mas Wahid", handle: "@maswahid", engine: "V6", views: "29.4M", jobs: 98, trend: "down", avatar: "W" },
+  ],
+  clipper_month: [
+    { rank: 1, name: "SpeedClip ID", handle: "@speedclip", engine: "V12", views: "22.4M", jobs: 180, trend: "up", avatar: "S" },
+    { rank: 2, name: "MotorVibe Cut", handle: "@motorvibe", engine: "V10", views: "18.1M", jobs: 145, trend: "up", avatar: "M" },
+    { rank: 3, name: "TurboClips", handle: "@turboclips", engine: "V10", views: "15.6M", jobs: 120, trend: "down", avatar: "T" },
+    { rank: 4, name: "DriftShorts", handle: "@driftshorts", engine: "V8", views: "12.3M", jobs: 95, trend: "up", avatar: "D" },
+    { rank: 5, name: "JDM Reels Hub", handle: "@jdm_reels", engine: "V8", views: "9.8M", jobs: 82, trend: "same", avatar: "J" },
+    { rank: 6, name: "Knalpot Racing", handle: "@knalpot_id", engine: "V6", views: "7.2M", jobs: 64, trend: "up", avatar: "K" },
+    { rank: 7, name: "OtoHighlights", handle: "@otohighlights", engine: "V6", views: "5.9M", jobs: 51, trend: "down", avatar: "O" },
+  ],
+  clipper_all: [
+    { rank: 1, name: "TurboClips", handle: "@turboclips", engine: "V12", views: "114.2M", jobs: 820, trend: "up", avatar: "T" },
+    { rank: 2, name: "SpeedClip ID", handle: "@speedclip", engine: "V12", views: "98.7M", jobs: 710, trend: "up", avatar: "S" },
+    { rank: 3, name: "MotorVibe Cut", handle: "@motorvibe", engine: "V10", views: "84.1M", jobs: 620, trend: "down", avatar: "M" },
+    { rank: 4, name: "AutoSnap Indo", handle: "@autosnap", engine: "V10", views: "71.0M", jobs: 540, trend: "same", avatar: "A" },
+    { rank: 5, name: "DriftShorts", handle: "@driftshorts", engine: "V8", views: "59.4M", jobs: 430, trend: "up", avatar: "D" },
+    { rank: 6, name: "JDM Reels Hub", handle: "@jdm_reels", engine: "V8", views: "46.2M", jobs: 350, trend: "up", avatar: "J" },
+    { rank: 7, name: "Knalpot Racing", handle: "@knalpot_id", engine: "V6", views: "33.8M", jobs: 280, trend: "down", avatar: "K" },
+  ],
+};
 
 export function LeaderboardView() {
   const [role, setRole] = useState<"creator" | "clipper">("creator");
   const [time, setTime] = useState<"month" | "all">("month");
 
+  const currentKey = `${role}_${time}`;
+  const currentLeaderboard = leaderboardDatasets[currentKey] || leaderboardDatasets.creator_month;
+
   // Split top 3 and the rest
-  const top3 = leaderboardData.slice(0, 3);
-  const rest = leaderboardData.slice(3);
+  const top3 = currentLeaderboard.slice(0, 3);
+  const rest = currentLeaderboard.slice(3);
 
   // Helper to get styling for podium
   const getPodiumStyles = (rank: number) => {
