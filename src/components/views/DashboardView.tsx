@@ -112,12 +112,28 @@ const activeCampaigns = [
   }
 ];
 
-export function DashboardView() {
+export function DashboardView({
+  initialCampaigns,
+  userStats,
+}: {
+  initialCampaigns?: any[];
+  userStats?: {
+    totalViews?: number | string;
+    totalVideos?: number | string;
+    availableBalance?: number | string;
+    totalEarnings?: number | string;
+  };
+} = {}) {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const userName = session?.user?.name || "Memuat...";
+  const userName = session?.user?.name || "Kreator";
   const roleName = (session?.user as any)?.role === "dealership" ? "Dealership" : "Kreator";
+
+  const campaignsList =
+    initialCampaigns && initialCampaigns.length > 0
+      ? initialCampaigns
+      : activeCampaigns;
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
@@ -407,7 +423,7 @@ export function DashboardView() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {activeCampaigns.map((campaign, i) => (
+          {campaignsList.map((campaign, i) => (
             <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={8 + i}>
               <Card 
                 onClick={() => router.push(`/creator/campaigns/${campaign.id}`)}

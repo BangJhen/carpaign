@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
-import { campaigns } from "@/lib/campaigns-data";
+import { campaigns, type Campaign } from "@/lib/campaigns-data";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -65,16 +65,17 @@ const featuredCampaigns = [
 ];
 
 
-export function CampaignsView() {
+export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaign[] } = {}) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("all");
 
-  const goToJob = (id: number) => router.push(`/creator/campaigns/${id}`);
+  const allCampaigns = initialCampaigns && initialCampaigns.length > 0 ? initialCampaigns : campaigns;
+  const goToJob = (id: number | string) => router.push(`/creator/campaigns/${id}`);
 
   const selectedJobType = jobTypes.find(t => t.id === activeTab);
   const filteredCampaigns = activeTab === "all" 
-    ? campaigns 
-    : campaigns.filter(c => c.type === selectedJobType?.campaignType);
+    ? allCampaigns 
+    : allCampaigns.filter(c => c.type === selectedJobType?.campaignType);
 
   return (
     <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full pb-20 relative">
