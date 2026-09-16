@@ -3,7 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Eye, Megaphone, Video, CheckCircle2, Calendar } from "lucide-react";
+import { Download, Eye, Megaphone, Video, CheckCircle2, Calendar, Loader2 } from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -87,24 +87,100 @@ const analyticsByRange: Record<string, {
   },
 };
 
+const rangeLabels: Record<string, string> = {
+  "7_days": "7 hari terakhir",
+  "28_days": "28 hari terakhir",
+  "90_days": "90 hari terakhir",
+  "this_month": "Bulan ini",
+  "all_time": "Semua waktu",
+};
+
+const escapeCsvCell = (val: string | number | undefined | null) => {
+  const str = String(val ?? "");
+  if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r") || str.includes(";")) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
+
 export function AnalitikView() {
   const [chartTab, setChartTab] = useState<"total" | "kenaikan">("total");
   const [timeRange, setTimeRange] = useState("28_days");
+  const [isExporting, setIsExporting] = useState(false);
 
   const currentData = analyticsByRange[timeRange] || analyticsByRange["28_days"];
 
   const handleExportCSV = () => {
-    const headers = "Tanggal,Views,Pertumbuhan (%)\n";
-    const rows = currentData.chartData.map(d => `${d.date},${d.views},${d.growth}%`).join("\n");
-    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `analitik_performa_${timeRange}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("File CSV analitik berhasil diunduh!");
+    setIsExporting(true);
+
+    setTimeout(() => {
+      try {
+        const now = new Date();
+        const formattedDate = new Intl.DateTimeFormat("id-ID", {
+          dateStyle: "long",
+          timeStyle: "short",
+        }).format(now);
+
+        const periodLabel = rangeLabels[timeRange] || "28 hari terakhir";
+
+        const lines: string[] = [];
+
+        // 1. Header Metadata Laporan
+        lines.push("LAPORAN ANALITIK PERFORMA KREATOR CARPAIGN");
+        lines.push(`Tanggal Ekspor,${escapeCsvCell(formattedDate)} WIB`);
+        lines.push(`Periode Filter,${escapeCsvCell(periodLabel)}`);
+        lines.push("");
+
+        // 2. Ringkasan Metrik (KPI)
+        lines.push("RINGKASAN METRIK PERFORMA");
+        lines.push(`Total Views,${escapeCsvCell(currentData.metrics.totalViews)}`);
+        lines.push(`Total Campaign,${escapeCsvCell(currentData.metrics.totalCampaign)}`);
+        lines.push(`Total Video,${escapeCsvCell(currentData.metrics.totalVideo)}`);
+        lines.push(`Total Video Disetujui,${escapeCsvCell(currentData.metrics.totalApproved)}`);
+        lines.push("");
+
+        // 3. Rincian Tren Data Harian
+        lines.push("RINCIAN TREN PENAYANGAN KONTEN");
+        lines.push("No,Periode / Tanggal,Jumlah Penayangan (Views),Pertumbuhan (%),Status Tren");
+
+        currentData.chartData.forEach((item, index) => {
+          const trendStatus = item.growth > 0 ? "Kenaikan Positif" : item.growth < 0 ? "Penurunan / Koreksi" : "Stabil";
+          const growthFormatted = item.growth > 0 ? `+${item.growth}%` : `${item.growth}%`;
+          lines.push([
+            index + 1,
+            escapeCsvCell(item.date),
+            item.views,
+            escapeCsvCell(growthFormatted),
+            escapeCsvCell(trendStatus),
+          ].join(","));
+        });
+
+        lines.push("");
+        lines.push("Catatan: Data diperbarui secara berkala berdasarkan performa analitik video terverifikasi pada platform Carpaign.");
+
+        const csvContent = lines.join("\r\n");
+        // Gunakan UTF-8 BOM (\uFEFF) agar spreadsheet seperti Excel & Google Sheets membacanya dengan akurat
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const dateSlug = now.toISOString().split("T")[0];
+        link.setAttribute("href", url);
+        link.setAttribute("download", `laporan_analitik_carpaign_${timeRange}_${dateSlug}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success("File CSV analitik berhasil diunduh", {
+          description: `Laporan analitik periode ${periodLabel} telah tersimpan.`,
+        });
+      } catch (error) {
+        console.error("Gagal mengunduh CSV:", error);
+        toast.error("Gagal mengunduh file CSV. Silakan coba kembali.");
+      } finally {
+        setIsExporting(false);
+      }
+    }, 350);
   };
 
   const metricCards = [
@@ -163,10 +239,20 @@ export function AnalitikView() {
         <Button
           variant="outline"
           onClick={handleExportCSV}
-          className="bg-transparent border-white/10 hover:bg-white/5 text-foreground h-10 px-5 rounded-xl gap-2 font-medium"
+          disabled={isExporting}
+          className="bg-transparent border-white/10 hover:bg-white/5 text-foreground h-10 px-5 rounded-xl gap-2 font-medium transition-all"
         >
-          <Download className="size-4" />
-          Export CSV
+          {isExporting ? (
+            <>
+              <Loader2 className="size-4 animate-spin text-primary" />
+              <span>Mengekspor...</span>
+            </>
+          ) : (
+            <>
+              <Download className="size-4 text-primary" />
+              <span>Export CSV</span>
+            </>
+          )}
         </Button>
       </motion.div>
 
