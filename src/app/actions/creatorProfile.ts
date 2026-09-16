@@ -22,6 +22,7 @@ export type UpdateCreatorProfileInput = {
   youtubeUsername?: string;
   avatarImage?: string;
   coverImage?: string;
+  referralCode?: string;
 };
 
 /** Generate a URL-safe referral code like "rian-pratama-a3f7" */
@@ -49,6 +50,21 @@ export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
     .select()
     .from(creatorProfiles)
     .where(eq(creatorProfiles.userId, session.user.id));
+
+  if (input.referralCode) {
+    const isValid = /^[a-z0-9-]+$/.test(input.referralCode);
+    if (!isValid) {
+      throw new Error("Shortlink hanya boleh berisi huruf kecil, angka, dan tanda strip (-).");
+    }
+    const checkDuplicate = await db
+      .select()
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.referralCode, input.referralCode));
+    
+    if (checkDuplicate.length > 0 && checkDuplicate[0].userId !== session.user.id) {
+      throw new Error("Shortlink sudah digunakan oleh kreator lain.");
+    }
+  }
 
   if (existingProfile.length > 0) {
     await db

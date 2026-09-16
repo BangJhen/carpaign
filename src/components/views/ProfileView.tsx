@@ -99,9 +99,10 @@ export function ProfileView({
     youtubeUsername: initialProfile?.youtubeUsername || "",
     avatarImage: initialProfile?.avatarImage || (session?.user as any)?.image || "",
     coverImage: initialProfile?.coverImage || (session?.user as any)?.coverImage || "",
+    referralCode: initialProfile?.referralCode || "",
   });
 
-  const referralCode = initialProfile?.referralCode ?? null;
+  const referralCode = form.referralCode || initialProfile?.referralCode || "";
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyLink = () => {
@@ -179,6 +180,7 @@ export function ProfileView({
           youtubeUsername: form.youtubeUsername,
           avatarImage: form.avatarImage,
           coverImage: form.coverImage,
+          referralCode: form.referralCode,
         });
 
         toast.success(`${sectionName} berhasil disimpan`, {
@@ -486,6 +488,24 @@ export function ProfileView({
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-white/90">
+                    Custom Shortlink / Referral Code
+                  </label>
+                  <div className="relative">
+                    <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                      value={form.referralCode}
+                      onChange={(e) => setForm({ ...form, referralCode: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })}
+                      placeholder="contoh-shortlink"
+                      className="pl-10 bg-white/[0.02] border-white/10 focus:border-white/25 text-xs text-white rounded-xl h-10"
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Hanya boleh berisi huruf kecil, angka, dan tanda strip (-).
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
