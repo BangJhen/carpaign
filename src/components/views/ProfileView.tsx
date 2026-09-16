@@ -584,15 +584,15 @@ export function ProfileView({
                       onValueChange={(val) => setForm({ ...form, bankName: val })}
                     >
                       <SelectTrigger className="bg-white/[0.02] border-white/10 text-xs text-white rounded-xl h-10">
-                        <SelectValue placeholder="Pilih Bank / E-Wallet" />
+                        <SelectValue placeholder={form.bankName || "BCA"} />
                       </SelectTrigger>
                       <SelectContent className="bg-[#14161a] border-white/10 text-white text-xs">
-                        <SelectItem value="BCA">Bank Central Asia (BCA)</SelectItem>
-                        <SelectItem value="Mandiri">Bank Mandiri</SelectItem>
-                        <SelectItem value="BRI">Bank Rakyat Indonesia (BRI)</SelectItem>
-                        <SelectItem value="BNI">Bank Negara Indonesia (BNI)</SelectItem>
-                        <SelectItem value="CIMB">CIMB Niaga</SelectItem>
-                        <SelectItem value="BSI">Bank Syariah Indonesia (BSI)</SelectItem>
+                        <SelectItem value="BCA">BCA</SelectItem>
+                        <SelectItem value="Mandiri">Mandiri</SelectItem>
+                        <SelectItem value="BRI">BRI</SelectItem>
+                        <SelectItem value="BNI">BNI</SelectItem>
+                        <SelectItem value="CIMB Niaga">CIMB Niaga</SelectItem>
+                        <SelectItem value="BSI">BSI</SelectItem>
                         <SelectItem value="GoPay">GoPay</SelectItem>
                         <SelectItem value="OVO">OVO</SelectItem>
                         <SelectItem value="DANA">DANA</SelectItem>

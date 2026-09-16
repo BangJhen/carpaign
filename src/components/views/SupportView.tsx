@@ -77,9 +77,9 @@ export function SupportView() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kategori</label>
-                  <Select>
+                  <Select defaultValue="payment">
                     <SelectTrigger className="bg-[#0A0A0C] border-white/5">
-                      <SelectValue placeholder="Pilih Kendala" />
+                      <SelectValue placeholder="Pencairan Dana Saldo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="payment">Pencairan Dana Saldo</SelectItem>

@@ -351,10 +351,10 @@ export function DashboardView({
                     <div className="flex flex-col sm:flex-row gap-3 mb-8">
                       <Select defaultValue="all">
                         <SelectTrigger className="w-full sm:w-[200px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg">
-                          <SelectValue placeholder="Semua campaign" />
+                          <SelectValue placeholder="Semua Campaign" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Semua campaign</SelectItem>
+                          <SelectItem value="all">Semua Campaign</SelectItem>
                           <SelectItem value="honda">Honda Jakarta</SelectItem>
                           <SelectItem value="toyota">Toyota Auto2000</SelectItem>
                         </SelectContent>
@@ -386,8 +386,8 @@ export function DashboardView({
               <Filter className="size-4" />
             </Button>
             <Select defaultValue="all">
-              <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[130px] rounded-lg shrink-0 font-medium">
-                <SelectValue placeholder="Kategori" />
+              <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
+                <SelectValue placeholder="Semua Kategori" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Kategori</SelectItem>
@@ -397,7 +397,7 @@ export function DashboardView({
             </Select>
             <Select defaultValue="all">
               <SelectTrigger className="h-9 text-[13px] bg-[#15171A] border-transparent hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
-                <SelectValue placeholder="Tipe" />
+                <SelectValue placeholder="Semua Tipe" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Tipe</SelectItem>

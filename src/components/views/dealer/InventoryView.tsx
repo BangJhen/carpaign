@@ -123,7 +123,7 @@ const initialFormState = {
   category: "SUV",
   year: new Date().getFullYear().toString(),
   color: "",
-  transmission: "Automatic (AT)",
+  transmission: "Otomatis (AT)",
   plateNumber: "",
   location: "",
   status: "available" as "available" | "in_use",
@@ -513,15 +513,15 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                           onValueChange={(val) => setForm({ ...form, category: val })}
                         >
                           <SelectTrigger className="bg-white/5 border-white/10 text-white h-10">
-                            <SelectValue placeholder="Pilih Kategori" />
+                            <SelectValue placeholder="SUV" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                            <SelectItem value="SUV">SUV / Crossover</SelectItem>
-                            <SelectItem value="MPV">MPV / Family Car</SelectItem>
+                            <SelectItem value="SUV">SUV</SelectItem>
+                            <SelectItem value="MPV">MPV</SelectItem>
                             <SelectItem value="Sedan">Sedan</SelectItem>
-                            <SelectItem value="Hatchback">Hatchback / City Car</SelectItem>
-                            <SelectItem value="EV">EV / Mobil Listrik</SelectItem>
-                            <SelectItem value="Commercial">Komersial / Pickup</SelectItem>
+                            <SelectItem value="Hatchback">Hatchback</SelectItem>
+                            <SelectItem value="EV">EV</SelectItem>
+                            <SelectItem value="Commercial">Commercial</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -578,12 +578,12 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                           onValueChange={(val) => setForm({ ...form, transmission: val })}
                         >
                           <SelectTrigger className="bg-white/5 border-white/10 text-white h-10">
-                            <SelectValue placeholder="Pilih Transmisi" />
+                            <SelectValue placeholder="Otomatis (AT)" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                            <SelectItem value="Automatic (AT)">Otomatis (AT / CVT)</SelectItem>
+                            <SelectItem value="Otomatis (AT)">Otomatis (AT)</SelectItem>
                             <SelectItem value="Manual (MT)">Manual (MT)</SelectItem>
-                            <SelectItem value="EV (Single-Speed)">Electric (Single-Speed)</SelectItem>
+                            <SelectItem value="Electric">Electric</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -627,10 +627,10 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                           onValueChange={(val: any) => setForm({ ...form, status: val })}
                         >
                           <SelectTrigger className="bg-white/5 border-white/10 text-white h-10">
-                            <SelectValue placeholder="Pilih Status" />
+                            <SelectValue placeholder="Tersedia" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                            <SelectItem value="available">Tersedia (Siap Campaign)</SelectItem>
+                            <SelectItem value="available">Tersedia</SelectItem>
                             <SelectItem value="in_use">Sedang Dipakai</SelectItem>
                           </SelectContent>
                         </Select>

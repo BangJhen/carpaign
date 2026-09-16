@@ -53,7 +53,7 @@ export function UgcCampaignForm({
   const [publishPlatforms, setPublishPlatforms] = useState("");
 
   // Step 2 State
-  const [contentType, setContentType] = useState("");
+  const [contentType, setContentType] = useState("Review Unit");
   const [contentGuidelines, setContentGuidelines] = useState("");
   const [mandatoryPoints, setMandatoryPoints] = useState("");
   const [videosPerCreator, setVideosPerCreator] = useState("1");
@@ -338,10 +338,10 @@ export function UgcCampaignForm({
                     if (val === "single_unit" && selectedVehicles.length > 1) setSelectedVehicles([selectedVehicles[0]]);
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.promotionalFocus && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih fokus promosi" />
+                      <SelectValue placeholder="Dealer" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                      <SelectItem value="dealer">Dealer secara keseluruhan</SelectItem>
+                      <SelectItem value="dealer">Dealer</SelectItem>
                       <SelectItem value="single_unit">Satu Unit Kendaraan</SelectItem>
                       <SelectItem value="multiple_units">Beberapa Unit Kendaraan</SelectItem>
                     </SelectContent>
@@ -447,7 +447,7 @@ export function UgcCampaignForm({
                     clearFieldError("contentType");
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.contentType && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih tipe konten" />
+                      <SelectValue placeholder="Review Unit" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
                       <SelectItem value="Review Unit">Review Unit</SelectItem>
@@ -557,7 +557,7 @@ export function UgcCampaignForm({
                       clearFieldError("requiredDeliverables");
                     }}>
                       <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.requiredDeliverables && "border-red-500/60 bg-red-500/[0.03]")}>
-                        <SelectValue placeholder="Pilih hasil yang dibutuhkan" />
+                        <SelectValue placeholder="Video dipublikasikan di akun kreator" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
                         <SelectItem value="publish">Video dipublikasikan di akun kreator</SelectItem>
@@ -668,7 +668,7 @@ export function UgcCampaignForm({
                     clearFieldError("productionMethod");
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.productionMethod && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih metode" />
+                      <SelectValue placeholder="Kunjungan ke Dealer" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
                       <SelectItem value="visit">Kunjungan ke Dealer</SelectItem>

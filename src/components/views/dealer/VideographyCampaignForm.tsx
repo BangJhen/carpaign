@@ -332,12 +332,12 @@ export function VideographyCampaignForm({
                     clearFieldError("serviceType");
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.serviceType && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih jenis layanan" />
+                      <SelectValue placeholder="Pengambilan Footage + Editing" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
+                      <SelectItem value="footage_and_edit">Pengambilan Footage + Editing</SelectItem>
                       <SelectItem value="footage_only">Pengambilan Footage Saja</SelectItem>
                       <SelectItem value="edit_only">Editing Saja</SelectItem>
-                      <SelectItem value="footage_and_edit">Pengambilan Footage + Editing</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.serviceType && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.serviceType}</p>}
@@ -352,10 +352,10 @@ export function VideographyCampaignForm({
                     if (val === "single_unit" && selectedVehicles.length > 1) setSelectedVehicles([selectedVehicles[0]]);
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.promotionalFocus && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih objek konten" />
+                      <SelectValue placeholder="Dealer" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                      <SelectItem value="dealer">Dealer / Showroom</SelectItem>
+                      <SelectItem value="dealer">Dealer</SelectItem>
                       <SelectItem value="single_unit">Satu Unit Kendaraan</SelectItem>
                       <SelectItem value="multiple_units">Beberapa Unit Kendaraan</SelectItem>
                     </SelectContent>

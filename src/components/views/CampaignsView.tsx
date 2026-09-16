@@ -207,7 +207,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
             </Button>
             <Select defaultValue="all">
               <SelectTrigger className="h-9 text-[13px] bg-[#111316] border-white/5 hover:bg-white/10 w-[140px] rounded-lg shrink-0 font-medium">
-                <SelectValue placeholder="Brand Mobil" />
+                <SelectValue placeholder="Semua Brand" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Brand</SelectItem>
@@ -218,7 +218,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
             </Select>
             <Select defaultValue="newest">
               <SelectTrigger className="h-9 text-[13px] bg-[#111316] border-white/5 hover:bg-white/10 w-[120px] rounded-lg shrink-0 font-medium">
-                <SelectValue placeholder="Urutkan" />
+                <SelectValue placeholder="Terbaru" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Terbaru</SelectItem>

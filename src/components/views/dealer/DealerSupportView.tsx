@@ -30,7 +30,7 @@ const fadeUp = {
 };
 
 export function DealerSupportView() {
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("topup");
   const [subject, setSubject] = useState("");
   const [details, setDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -164,7 +164,7 @@ export function DealerSupportView() {
                       </label>
                       <Select value={category} onValueChange={setCategory}>
                         <SelectTrigger className="bg-white/[0.02] border-white/10 text-xs text-white rounded-xl h-10">
-                          <SelectValue placeholder="Pilih Kategori" />
+                          <SelectValue placeholder="Top Up Saldo dan Faktur Pajak" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#14161a] border-white/10 text-white text-xs">
                           <SelectItem value="topup">Top Up Saldo dan Faktur Pajak</SelectItem>

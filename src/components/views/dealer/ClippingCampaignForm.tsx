@@ -303,10 +303,10 @@ export function ClippingCampaignForm({
                     if (val === "single_unit" && selectedVehicles.length > 1) setSelectedVehicles([selectedVehicles[0]]);
                   }}>
                     <SelectTrigger className={cn("bg-white/5 border-white/10 text-white", errors.promotionalFocus && "border-red-500/60 bg-red-500/[0.03]")}>
-                      <SelectValue placeholder="Pilih fokus promosi" />
+                      <SelectValue placeholder="Dealer" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                      <SelectItem value="dealer">Dealer secara keseluruhan</SelectItem>
+                      <SelectItem value="dealer">Dealer</SelectItem>
                       <SelectItem value="single_unit">Satu Unit Kendaraan</SelectItem>
                       <SelectItem value="multiple_units">Beberapa Unit Kendaraan</SelectItem>
                     </SelectContent>
