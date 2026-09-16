@@ -359,10 +359,16 @@ export function DashboardView({
                           <SelectItem value="toyota">Toyota Auto2000</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Button variant="outline" size="sm" className="h-9 gap-2 border-white/10 bg-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground rounded-lg w-full sm:w-auto px-4">
-                        Urutkan dari
-                        <Filter className="size-3.5" />
-                      </Button>
+                      <Select defaultValue="newest">
+                        <SelectTrigger className="w-full sm:w-[160px] h-9 text-[13px] bg-transparent border-white/10 hover:bg-white/5 transition-colors rounded-lg font-medium">
+                          <SelectValue placeholder="Terbaru" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="newest">Terbaru</SelectItem>
+                          <SelectItem value="highest_pay">Bayaran Tertinggi</SelectItem>
+                          <SelectItem value="oldest">Terlama</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     
                     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent py-20 text-center">

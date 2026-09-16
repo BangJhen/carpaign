@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Eye, Megaphone, Video, CheckCircle2, Calendar, ChevronDown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -162,14 +163,22 @@ export function AnalitikView() {
                 </button>
               </div>
 
-              {/* Date Picker Approximation */}
-              <Button variant="outline" className="bg-[#1A1C20] border-white/5 hover:bg-white/5 text-foreground justify-between w-[200px] h-10 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Calendar className="size-4 text-muted-foreground" />
-                  <span className="text-[13px]">28 hari terakhir</span>
-                </div>
-                <ChevronDown className="size-4 text-muted-foreground" />
-              </Button>
+              {/* Date Range Select */}
+              <Select defaultValue="28_days">
+                <SelectTrigger className="bg-[#1A1C20] border-white/5 hover:bg-white/5 text-foreground justify-between w-[200px] h-10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="size-4 text-muted-foreground shrink-0" />
+                    <SelectValue placeholder="28 hari terakhir" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-[#1A1C20] border-white/10 text-white text-xs">
+                  <SelectItem value="7_days">7 hari terakhir</SelectItem>
+                  <SelectItem value="28_days">28 hari terakhir</SelectItem>
+                  <SelectItem value="90_days">90 hari terakhir</SelectItem>
+                  <SelectItem value="this_month">Bulan ini</SelectItem>
+                  <SelectItem value="all_time">Semua waktu</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

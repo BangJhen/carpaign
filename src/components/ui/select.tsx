@@ -14,7 +14,7 @@ type SelectContextType = {
 const SelectCustomContext = React.createContext<SelectContextType | null>(null);
 
 const KNOWN_LABELS: Record<string, string> = {
-  dealer: "Dealer secara keseluruhan",
+  dealer: "Dealer",
   single_unit: "Satu Unit Kendaraan",
   multiple_units: "Beberapa Unit Kendaraan",
   footage_only: "Pengambilan Footage Saja",
@@ -25,23 +25,86 @@ const KNOWN_LABELS: Record<string, string> = {
   both: "Keduanya (Distribusi & Aset Konten)",
   visit: "Kunjungan ke Dealer",
   remote: "Produksi Jarak Jauh",
+  all: "Semua",
+  newest: "Terbaru",
+  highest_pay: "Bayaran Tertinggi",
+  lowest_pay: "Bayaran Terendah",
+  payment: "Pencairan Dana Saldo",
+  campaign: "Masalah Submit Campaign",
+  account: "Kendala Akun dan Profil",
+  other: "Lainnya",
+  clipping: "Clipping",
+  ugc: "UGC/Review",
+  videographer: "Videographer/Edit",
+  "test-drive": "Test Drive",
+  topup: "Top Up Saldo dan Faktur Pajak",
+  review: "Verifikasi Konten dan Submisi Kreator",
+  inventory: "Inventory Kendaraan Showroom",
+  toyota: "Toyota",
+  honda: "Honda",
+  hyundai: "Hyundai",
+  BCA: "BCA",
+  Mandiri: "Mandiri",
+  BRI: "BRI",
+  BNI: "BNI",
+  "CIMB Niaga": "CIMB Niaga",
+  BSI: "BSI",
+  GoPay: "GoPay",
+  OVO: "OVO",
+  DANA: "DANA",
 };
+
+function extractLabels(node: React.ReactNode, acc: Record<string, React.ReactNode> = {}) {
+  React.Children.forEach(node, (child) => {
+    if (!React.isValidElement(child)) return;
+    const props = child.props as any;
+    if (!props) return;
+
+    if (props.value !== undefined) {
+      const label = props.label !== undefined ? props.label : props.children;
+      if (label !== undefined) {
+        acc[props.value] = label;
+        acc[String(props.value)] = label;
+      }
+    }
+
+    if (props.children) {
+      extractLabels(props.children, acc);
+    }
+  });
+  return acc;
+}
 
 function Select({
   children,
+  items: itemsProp,
   ...props
 }: SelectPrimitive.Root.Props<any, any>) {
-  const [labels, setLabels] = React.useState<Record<string, React.ReactNode>>({});
+  const extractedLabels = React.useMemo(() => {
+    const map: Record<string, React.ReactNode> = {};
+    extractLabels(children, map);
+    return map;
+  }, [children]);
+
+  const [dynamicLabels, setDynamicLabels] = React.useState<Record<string, React.ReactNode>>({});
 
   const registerLabel = React.useCallback((value: any, label: React.ReactNode) => {
     if (value != null && label != null) {
-      setLabels((prev) => (prev[value] === label ? prev : { ...prev, [value]: label }));
+      setDynamicLabels((prev) => (prev[value] === label ? prev : { ...prev, [value]: label, [String(value)]: label }));
     }
   }, []);
 
+  const mergedLabels = React.useMemo(() => {
+    const base: Record<string, React.ReactNode> = { ...extractedLabels, ...dynamicLabels };
+    if (itemsProp && !Array.isArray(itemsProp)) {
+      Object.assign(base, itemsProp);
+    }
+    return base;
+  }, [extractedLabels, dynamicLabels, itemsProp]);
+
   return (
-    <SelectCustomContext.Provider value={{ labels, registerLabel }}>
-      <SelectPrimitive.Root {...props}>
+    <SelectCustomContext.Provider value={{ labels: mergedLabels, registerLabel }}>
+      <SelectPrimitive.Root items={mergedLabels} {...props}>
         {children}
       </SelectPrimitive.Root>
     </SelectCustomContext.Provider>
@@ -72,8 +135,27 @@ function SelectValue({ className, placeholder, children: childrenProp, ...props 
         if (val == null || val === "") return placeholder ?? null;
         if (typeof childrenProp === "function") return childrenProp(val);
         if (childrenProp != null) return childrenProp;
-        if (ctx?.labels[val]) return ctx.labels[val];
+
+        const strVal = String(val);
+
+        // 1. Check extracted/registered labels in context
+        if (ctx?.labels) {
+          if (ctx.labels[val] !== undefined && ctx.labels[val] !== null) return ctx.labels[val];
+          if (ctx.labels[strVal] !== undefined && ctx.labels[strVal] !== null) return ctx.labels[strVal];
+        }
+
+        // 2. If val is a generic key like "all", "default", "none" and placeholder exists, use placeholder
+        if (placeholder && (strVal === "all" || strVal === "default" || strVal === "none")) {
+          return placeholder;
+        }
+
+        // 3. Fallback to KNOWN_LABELS
         if (typeof val === "string" && KNOWN_LABELS[val]) return KNOWN_LABELS[val];
+        if (KNOWN_LABELS[strVal]) return KNOWN_LABELS[strVal];
+
+        // 4. Fallback to placeholder if provided
+        if (placeholder) return placeholder;
+
         return val;
       }}
     </SelectPrimitive.Value>
