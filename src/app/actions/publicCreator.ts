@@ -10,6 +10,7 @@ export type PublicCreatorProfile = {
   username: string | null;
   city: string | null;
   bio: string | null;
+  phone?: string | null;
   tiktokUsername: string | null;
   instagramUsername: string | null;
   youtubeUsername: string | null;
@@ -30,6 +31,7 @@ export async function getPublicCreatorByRef(
       username: creatorProfiles.username,
       city: creatorProfiles.city,
       bio: creatorProfiles.bio,
+      phone: creatorProfiles.phone,
       tiktokUsername: creatorProfiles.tiktokUsername,
       instagramUsername: creatorProfiles.instagramUsername,
       youtubeUsername: creatorProfiles.youtubeUsername,

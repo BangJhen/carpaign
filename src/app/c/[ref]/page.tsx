@@ -37,5 +37,5 @@ export default async function PublicCreatorPage({ params }: Props) {
     notFound();
   }
 
-  return <PublicCreatorProfileView profile={profile} ref={ref} />;
+  return <PublicCreatorProfileView profile={profile} />;
 }
