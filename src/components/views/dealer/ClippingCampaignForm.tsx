@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,11 +64,8 @@ export function ClippingCampaignForm({
   // Step 3 State
   const [budget, setBudget] = useState("1.000.000");
   const [cpm, setCpm] = useState("15.000");
-  const [maxPayoutPerClipper, setMaxPayoutPerClipper] = useState("250.000");
-  const [startDate, setStartDate] = useState("1 Okt 2026");
-  const [publishDeadline, setPublishDeadline] = useState("15 Okt 2026");
+  const [maxViewsPerClipper, setMaxViewsPerClipper] = useState("100.000");
   const [viewsCalculationPeriod, setViewsCalculationPeriod] = useState("7");
-  const [clipperRequirements, setClipperRequirements] = useState("Minimal 1.000 followers, akun publik");
   const [maxContentPerClipper, setMaxContentPerClipper] = useState("1");
 
   const toggleVehicle = (id: string) => {
@@ -132,28 +129,20 @@ export function ClippingCampaignForm({
     if (currentStep === 3) {
       const rawBudget = budget.replace(/\D/g, "").trim();
       const numBudget = parseInt(rawBudget, 10);
-      if (!rawBudget || isNaN(numBudget) || numBudget <= 0) {
-        newErrors.budget = "Total budget harus berupa nominal lebih dari 0";
+      if (!rawBudget || isNaN(numBudget) || numBudget < 1000000) {
+        newErrors.budget = "Total budget campaign minimal Rp 1.000.000";
       }
 
       const rawCpm = cpm.replace(/\D/g, "").trim();
       const numCpm = parseInt(rawCpm, 10);
-      if (!rawCpm || isNaN(numCpm) || numCpm <= 0) {
-        newErrors.cpm = "Tarif CPM harus berupa nominal lebih dari 0";
+      if (!rawCpm || isNaN(numCpm) || numCpm < 500) {
+        newErrors.cpm = "Tarif per 1.000 views (CPM) minimal Rp 500";
       }
 
-      const rawMaxPayout = maxPayoutPerClipper.replace(/\D/g, "").trim();
-      const numMaxPayout = parseInt(rawMaxPayout, 10);
-      if (!rawMaxPayout || isNaN(numMaxPayout) || numMaxPayout <= 0) {
-        newErrors.maxPayoutPerClipper = "Batas pembayaran per clipper harus berupa nominal lebih dari 0";
-      }
-
-      if (!startDate.trim()) {
-        newErrors.startDate = "Tanggal mulai publikasi wajib ditentukan";
-      }
-
-      if (!publishDeadline.trim()) {
-        newErrors.publishDeadline = "Batas publikasi wajib ditentukan";
+      const rawMaxViews = maxViewsPerClipper.replace(/\D/g, "").trim();
+      const numMaxViews = parseInt(rawMaxViews, 10);
+      if (!rawMaxViews || isNaN(numMaxViews) || numMaxViews < 10000) {
+        newErrors.maxViewsPerClipper = "Batas maksimal views per clipper minimal 10.000 views";
       }
     }
 
@@ -170,18 +159,29 @@ export function ClippingCampaignForm({
     setStep((s) => Math.min(4, s + 1));
   };
 
+  // Campaign dates (standard locked 30 days)
+  const today = new Date();
+  const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const formatDisplayDate = (d: Date) =>
+    d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+
   const handleSubmit = (status: "draft" | "active") => {
     setError("");
     startTransition(async () => {
       try {
+        const parsedBudget = parseInt(budget.replace(/\D/g, ""), 10);
+        const parsedCpm = parseInt(cpm.replace(/\D/g, ""), 10);
+        const parsedMaxViews = parseInt(maxViewsPerClipper.replace(/\D/g, ""), 10);
+        const calculatedMaxPayout = Math.floor((parsedMaxViews / 1000) * parsedCpm);
+
         const payload = {
           title,
           promotionalFocus,
           vehicles: selectedVehicles,
           type: "Clipping" as const,
-          budget: parseInt(budget.replace(/\D/g, ""), 10),
-          startDate,
-          deadline: publishDeadline,
+          budget: parsedBudget,
+          startDate: today.toISOString(),
+          deadline: endDate.toISOString(),
           status, // 'draft' or 'active'
           details: {
             description,
@@ -194,11 +194,12 @@ export function ClippingCampaignForm({
             captionHashtagTags,
             cta,
             forbiddenContent,
-            cpm: parseInt(cpm.replace(/\D/g, ""), 10),
-            maxPayoutPerClipper: parseInt(maxPayoutPerClipper.replace(/\D/g, ""), 10),
+            cpm: parsedCpm,
+            maxViewsPerClipper: parsedMaxViews,
+            maxPayoutPerClipper: calculatedMaxPayout,
+            campaignDurationDays: 30,
             viewsCalculationPeriod,
-            clipperRequirements,
-            maxContentPerClipper: parseInt(maxContentPerClipper, 10),
+            maxContentPerClipper: parseInt(maxContentPerClipper, 10) || 1,
           }
         };
 
@@ -211,10 +212,14 @@ export function ClippingCampaignForm({
     });
   };
 
-  // Calculate Capacity
+  // Calculate Capacity & Estimated Max Payout
   const numBudget = parseInt(budget.replace(/\D/g, ""), 10) || 0;
   const numCpm = parseInt(cpm.replace(/\D/g, ""), 10) || 0;
+  const numMaxViews = parseInt(maxViewsPerClipper.replace(/\D/g, ""), 10) || 0;
   const estimatedViewsCapacity = numCpm > 0 ? Math.floor((numBudget / numCpm) * 1000) : 0;
+  const estimatedMaxPayoutPerClipper = numCpm > 0 && numMaxViews > 0 
+    ? Math.floor((numMaxViews / 1000) * numCpm) 
+    : 0;
 
   return (
     <div className="flex flex-col gap-8 w-full">
@@ -503,41 +508,52 @@ export function ClippingCampaignForm({
             <motion.div key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
               <div>
                 <h2 className="text-[16px] font-semibold text-white">Budget & Ketentuan</h2>
-                <p className="text-[12px] text-white/40 mt-1">Mengatur jadwal dan tarif pembayaran berdasarkan Cost Per Mille (Views).</p>
+                <p className="text-[12px] text-white/40 mt-1">Mengatur alokasi dana, tarif pembayaran per views, dan durasi campaign.</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Total Budget Campaign <span className="text-red-400">*</span></label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-medium text-white/40">Total Budget Campaign <span className="text-red-400">*</span></label>
+                    <span className="text-[10px] text-primary/80 font-medium">Min. Rp 1.000.000</span>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                     <Input
                       value={budget}
                       onChange={(e) => {
-                        setBudget(e.target.value);
+                        const raw = e.target.value.replace(/\D/g, "");
+                        const formatted = raw ? parseInt(raw, 10).toLocaleString("id-ID") : "";
+                        setBudget(formatted);
                         clearFieldError("budget");
                       }}
                       placeholder="1.000.000"
                       className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.budget && "border-red-500/60 bg-red-500/[0.03]")}
                     />
                   </div>
-                  <p className="text-[10px] text-white/30">Dana cadangan yang disiapkan.</p>
+                  <p className="text-[10px] text-white/30">Minimal anggaran Rp 1.000.000 untuk memulai campaign.</p>
                   {errors.budget && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.budget}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tarif per 1.000 Views (CPM) <span className="text-red-400">*</span></label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-medium text-white/40">Tarif per 1.000 Views (CPM) <span className="text-red-400">*</span></label>
+                    <span className="text-[10px] text-primary/80 font-medium">Min. Rp 500</span>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                     <Input
                       value={cpm}
                       onChange={(e) => {
-                        setCpm(e.target.value);
+                        const raw = e.target.value.replace(/\D/g, "");
+                        const formatted = raw ? parseInt(raw, 10).toLocaleString("id-ID") : "";
+                        setCpm(formatted);
                         clearFieldError("cpm");
                       }}
                       placeholder="15.000"
                       className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.cpm && "border-red-500/60 bg-red-500/[0.03]")}
                     />
                   </div>
+                  <p className="text-[10px] text-white/30">Tarif kompensasi minimal Rp 500 per 1.000 views.</p>
                   {errors.cpm && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.cpm}</p>}
                 </div>
               </div>
@@ -552,53 +568,67 @@ export function ClippingCampaignForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-medium text-white/40">Batas Pembayaran per Clipper <span className="text-red-400">*</span></label>
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-medium text-white/40">
+                    Batas Maksimal Views per Clipper <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-[10px] text-primary/80 font-medium">Bisa Disesuaikan (Min. 10.000 Views)</span>
+                </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                   <Input
-                    value={maxPayoutPerClipper}
+                    value={maxViewsPerClipper}
                     onChange={(e) => {
-                      setMaxPayoutPerClipper(e.target.value);
-                      clearFieldError("maxPayoutPerClipper");
+                      const raw = e.target.value.replace(/\D/g, "");
+                      const formatted = raw ? parseInt(raw, 10).toLocaleString("id-ID") : "";
+                      setMaxViewsPerClipper(formatted);
+                      clearFieldError("maxViewsPerClipper");
                     }}
-                    placeholder="250.000"
-                    className={cn("pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.maxPayoutPerClipper && "border-red-500/60 bg-red-500/[0.03]")}
+                    placeholder="100.000"
+                    className={cn(
+                      "pr-16 bg-white/5 border-white/10 text-white placeholder:text-white/20",
+                      errors.maxViewsPerClipper && "border-red-500/60 bg-red-500/[0.03]"
+                    )}
                   />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-white/40">Views</span>
                 </div>
-                <p className="text-[10px] text-white/30">Mencegah budget habis oleh satu kreator saja.</p>
-                {errors.maxPayoutPerClipper && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.maxPayoutPerClipper}</p>}
+                <p className="text-[10px] text-white/30">
+                  Penayangan di atas batas ini tidak akan dibayarkan. Estimasi maks. pembayaran per clipper:{" "}
+                  <span className="text-white/80 font-medium">
+                    Rp {estimatedMaxPayoutPerClipper.toLocaleString("id-ID")}
+                  </span>
+                </p>
+                {errors.maxViewsPerClipper && (
+                  <p className="text-[11px] text-red-400 font-medium mt-1">{errors.maxViewsPerClipper}</p>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tanggal Mulai Publikasi <span className="text-red-400">*</span></label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      clearFieldError("startDate");
-                    }}
-                    className={cn("bg-white/5 border-white/10 text-white [color-scheme:dark]", errors.startDate && "border-red-500/60 bg-red-500/[0.03]")}
-                  />
-                  {errors.startDate && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.startDate}</p>}
+              {/* Durasi Campaign (30 Hari Terkunci) */}
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="size-4 text-primary" />
+                    <span className="text-[12px] font-semibold text-white">Durasi Campaign: 30 Hari Aktif</span>
+                  </div>
+                  <span className="text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    Standar Terkunci
+                  </span>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Publikasi <span className="text-red-400">*</span></label>
-                  <Input
-                    type="date"
-                    value={publishDeadline}
-                    onChange={(e) => {
-                      setPublishDeadline(e.target.value);
-                      clearFieldError("publishDeadline");
-                    }}
-                    className={cn("bg-white/5 border-white/10 text-white [color-scheme:dark]", errors.publishDeadline && "border-red-500/60 bg-red-500/[0.03]")}
-                  />
-                  {errors.publishDeadline && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.publishDeadline}</p>}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 rounded-lg bg-black/20 border border-white/5">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-white/30 block mb-1">Mulai Publikasi</span>
+                    <span className="text-[13px] font-medium text-white">{formatDisplayDate(today)}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-black/20 border border-white/5">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-white/30 block mb-1">Batas Publikasi (30 Hari)</span>
+                    <span className="text-[13px] font-medium text-white">{formatDisplayDate(endDate)}</span>
+                  </div>
                 </div>
+                <p className="text-[11px] text-white/35 leading-relaxed">
+                  Campaign otomatis berlaku selama 30 hari kalender sejak diterbitkan. Durasi ini bersifat standar dan belum dapat diubah untuk saat ini.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div className="space-y-2">
                   <label className="text-[11px] font-medium text-white/40">Periode Hitung Views</label>
                   <div className="relative">
@@ -610,15 +640,20 @@ export function ClippingCampaignForm({
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-white/30">Hari</span>
                   </div>
+                  <p className="text-[10px] text-white/30">Waktu akumulasi performa views setelah video diunggah.</p>
                 </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <label className="text-[11px] font-medium text-white/40">Syarat Akun Clipper (Min. Followers, Niche)</label>
-                  <Input
-                    value={clipperRequirements}
-                    onChange={(e) => setClipperRequirements(e.target.value)}
-                    placeholder="Minimal 1.000 followers, akun publik"
-                    className="bg-white/5 border-white/10 text-white"
-                  />
+                <div className="space-y-2">
+                  <label className="text-[11px] font-medium text-white/40">Maks. Konten per Clipper</label>
+                  <div className="relative">
+                    <Input
+                      value={maxContentPerClipper}
+                      onChange={(e) => setMaxContentPerClipper(e.target.value)}
+                      placeholder="1"
+                      className="pr-16 bg-white/5 border-white/10 text-white"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-white/30">Video</span>
+                  </div>
+                  <p className="text-[10px] text-white/30">Batas jumlah pengajuan video per kreator.</p>
                 </div>
               </div>
             </motion.div>
@@ -671,7 +706,11 @@ export function ClippingCampaignForm({
                   <div className="grid grid-cols-2 gap-y-3 text-[12px]">
                     <div className="text-white/40">Total Budget</div><div className="text-white font-medium">Rp {numBudget.toLocaleString("id-ID")}</div>
                     <div className="text-white/40">Tarif CPM</div><div className="text-white">Rp {numCpm.toLocaleString("id-ID")} / 1.000 views</div>
-                    <div className="text-white/40">Est. Kapasitas</div><div className="text-primary font-medium">{estimatedViewsCapacity.toLocaleString("id-ID")} Views</div>
+                    <div className="text-white/40">Est. Kapasitas Views</div><div className="text-primary font-medium">{estimatedViewsCapacity.toLocaleString("id-ID")} Views</div>
+                    <div className="text-white/40">Batas Max Views / Clipper</div><div className="text-white font-medium">{numMaxViews.toLocaleString("id-ID")} Views (Maks. Rp {estimatedMaxPayoutPerClipper.toLocaleString("id-ID")})</div>
+                    <div className="text-white/40">Durasi Campaign</div><div className="text-white font-medium">30 Hari Kalender ({formatDisplayDate(today)} s.d. {formatDisplayDate(endDate)})</div>
+                    <div className="text-white/40">Periode Hitung Views</div><div className="text-white">{viewsCalculationPeriod} Hari</div>
+                    <div className="text-white/40">Maks. Video / Clipper</div><div className="text-white">{maxContentPerClipper} Video</div>
                   </div>
                 </div>
               </div>

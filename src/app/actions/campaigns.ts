@@ -26,6 +26,10 @@ export async function createCampaign(input: CreateCampaignInput) {
     throw new Error("Unauthorized");
   }
 
+  if (input.budget < 1000000) {
+    throw new Error("Budget campaign minimal Rp 1.000.000");
+  }
+
   await db.insert(campaigns).values({
     dealerId: session.user.id,
     title: input.title,

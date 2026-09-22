@@ -168,6 +168,8 @@ export function UgcCampaignForm({
       const numFee = parseInt(rawFee, 10);
       if (!rawFee || isNaN(numFee) || numFee <= 0) {
         newErrors.feePerCreator = "Fee per kreator harus berupa nominal lebih dari 0";
+      } else if (numBudget < 1000000) {
+        newErrors.feePerCreator = "Total budget campaign minimal Rp 1.000.000 (Jumlah Kreator × Fee per Kreator)";
       }
 
       if (productionMethod === "visit" && !productionLocation.trim()) {

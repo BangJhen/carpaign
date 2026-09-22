@@ -157,8 +157,8 @@ export function VideographyCampaignForm({
     if (currentStep === 3) {
       const rawFee = feeAmount.replace(/\D/g, "").trim();
       const numFee = parseInt(rawFee, 10);
-      if (!rawFee || isNaN(numFee) || numFee <= 0) {
-        newErrors.feeAmount = "Fee pekerjaan harus berupa nominal lebih dari 0";
+      if (!rawFee || isNaN(numFee) || numFee < 1000000) {
+        newErrors.feeAmount = "Fee pekerjaan / budget campaign minimal Rp 1.000.000";
       }
 
       if (isFootageIncluded && !productionLocation.trim()) {
