@@ -29,6 +29,8 @@ async function getCampaignById(id: string): Promise<Campaign | null> {
       deadline: campaignsTable.deadline,
       applicantsCount: campaignsTable.applicantsCount,
       promotionalFocus: campaignsTable.promotionalFocus,
+      thumbnail: campaignsTable.thumbnail,
+      details: campaignsTable.details,
       dealerName: dealerProfiles.dealerName,
       userDealerName: user.name,
       coverImage: dealerProfiles.coverImage,
@@ -54,6 +56,8 @@ async function getCampaignById(id: string): Promise<Campaign | null> {
     reward: `Rp${row.budget.toLocaleString("id-ID")}`,
     description: `Kampanye ${row.type} resmi dari ${row.dealerName || row.userDealerName || "dealer rekanan"}.`,
     image:
+      row.thumbnail ||
+      (row.details as any)?.thumbnail ||
       row.coverImage ||
       "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1200",
     quota: `${row.applicantsCount} Pelamar`,

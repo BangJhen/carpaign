@@ -9,6 +9,7 @@ import type { CampaignType, CampaignStatus } from "@/db/schema";
 
 export type CreateCampaignInput = {
   title: string;
+  thumbnail?: string;
   promotionalFocus: "dealer" | "single_unit" | "multiple_units";
   vehicles: string[];
   type: CampaignType;
@@ -30,13 +31,20 @@ export async function createCampaign(input: CreateCampaignInput) {
     throw new Error("Budget campaign minimal Rp 1.000.000");
   }
 
+  const campaignThumbnail = input.thumbnail?.trim() || null;
+  const mergedDetails = {
+    ...(input.details || {}),
+    thumbnail: campaignThumbnail,
+  };
+
   await db.insert(campaigns).values({
     dealerId: session.user.id,
     title: input.title,
+    thumbnail: campaignThumbnail,
     promotionalFocus: input.promotionalFocus,
     vehicles: input.vehicles,
     type: input.type,
-    details: input.details,
+    details: mergedDetails,
     budget: input.budget,
     startDate: new Date(input.startDate),
     deadline: new Date(input.deadline),

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function DealerDashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  let topCampaigns: { id: string; title: string; applicants: number; views: string; status: string }[] = [];
+  let topCampaigns: { id: string; title: string; thumbnail?: string | null; applicants: number; views: string; status: string }[] = [];
   let totalCampaigns = 0;
   let activeCampaigns = 0;
   let profileCompleteness = 0;
@@ -36,6 +36,7 @@ export default async function DealerDashboardPage() {
     topCampaigns = campaignRows.map((r) => ({
       id: r.id,
       title: r.title,
+      thumbnail: r.thumbnail || (r.details as any)?.thumbnail || null,
       applicants: r.applicantsCount,
       views: r.views,
       status: r.status,

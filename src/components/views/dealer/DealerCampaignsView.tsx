@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, MoreHorizontal, Plus } from "lucide-react";
+import { ArrowUpRight, MoreHorizontal, Plus, Car } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -27,6 +27,7 @@ export type CampaignStatus = "active" | "draft" | "completed" | "cancelled";
 export type Campaign = {
   id: string;
   title: string;
+  thumbnail?: string | null;
   focus: string;
   type: string;
   budget: string;
@@ -122,9 +123,26 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                     key={campaign.id}
                     className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.015] transition-colors group"
                   >
+                    {/* Thumbnail */}
+                    <div className="relative size-12 sm:w-16 sm:h-12 rounded-lg overflow-hidden shrink-0 bg-black/40 border border-white/10">
+                      {campaign.thumbnail ? (
+                        <img
+                          src={campaign.thumbnail}
+                          alt={campaign.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/20 bg-white/[0.02]">
+                          <Car className="size-4" />
+                        </div>
+                      )}
+                    </div>
+
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-medium text-white truncate">{campaign.title}</p>
+                      <p className="text-[13px] font-medium text-white truncate group-hover:text-primary transition-colors">
+                        {campaign.title}
+                      </p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <p className="text-[11px] text-white/35 truncate">{campaign.focus}</p>
                         <span className="text-white/15 text-[10px]">|</span>

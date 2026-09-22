@@ -25,6 +25,7 @@ export default async function DealerCampaignsPage() {
     data = rows.map((r) => ({
       id: r.id,
       title: r.title,
+      thumbnail: r.thumbnail || (r.details as any)?.thumbnail || null,
       focus: r.promotionalFocus === "dealer" ? "Dealer Keseluruhan" : r.promotionalFocus === "single_unit" ? "1 Unit Kendaraan" : "Beberapa Unit",
       type: r.type,
       budget: `Rp ${r.budget.toLocaleString("id-ID")}`,

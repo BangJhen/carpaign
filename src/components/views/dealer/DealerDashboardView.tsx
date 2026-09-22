@@ -47,6 +47,7 @@ const fadeUp = {
 type TopCampaign = {
   id: string;
   title: string;
+  thumbnail?: string | null;
   applicants: number;
   views: string;
   status: string;
@@ -598,14 +599,29 @@ export function DealerDashboardView({
                       key={campaign.id}
                       className="p-4 px-6 hover:bg-white/[0.02] transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-white leading-snug truncate">
-                            {campaign.title}
-                          </p>
-                          <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
-                            <span>{campaign.applicants} kreator</span>
-                            <span>{campaign.views} tayangan</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="size-10 rounded-lg overflow-hidden shrink-0 bg-black/40 border border-white/10">
+                            {campaign.thumbnail ? (
+                              <img
+                                src={campaign.thumbnail}
+                                alt={campaign.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/20 bg-white/[0.02]">
+                                <Car className="size-4" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-white leading-snug truncate">
+                              {campaign.title}
+                            </p>
+                            <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+                              <span>{campaign.applicants} kreator</span>
+                              <span>{campaign.views} tayangan</span>
+                            </div>
                           </div>
                         </div>
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white shrink-0">

@@ -22,6 +22,7 @@ export const campaigns = pgTable("campaigns", {
   promotionalFocus: text("promotional_focus").default("dealer").notNull(),
   vehicles: jsonb("vehicles"), // array of vehicle IDs
   type: text("type").$type<CampaignType>().notNull(),
+  thumbnail: text("thumbnail"),
   details: jsonb("details"), // generic payload for specific campaign type
   budget: integer("budget").notNull(),
   startDate: timestamp("start_date"),

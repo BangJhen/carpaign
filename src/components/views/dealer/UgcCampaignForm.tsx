@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createCampaign } from "@/app/actions/campaigns";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { CampaignThumbnailSelector, AUTOMOTIVE_PRESET_THUMBNAILS } from "./CampaignThumbnailSelector";
 
 type Vehicle = { id: string; name: string; location: string; image?: string | null };
 
@@ -46,6 +47,7 @@ export function UgcCampaignForm({
 
   // Step 1 State
   const [title, setTitle] = useState("");
+  const [thumbnail, setThumbnail] = useState(AUTOMOTIVE_PRESET_THUMBNAILS[0].url);
   const [promotionalFocus, setPromotionalFocus] = useState<"dealer" | "single_unit" | "multiple_units">("dealer");
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [mainObjective, setMainObjective] = useState("");
@@ -82,6 +84,10 @@ export function UgcCampaignForm({
 
   const toggleVehicle = (id: string) => {
     clearFieldError("selectedVehicles");
+    const vObj = vehicles.find((v) => v.id === id);
+    if (vObj?.image) {
+      setThumbnail(vObj.image);
+    }
     if (promotionalFocus === "single_unit") {
       setSelectedVehicles([id]);
     } else {
@@ -208,6 +214,7 @@ export function UgcCampaignForm({
       try {
         const payload = {
           title,
+          thumbnail,
           promotionalFocus,
           vehicles: selectedVehicles,
           type: "UGC/Review" as const,
@@ -216,6 +223,7 @@ export function UgcCampaignForm({
           deadline: publishDeadline,
           status,
           details: {
+            thumbnail,
             mainObjective,
             audienceRegion,
             publishPlatforms,
@@ -330,6 +338,13 @@ export function UgcCampaignForm({
                   />
                   {errors.title && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.title}</p>}
                 </div>
+
+                <CampaignThumbnailSelector
+                  value={thumbnail}
+                  onChange={setThumbnail}
+                  selectedVehicleImages={vehicles.filter((v) => selectedVehicles.includes(v.id))}
+                  error={errors.thumbnail}
+                />
 
                 <div className="space-y-2">
                   <label className="text-[11px] font-medium text-white/40">Fokus Promosi <span className="text-red-400">*</span></label>
@@ -778,8 +793,19 @@ export function UgcCampaignForm({
                     <h3 className="text-[13px] font-semibold text-white">Informasi Dasar</h3>
                     <button onClick={() => setStep(1)} className="text-[11px] text-primary hover:underline">Edit</button>
                   </div>
+                  <div className="flex flex-col sm:flex-row gap-4 items-start mb-4 p-3.5 rounded-lg bg-black/25 border border-white/5">
+                    {thumbnail && (
+                      <div className="w-full sm:w-28 h-20 rounded-lg overflow-hidden shrink-0 border border-white/10 bg-black/40">
+                        <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-primary">Thumbnail Kampanye</span>
+                      <p className="text-[14px] font-semibold text-white truncate">{title || "Judul Kampanye"}</p>
+                      <p className="text-[11px] text-white/40 line-clamp-2">{mainObjective}</p>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-y-3 text-[12px]">
-                    <div className="text-white/40">Judul</div><div className="text-white font-medium">{title}</div>
                     <div className="text-white/40">Fokus</div><div className="text-white">{promotionalFocus}</div>
                     <div className="text-white/40">Tujuan</div><div className="text-white">{mainObjective}</div>
                   </div>

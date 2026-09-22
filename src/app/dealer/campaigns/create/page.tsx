@@ -14,11 +14,16 @@ export const metadata: Metadata = {
 export default async function CreateCampaignPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  let dealerVehicles: { id: string; name: string; location: string }[] = [];
+  let dealerVehicles: { id: string; name: string; location: string; image?: string | null }[] = [];
 
   if (session?.user?.id) {
     const rows = await db
-      .select({ id: vehicles.id, name: vehicles.name, location: vehicles.location })
+      .select({
+        id: vehicles.id,
+        name: vehicles.name,
+        location: vehicles.location,
+        image: vehicles.image,
+      })
       .from(vehicles)
       .where(eq(vehicles.dealerId, session.user.id));
     dealerVehicles = rows;
