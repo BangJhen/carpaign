@@ -431,7 +431,7 @@ export function AnalitikView() {
               </>
             ) : (
               <>
-                <FileSpreadsheet className="size-4 text-emerald-400 group-hover:text-primary transition-colors" />
+                <FileSpreadsheet className="size-4 text-primary group-hover:text-primary transition-colors" />
                 <span>Export Laporan Excel (.xlsx)</span>
               </>
             )}

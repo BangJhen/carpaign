@@ -222,7 +222,7 @@ export function LeaderboardView() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="text-[14px] sm:text-[16px] font-bold text-foreground truncate">{user.name}</h4>
-                  {user.trend === 'up' && <ArrowUp className="size-3 text-emerald-400" />}
+                  {user.trend === 'up' && <ArrowUp className="size-3 text-primary" />}
                   {user.trend === 'down' && <ArrowDown className="size-3 text-red-400" />}
                 </div>
                 <div className="text-[11px] sm:text-[13px] text-muted-foreground flex items-center gap-3">

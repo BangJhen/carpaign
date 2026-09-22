@@ -91,7 +91,7 @@ export function ApplyJobModal({ open, onOpenChange, job }: ApplyJobModalProps) {
               <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">Deadline</p>
             </div>
             <div className="bg-[#1A1C20] rounded-xl p-3 border border-white/5 text-center">
-              <MapPin className="size-4 text-emerald-400 mx-auto mb-1" />
+              <MapPin className="size-4 text-[#D4AF37] mx-auto mb-1" />
               <p className="text-sm font-black text-white truncate">{job.location}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">Lokasi</p>
             </div>
@@ -139,7 +139,7 @@ export function ApplyJobModal({ open, onOpenChange, job }: ApplyJobModalProps) {
             disabled={isLoading || applied}
             className={`h-12 w-full rounded-xl font-black text-[15px] mt-2 transition-all ${
               applied
-                ? "bg-emerald-500 text-white"
+                ? "bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30"
                 : "bg-gradient-to-r from-[#D4AF37] to-[#b39023] text-black hover:opacity-90 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
             }`}
           >

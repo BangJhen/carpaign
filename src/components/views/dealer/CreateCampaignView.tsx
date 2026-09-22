@@ -32,7 +32,15 @@ const CAMPAIGN_TYPES: { value: CampaignType; title: string; description: string;
   },
 ];
 
-type Vehicle = { id: string; name: string; location: string; image?: string | null };
+type Vehicle = {
+  id: string;
+  name: string;
+  location: string;
+  image?: string | null;
+  year?: number | null;
+  color?: string | null;
+  status?: string | null;
+};
 
 export function CreateCampaignView({ vehicles }: { vehicles: Vehicle[] }) {
   const [selectedType, setSelectedType] = useState<CampaignType | "">("");

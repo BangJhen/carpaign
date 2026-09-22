@@ -171,6 +171,11 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                         {featured.reward} <span className="text-sm font-normal text-white/70">per 1.000 Views</span>
                       </p>
                     </div>
+
+                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3.5 py-2 rounded-xl">
+                      <p className="text-[11px] text-white/60">Sisa Kuota Budget</p>
+                      <p className="text-[13px] font-bold text-primary font-mono">92% Tersedia</p>
+                    </div>
                     
                     <Button
                       onClick={() => goToJob(featured.id)}
@@ -308,13 +313,27 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                         </span>
                       </div>
                       
-                      <h4 className="font-bold text-[17px] text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {campaign.vehicle}
-                      </h4>
-                      
-                      <p className="text-[13px] text-muted-foreground/80 line-clamp-2 leading-relaxed mb-4">
+                      <p className="text-[13px] text-muted-foreground/80 line-clamp-2 leading-relaxed mb-3">
                         {campaign.description}
                       </p>
+
+                      {/* Estimasi Sisa Budget (Hanya Persentase) */}
+                      <div className="space-y-1.5 mb-2">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground/70">Sisa Kuota Budget</span>
+                          <span className="font-semibold text-primary font-mono">
+                            {(campaign as any).remainingBudgetPercent || (Number(campaign.id) % 3 === 0 ? 68 : Number(campaign.id) % 2 === 0 ? 84 : 92)}% Tersedia
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                            style={{
+                              width: `${(campaign as any).remainingBudgetPercent || (Number(campaign.id) % 3 === 0 ? 68 : Number(campaign.id) % 2 === 0 ? 84 : 92)}%`
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">

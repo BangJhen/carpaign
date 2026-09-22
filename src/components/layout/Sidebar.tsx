@@ -105,14 +105,14 @@ export function AppSidebar() {
                       isActive={isActive}
                       tooltip={label}
                       className={cn(
-                        "h-11 transition-all duration-300 rounded-lg px-3",
+                        "h-10 transition-colors duration-200 rounded-xl px-3 flex items-center",
                         isActive
-                          ? "bg-gradient-to-r from-primary/20 via-primary/5 to-transparent border border-primary/30 text-foreground font-semibold shadow-[0_0_15px_rgba(212,175,55,0.1)]"
-                          : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                          ? "bg-primary/10 border border-primary/25 text-white font-semibold shadow-xs"
+                          : "text-white/60 hover:bg-white/[0.04] hover:text-white font-medium"
                       )}
                     >
-                      <Icon className={cn("size-[18px]", isActive ? "text-primary" : "text-muted-foreground/70")} />
-                      <span className="ml-2">{label}</span>
+                      <Icon className={cn("size-[18px] shrink-0", isActive ? "text-primary" : "text-white/40")} />
+                      <span className="ml-2.5 text-[13px] tracking-tight whitespace-nowrap">{label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

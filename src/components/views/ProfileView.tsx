@@ -399,7 +399,7 @@ export function ProfileView({
                   onClick={handleCopyLink}
                   className={`inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold transition-all ${
                     linkCopied
-                      ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
+                      ? "bg-[#D4AF37]/20 border border-[#D4AF37]/30 text-[#D4AF37]"
                       : "bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[#D4AF37] hover:bg-[#D4AF37]/20"
                   }`}
                 >

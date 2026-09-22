@@ -174,7 +174,7 @@ export function DealerDashboardView({
     {
       label: "Unit Showroom",
       value: String(totalVehicles),
-      sub: `${availableVehicles} unit siap kampanye`,
+      sub: `${totalVehicles} unit terdaftar`,
       trend: "neutral",
     },
   ];
@@ -631,7 +631,7 @@ export function DealerDashboardView({
                   <div>
                     <p className="text-xs font-medium text-white">Inventory Kendaraan</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {availableVehicles} unit siap digunakan
+                      {totalVehicles} unit terdaftar
                     </p>
                   </div>
                 </div>

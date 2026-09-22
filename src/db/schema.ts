@@ -1,38 +1,40 @@
 import { relations } from "drizzle-orm";
 import {
-  pgTable,
+  mysqlTable,
+  varchar,
   text,
   timestamp,
-  integer,
-  jsonb,
-} from "drizzle-orm/pg-core";
+  datetime,
+  int,
+  json,
+} from "drizzle-orm/mysql-core";
 import { user } from "./auth-schema";
 
 export type CampaignStatus = "active" | "draft" | "completed" | "cancelled";
 export type CampaignType = "Clipping" | "UGC/Review" | "Videographer/Edit";
 
-export const campaigns = pgTable("campaigns", {
-  id: text("id")
+export const campaigns = mysqlTable("campaigns", {
+  id: varchar("id", { length: 36 })
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  dealerId: text("dealer_id")
+  dealerId: varchar("dealer_id", { length: 36 })
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  promotionalFocus: text("promotional_focus").default("dealer").notNull(),
-  vehicles: jsonb("vehicles"), // array of vehicle IDs
-  type: text("type").$type<CampaignType>().notNull(),
-  details: jsonb("details"), // generic payload for specific campaign type
-  budget: integer("budget").notNull(),
-  startDate: timestamp("start_date"),
+  title: varchar("title", { length: 255 }).notNull(),
+  promotionalFocus: varchar("promotional_focus", { length: 64 }).default("dealer").notNull(),
+  vehicles: json("vehicles"), // array of vehicle IDs
+  type: varchar("type", { length: 64 }).$type<CampaignType>().notNull(),
+  details: json("details"), // generic payload for specific campaign type
+  budget: int("budget").notNull(),
+  startDate: datetime("start_date", { mode: "date" }),
   deadline: timestamp("deadline").notNull(),
-  status: text("status").$type<CampaignStatus>().notNull().default("draft"),
-  applicantsCount: integer("applicants_count").default(0).notNull(),
-  views: text("views").default("0").notNull(),
+  status: varchar("status", { length: 32 }).$type<CampaignStatus>().notNull().default("draft"),
+  applicantsCount: int("applicants_count").default(0).notNull(),
+  views: varchar("views", { length: 64 }).default("0").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => new Date())
+    .onUpdateNow()
     .notNull(),
 });
 
@@ -43,24 +45,24 @@ export const campaignsRelations = relations(campaigns, ({ one }) => ({
   }),
 }));
 
-export const vehicles = pgTable("vehicles", {
-  id: text("id")
+export const vehicles = mysqlTable("vehicles", {
+  id: varchar("id", { length: 36 })
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  dealerId: text("dealer_id")
+  dealerId: varchar("dealer_id", { length: 36 })
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  year: integer("year").notNull(),
-  color: text("color").notNull(),
-  location: text("location").notNull(),
-  status: text("status").notNull().default("available"), // available, in_use
+  name: varchar("name", { length: 255 }).notNull(),
+  year: int("year").notNull(),
+  color: varchar("color", { length: 64 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("available"), // available, in_use
   image: text("image"),
-  campaignsCount: integer("campaigns_count").default(0).notNull(),
+  campaignsCount: int("campaigns_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => new Date())
+    .onUpdateNow()
     .notNull(),
 });
 
@@ -71,25 +73,25 @@ export const vehiclesRelations = relations(vehicles, ({ one }) => ({
   }),
 }));
 
-export const dealerProfiles = pgTable("dealer_profiles", {
-  id: text("id")
+export const dealerProfiles = mysqlTable("dealer_profiles", {
+  id: varchar("id", { length: 36 })
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  userId: text("user_id")
+  userId: varchar("user_id", { length: 36 })
     .notNull()
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
-  dealerName: text("dealer_name"),
-  picName: text("pic_name"),
-  phone: text("phone"),
-  businessEmail: text("business_email"),
+  dealerName: varchar("dealer_name", { length: 255 }),
+  picName: varchar("pic_name", { length: 255 }),
+  phone: varchar("phone", { length: 64 }),
+  businessEmail: varchar("business_email", { length: 255 }),
   address: text("address"),
   coverImage: text("cover_image"),
   avatarImage: text("avatar_image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => new Date())
+    .onUpdateNow()
     .notNull(),
 });
 
@@ -100,32 +102,32 @@ export const dealerProfilesRelations = relations(dealerProfiles, ({ one }) => ({
   }),
 }));
 
-export const creatorProfiles = pgTable("creator_profiles", {
-  id: text("id")
+export const creatorProfiles = mysqlTable("creator_profiles", {
+  id: varchar("id", { length: 36 })
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  userId: text("user_id")
+  userId: varchar("user_id", { length: 36 })
     .notNull()
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
-  fullName: text("full_name"),
-  username: text("username"),
-  phone: text("phone"),
-  city: text("city"),
+  fullName: varchar("full_name", { length: 255 }),
+  username: varchar("username", { length: 255 }),
+  phone: varchar("phone", { length: 64 }),
+  city: varchar("city", { length: 255 }),
   bio: text("bio"),
-  bankName: text("bank_name"),
-  accountNumber: text("account_number"),
-  accountHolderName: text("account_holder_name"),
-  tiktokUsername: text("tiktok_username"),
-  instagramUsername: text("instagram_username"),
-  youtubeUsername: text("youtube_username"),
+  bankName: varchar("bank_name", { length: 64 }),
+  accountNumber: varchar("account_number", { length: 64 }),
+  accountHolderName: varchar("account_holder_name", { length: 255 }),
+  tiktokUsername: varchar("tiktok_username", { length: 255 }),
+  instagramUsername: varchar("instagram_username", { length: 255 }),
+  youtubeUsername: varchar("youtube_username", { length: 255 }),
   avatarImage: text("avatar_image"),
   coverImage: text("cover_image"),
-  referralCode: text("referral_code").unique(),
+  referralCode: varchar("referral_code", { length: 64 }).unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => new Date())
+    .onUpdateNow()
     .notNull(),
 });
 
@@ -135,4 +137,3 @@ export const creatorProfilesRelations = relations(creatorProfiles, ({ one }) => 
     references: [user.id],
   }),
 }));
-

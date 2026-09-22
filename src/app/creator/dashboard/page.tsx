@@ -22,6 +22,7 @@ export default async function CreatorDashboardPage() {
       deadline: campaignsTable.deadline,
       applicantsCount: campaignsTable.applicantsCount,
       promotionalFocus: campaignsTable.promotionalFocus,
+      details: campaignsTable.details,
       dealerName: dealerProfiles.dealerName,
       userDealerName: user.name,
       coverImage: dealerProfiles.coverImage,
@@ -40,6 +41,7 @@ export default async function CreatorDashboardPage() {
     brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
     reward: `Rp${row.budget.toLocaleString("id-ID")}`,
     image:
+      (row.details as any)?.thumbnail ||
       row.coverImage ||
       "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
     type: row.type,

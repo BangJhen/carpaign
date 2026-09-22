@@ -28,10 +28,14 @@ export default async function DealerCampaignsPage() {
       focus: r.promotionalFocus === "dealer" ? "Dealer Keseluruhan" : r.promotionalFocus === "single_unit" ? "1 Unit Kendaraan" : "Beberapa Unit",
       type: r.type,
       budget: `Rp ${r.budget.toLocaleString("id-ID")}`,
-      deadline: r.deadline.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+      rawBudget: r.budget,
+      deadline: r.deadline ? r.deadline.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
+      startDate: r.startDate ? r.startDate.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
       applicants: r.applicantsCount,
       views: r.views,
       status: r.status,
+      details: r.details as any,
+      createdAt: r.createdAt ? r.createdAt.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
     }));
   }
 

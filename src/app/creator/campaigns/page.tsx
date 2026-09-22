@@ -23,6 +23,7 @@ export default async function CreatorCampaignsPage() {
       deadline: campaignsTable.deadline,
       applicantsCount: campaignsTable.applicantsCount,
       promotionalFocus: campaignsTable.promotionalFocus,
+      details: campaignsTable.details,
       dealerName: dealerProfiles.dealerName,
       userDealerName: user.name,
       coverImage: dealerProfiles.coverImage,
@@ -38,6 +39,7 @@ export default async function CreatorCampaignsPage() {
       1,
       Math.ceil((new Date(row.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     );
+    const thumbnail = (row.details as any)?.thumbnail;
     return {
       id: row.id as any,
       brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
@@ -46,6 +48,7 @@ export default async function CreatorCampaignsPage() {
       reward: `Rp${row.budget.toLocaleString("id-ID")}`,
       description: `Kampanye ${row.type} resmi dari ${row.dealerName || row.userDealerName || "dealer rekanan"}.`,
       image:
+        thumbnail ||
         row.coverImage ||
         "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1200",
       quota: `${row.applicantsCount} Pelamar`,

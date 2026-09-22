@@ -187,7 +187,7 @@ export function PendapatanView() {
                   <p className="text-[12px] text-muted-foreground mb-1 uppercase tracking-wider font-semibold">Estimasi Bulan Ini</p>
                   <p className="text-xl font-bold text-white flex items-center gap-2">
                     Rp12.000.000
-                    <ArrowUpRight className="size-4 text-emerald-400" />
+                    <ArrowUpRight className="size-4 text-[#D4AF37]" />
                   </p>
                 </div>
                 <div>
@@ -323,7 +323,7 @@ export function PendapatanView() {
               onClick={() => setTrxFilter("in")}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                 trxFilter === "in"
-                  ? "bg-emerald-500/20 text-emerald-400 shadow-sm"
+                  ? "bg-[#D4AF37]/20 text-[#D4AF37] shadow-sm"
                   : "text-muted-foreground hover:text-white"
               }`}
             >
@@ -416,7 +416,7 @@ export function PendapatanView() {
               </button>
               <button
                 onClick={() => setTrxFilter("in")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${trxFilter === "in" ? "bg-emerald-500/20 text-emerald-400" : "text-muted-foreground"}`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${trxFilter === "in" ? "bg-[#D4AF37]/20 text-[#D4AF37]" : "text-muted-foreground"}`}
               >
                 Masuk
               </button>

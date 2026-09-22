@@ -2,17 +2,67 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle, Eye, Camera, CircleDollarSign, ExternalLink, Check } from "lucide-react";
+import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CampaignThumbnailUploader } from "./CampaignThumbnailUploader";
+import { VehicleSelectDropdown, type VehicleItem } from "./VehicleSelectDropdown";
 import { createCampaign } from "@/app/actions/campaigns";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-type Vehicle = { id: string; name: string; location: string; image?: string | null };
+type Vehicle = VehicleItem;
+
+const TARGET_PLATFORMS = [
+  { id: "TikTok", label: "TikTok", icon: TikTokIcon },
+  { id: "Instagram Reels", label: "Instagram Reels", icon: InstagramIcon },
+  { id: "YouTube Shorts", label: "YouTube Shorts", icon: YouTubeIcon },
+];
+
+const USAGE_RIGHTS_OPTIONS = [
+  "Komersial & Bebas untuk Iklan Ads",
+  "Boleh di-repost akun dealer & digunakan untuk Ads berbayar",
+  "Boleh di-repost di akun media sosial dealer (Organik Saja)",
+  "Hak Cipta Penuh dialihkan ke Dealer (Full Commercial Ownership)",
+  "Hanya tayang di akun kreator (Tanpa Hak Repost / Ads)",
+  "Bebas digunakan untuk materi promosi & arsip showroom dealer",
+];
+
+const OUTPUT_COUNT_OPTIONS = [
+  { value: "1", label: "1 Video" },
+  { value: "2", label: "2 Video" },
+  { value: "3", label: "3 Video" },
+  { value: "4", label: "4 Video" },
+  { value: "5", label: "5 Video" },
+  { value: "6", label: "6 Video" },
+  { value: "8", label: "8 Video" },
+  { value: "10", label: "10 Video" },
+  { value: "15", label: "15 Video" },
+  { value: "20", label: "20 Video" },
+];
+
+const OUTPUT_DURATION_OPTIONS = [
+  "15 - 30 Detik",
+  "30 - 60 Detik",
+  "60 - 90 Detik",
+  "1 - 3 Menit",
+  "3 - 5 Menit",
+  "> 5 Menit (Long-form)",
+];
+
+const OUTPUT_SPECS_OPTIONS = [
+  "Vertikal (9:16), 1080p 60fps (Reels / TikTok / Shorts)",
+  "Vertikal (9:16), 4K UHD 60fps",
+  "Horizontal (16:9), 1080p Full HD (YouTube / Web)",
+  "Horizontal (16:9), 4K UHD Cinema",
+  "Square (1:1), 1080p (Feed Post)",
+];
 
 const steps = [
   "Informasi Kebutuhan",
@@ -30,6 +80,7 @@ export function VideographyCampaignForm({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [previewTab, setPreviewTab] = useState<"card" | "detail">("card");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,8 +100,23 @@ export function VideographyCampaignForm({
   const [serviceType, setServiceType] = useState<"footage_only" | "edit_only" | "footage_and_edit" | "">("");
   const [promotionalFocus, setPromotionalFocus] = useState<"dealer" | "single_unit" | "multiple_units">("dealer");
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
+  const [thumbnail, setThumbnail] = useState("");
   const [usagePurpose, setUsagePurpose] = useState("");
-  const [targetPlatform, setTargetPlatform] = useState("");
+  const [targetPlatform, setTargetPlatform] = useState("TikTok, Instagram Reels");
+
+  const togglePlatform = (platformId: string) => {
+    clearFieldError("targetPlatform");
+    const current = targetPlatform
+      ? targetPlatform.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+    let next: string[];
+    if (current.includes(platformId)) {
+      next = current.filter((p) => p !== platformId);
+    } else {
+      next = [...current, platformId];
+    }
+    setTargetPlatform(next.join(", "));
+  };
 
   // Step 2 State
   const [shotList, setShotList] = useState("");
@@ -58,8 +124,8 @@ export function VideographyCampaignForm({
   const [sourceMaterialUrl, setSourceMaterialUrl] = useState("");
   const [editingGuidelines, setEditingGuidelines] = useState("");
   const [outputCount, setOutputCount] = useState("1");
-  const [outputDuration, setOutputDuration] = useState("30-60 detik");
-  const [outputSpecs, setOutputSpecs] = useState("Vertikal (9:16), 1080p 60fps");
+  const [outputDuration, setOutputDuration] = useState("30 - 60 Detik");
+  const [outputSpecs, setOutputSpecs] = useState("Vertikal (9:16), 1080p 60fps (Reels / TikTok / Shorts)");
   const [visualReferences, setVisualReferences] = useState("");
   const [mandatoryPoints, setMandatoryPoints] = useState("");
   const [talentRequirements, setTalentRequirements] = useState("");
@@ -79,6 +145,10 @@ export function VideographyCampaignForm({
 
   const toggleVehicle = (id: string) => {
     clearFieldError("selectedVehicles");
+    const veh = vehicles.find((v) => v.id === id);
+    if (!thumbnail && veh?.image) {
+      setThumbnail(veh.image);
+    }
     if (promotionalFocus === "single_unit") {
       setSelectedVehicles([id]);
     } else {
@@ -207,6 +277,7 @@ export function VideographyCampaignForm({
           deadline: finalDeadline,
           status,
           details: {
+            thumbnail: thumbnail || (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) || null,
             serviceType,
             usagePurpose,
             targetPlatform,
@@ -238,11 +309,13 @@ export function VideographyCampaignForm({
 
         const res = await createCampaign(payload);
         if (res.success) {
-          router.push("/dealer/campaigns");
+          toast.success("Kampanye berhasil dibuat! Selesaikan pembayaran agar kampanye aktif dan didistribusikan ke kreator.");
+          router.push(res?.campaignId ? `/dealer/campaigns?payCampaignId=${res.campaignId}` : "/dealer/campaigns");
         }
       } catch (e: any) {
         console.error(e);
         setError(e.message || "Gagal menyimpan campaign. Silakan coba lagi.");
+        toast.error(e.message || "Gagal menyimpan campaign");
       }
     });
   };
@@ -364,39 +437,21 @@ export function VideographyCampaignForm({
                 </div>
 
                 {promotionalFocus !== "dealer" && (
-                  <div className={cn("space-y-2 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl", errors.selectedVehicles && "border-red-500/40 bg-red-500/[0.02]")}>
-                    <label className="text-[11px] font-medium text-white/40 mb-2 block">Pilih Unit dari Inventory <span className="text-red-400">*</span></label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
-                      {vehicles.length === 0 ? (
-                        <p className="text-[12px] text-white/30 p-2">Inventory kosong. Harap tambah kendaraan terlebih dahulu.</p>
-                      ) : (
-                        vehicles.map((v) => {
-                          const isSelected = selectedVehicles.includes(v.id);
-                          return (
-                            <button
-                              key={v.id}
-                              onClick={() => toggleVehicle(v.id)}
-                              className="text-left p-3 rounded-lg border transition-all flex gap-3 items-center"
-                              style={
-                                isSelected
-                                  ? { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.2)" }
-                                  : { background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }
-                              }
-                            >
-                              <div className="size-10 rounded bg-[#1a1c20] overflow-hidden shrink-0">
-                                {v.image ? <img src={v.image} alt={v.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white/10"><Building2 className="size-4" /></div>}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="text-[12px] font-medium text-white truncate">{v.name}</p>
-                                <p className="text-[10px] text-white/35 truncate flex items-center gap-1"><MapPin className="size-3" /> {v.location}</p>
-                              </div>
-                            </button>
-                          )
-                        })
-                      )}
-                    </div>
-                    {errors.selectedVehicles && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.selectedVehicles}</p>}
-                  </div>
+                  <VehicleSelectDropdown
+                    vehicles={vehicles}
+                    selectedVehicleIds={selectedVehicles}
+                    onChange={(ids) => {
+                      setSelectedVehicles(ids);
+                      clearFieldError("selectedVehicles");
+                    }}
+                    promotionalFocus={promotionalFocus}
+                    error={errors.selectedVehicles}
+                    onVehicleSelected={(veh) => {
+                      if (!thumbnail && veh.image) {
+                        setThumbnail(veh.image);
+                      }
+                    }}
+                  />
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -414,18 +469,78 @@ export function VideographyCampaignForm({
                     {errors.usagePurpose && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.usagePurpose}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Platform Tujuan <span className="text-red-400">*</span></label>
-                    <Input
-                      value={targetPlatform}
-                      onChange={(e) => {
-                        setTargetPlatform(e.target.value);
-                        clearFieldError("targetPlatform");
-                      }}
-                      placeholder="TikTok, IG Reels, YouTube"
-                      className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.targetPlatform && "border-red-500/60 bg-red-500/[0.03]")}
-                    />
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-medium text-white/40">Platform Tujuan <span className="text-red-400">*</span></label>
+                      {targetPlatform && (
+                        <span className="text-[10px] font-semibold text-primary">
+                          {targetPlatform}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {TARGET_PLATFORMS.map((p) => {
+                        const Icon = p.icon;
+                        const isSelected = targetPlatform
+                          .split(",")
+                          .map((s) => s.trim())
+                          .includes(p.id);
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => togglePlatform(p.id)}
+                            className={cn(
+                              "p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer relative group",
+                              isSelected
+                                ? "bg-primary/10 border-primary/40 text-white shadow-sm ring-1 ring-primary/25"
+                                : "bg-white/[0.02] border-white/10 text-white/50 hover:bg-white/[0.06] hover:text-white hover:border-white/20"
+                            )}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-1.5 right-1.5 size-3.5 rounded-full bg-primary flex items-center justify-center text-black">
+                                <Check className="size-2 stroke-[3]" />
+                              </div>
+                            )}
+                            <div
+                              className={cn(
+                                "size-7 rounded-lg flex items-center justify-center transition-colors",
+                                isSelected
+                                  ? "bg-primary/20 text-primary"
+                                  : "bg-white/5 text-white/50 group-hover:text-white group-hover:bg-white/10"
+                              )}
+                            >
+                              <Icon className="size-4" />
+                            </div>
+                            <span
+                              className={cn(
+                                "text-[11px] font-medium tracking-tight text-center truncate w-full px-1",
+                                isSelected ? "text-primary font-semibold" : "text-white/70"
+                              )}
+                            >
+                              {p.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                     {errors.targetPlatform && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.targetPlatform}</p>}
                   </div>
+                </div>
+
+                {/* Campaign Thumbnail / Banner */}
+                <div className="pt-4 border-t border-white/[0.06]">
+                  <CampaignThumbnailUploader
+                    thumbnail={thumbnail}
+                    onChange={(val) => {
+                      setThumbnail(val);
+                      clearFieldError("thumbnail");
+                    }}
+                    vehicles={vehicles}
+                    selectedVehicleIds={selectedVehicles}
+                    campaignTitle={title}
+                    campaignType="Videographer"
+                    error={errors.thumbnail}
+                  />
                 </div>
               </div>
             </motion.div>
@@ -475,16 +590,48 @@ export function VideographyCampaignForm({
                     <h3 className="text-[13px] font-semibold text-white mb-2">Kebutuhan Editing</h3>
                     {!isFootageIncluded && (
                       <div className="space-y-2">
-                        <label className="text-[11px] font-medium text-white/40">Link Materi Sumber (Drive/Dropbox) <span className="text-red-400">*</span></label>
-                        <Input
-                          value={sourceMaterialUrl}
-                          onChange={(e) => {
-                            setSourceMaterialUrl(e.target.value);
-                            clearFieldError("sourceMaterialUrl");
-                          }}
-                          placeholder="Link folder berisi aset video mentah (https://...)"
-                          className={cn("bg-[#1a1c20] border-white/10 text-white placeholder:text-white/20", errors.sourceMaterialUrl && "border-red-500/60 bg-red-500/[0.03]")}
-                        />
+                        <div className="flex items-center justify-between">
+                          <label className="text-[11px] font-medium text-white/40">
+                            Link Materi Sumber (Drive/Dropbox) <span className="text-red-400">*</span>
+                          </label>
+                          {sourceMaterialUrl.trim() && (
+                            <a
+                              href={sourceMaterialUrl.trim().startsWith("http://") || sourceMaterialUrl.trim().startsWith("https://") ? sourceMaterialUrl.trim() : `https://${sourceMaterialUrl.trim()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 hover:bg-primary/20 px-2.5 py-0.5 rounded-md border border-primary/20"
+                            >
+                              <ExternalLink className="size-3" />
+                              <span>Buka & Uji Link</span>
+                            </a>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Input
+                            value={sourceMaterialUrl}
+                            onChange={(e) => {
+                              setSourceMaterialUrl(e.target.value);
+                              clearFieldError("sourceMaterialUrl");
+                            }}
+                            placeholder="Link folder berisi aset video mentah (https://...)"
+                            className={cn(
+                              "bg-[#1a1c20] border-white/10 text-white placeholder:text-white/20",
+                              sourceMaterialUrl.trim() && "pr-10",
+                              errors.sourceMaterialUrl && "border-red-500/60 bg-red-500/[0.03]"
+                            )}
+                          />
+                          {sourceMaterialUrl.trim() && (
+                            <a
+                              href={sourceMaterialUrl.trim().startsWith("http://") || sourceMaterialUrl.trim().startsWith("https://") ? sourceMaterialUrl.trim() : `https://${sourceMaterialUrl.trim()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-white/50 hover:text-primary hover:bg-white/10 transition-colors"
+                              title="Buka link di tab baru"
+                            >
+                              <ExternalLink className="size-4" />
+                            </a>
+                          )}
+                        </div>
                         {errors.sourceMaterialUrl && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.sourceMaterialUrl}</p>}
                       </div>
                     )}
@@ -505,56 +652,121 @@ export function VideographyCampaignForm({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <label className="text-[11px] font-medium text-white/40">Jumlah Hasil Final <span className="text-red-400">*</span></label>
-                      <Input
-                        type="number"
-                        min="1"
+                      <Select
                         value={outputCount}
-                        onChange={(e) => {
-                          setOutputCount(e.target.value);
+                        onValueChange={(val) => {
+                          setOutputCount(val);
                           clearFieldError("outputCount");
                         }}
-                        placeholder="Contoh: 5"
-                        className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.outputCount && "border-red-500/60 bg-red-500/[0.03]")}
-                      />
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            "bg-white/5 border-white/10 text-white",
+                            errors.outputCount && "border-red-500/60 bg-red-500/[0.03]"
+                          )}
+                        >
+                          <SelectValue placeholder="Pilih jumlah video" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
+                          {OUTPUT_COUNT_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.outputCount && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.outputCount}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-medium text-white/40">Durasi (Per Video) <span className="text-red-400">*</span></label>
-                      <Input
+                      <Select
                         value={outputDuration}
-                        onChange={(e) => {
-                          setOutputDuration(e.target.value);
+                        onValueChange={(val) => {
+                          setOutputDuration(val);
                           clearFieldError("outputDuration");
                         }}
-                        placeholder="30-60 detik"
-                        className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.outputDuration && "border-red-500/60 bg-red-500/[0.03]")}
-                      />
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            "bg-white/5 border-white/10 text-white",
+                            errors.outputDuration && "border-red-500/60 bg-red-500/[0.03]"
+                          )}
+                        >
+                          <SelectValue placeholder="Pilih durasi video" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
+                          {OUTPUT_DURATION_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.outputDuration && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.outputDuration}</p>}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-medium text-white/40">Rasio & Resolusi <span className="text-red-400">*</span></label>
-                      <Input
+                      <Select
                         value={outputSpecs}
-                        onChange={(e) => {
-                          setOutputSpecs(e.target.value);
+                        onValueChange={(val) => {
+                          setOutputSpecs(val);
                           clearFieldError("outputSpecs");
                         }}
-                        placeholder="9:16, Full HD"
-                        className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.outputSpecs && "border-red-500/60 bg-red-500/[0.03]")}
-                      />
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            "bg-white/5 border-white/10 text-white",
+                            errors.outputSpecs && "border-red-500/60 bg-red-500/[0.03]"
+                          )}
+                        >
+                          <SelectValue placeholder="Pilih rasio & resolusi" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
+                          {OUTPUT_SPECS_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.outputSpecs && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.outputSpecs}</p>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Referensi Visual (Opsional)</label>
-                      <Input
-                        value={visualReferences}
-                        onChange={(e) => setVisualReferences(e.target.value)}
-                        placeholder="Link referensi gaya konten (https://...)"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20"
-                      />
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-medium text-white/40">Referensi Visual (Opsional)</label>
+                        {visualReferences && (
+                          <a
+                            href={visualReferences.startsWith("http://") || visualReferences.startsWith("https://") ? visualReferences : `https://${visualReferences}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                          >
+                            <ExternalLink className="size-3" /> Buka Link
+                          </a>
+                        )}
+                      </div>
+                      <div className="relative flex items-center">
+                        <Input
+                          value={visualReferences}
+                          onChange={(e) => setVisualReferences(e.target.value)}
+                          placeholder="Link referensi gaya konten (https://...)"
+                          className="bg-white/5 border-white/10 text-white placeholder:text-white/20 pr-10"
+                        />
+                        {visualReferences && (
+                          <a
+                            href={visualReferences.startsWith("http://") || visualReferences.startsWith("https://") ? visualReferences : `https://${visualReferences}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Buka link di tab baru"
+                            className="absolute right-3 p-1 rounded-md text-white/40 hover:text-primary hover:bg-white/5 transition-colors"
+                          >
+                            <ExternalLink className="size-4" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-medium text-white/40">Poin Wajib (Logo, CTA, dll)</label>
@@ -579,15 +791,29 @@ export function VideographyCampaignForm({
                     </div>
                     <div className="space-y-2">
                       <label className="text-[11px] font-medium text-white/40">Hak Penggunaan Konten <span className="text-red-400">*</span></label>
-                      <Input
+                      <Select
                         value={usageRights}
-                        onChange={(e) => {
-                          setUsageRights(e.target.value);
+                        onValueChange={(val) => {
+                          setUsageRights(val);
                           clearFieldError("usageRights");
                         }}
-                        placeholder="Komersial, bebas untuk Iklan Ads"
-                        className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.usageRights && "border-red-500/60 bg-red-500/[0.03]")}
-                      />
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            "bg-white/5 border-white/10 text-white",
+                            errors.usageRights && "border-red-500/60 bg-red-500/[0.03]"
+                          )}
+                        >
+                          <SelectValue placeholder="Pilih Hak Penggunaan Konten" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
+                          {USAGE_RIGHTS_OPTIONS.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.usageRights && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.usageRights}</p>}
                     </div>
                   </div>
@@ -663,16 +889,41 @@ export function VideographyCampaignForm({
                 {isFootageIncluded ? (
                   <>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Lokasi Pengambilan Gambar <span className="text-red-400">*</span></label>
-                      <Input
-                        value={productionLocation}
-                        onChange={(e) => {
-                          setProductionLocation(e.target.value);
-                          clearFieldError("productionLocation");
-                        }}
-                        placeholder="Contoh: Jl. Gatot Subroto No. 45"
-                        className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20", errors.productionLocation && "border-red-500/60 bg-red-500/[0.03]")}
-                      />
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-medium text-white/40">Lokasi Pengambilan Gambar <span className="text-red-400">*</span></label>
+                        {productionLocation.trim() && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(productionLocation.trim())}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                          >
+                            <MapPin className="size-3" /> Buka Google Maps
+                          </a>
+                        )}
+                      </div>
+                      <div className="relative flex items-center">
+                        <Input
+                          value={productionLocation}
+                          onChange={(e) => {
+                            setProductionLocation(e.target.value);
+                            clearFieldError("productionLocation");
+                          }}
+                          placeholder="Contoh: Jl. Gatot Subroto No. 45"
+                          className={cn("bg-white/5 border-white/10 text-white placeholder:text-white/20 pr-10", errors.productionLocation && "border-red-500/60 bg-red-500/[0.03]")}
+                        />
+                        {productionLocation.trim() && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(productionLocation.trim())}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Buka alamat di Google Maps"
+                            className="absolute right-3 p-1 rounded-md text-white/40 hover:text-primary hover:bg-white/5 transition-colors"
+                          >
+                            <MapPin className="size-4" />
+                          </a>
+                        )}
+                      </div>
                       {errors.productionLocation && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.productionLocation}</p>}
                     </div>
                     <div className="space-y-2">
@@ -759,9 +1010,210 @@ export function VideographyCampaignForm({
             <motion.div key="step4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
               <div>
                 <h2 className="text-[16px] font-semibold text-white">Tinjau & Buat Campaign</h2>
-                <p className="text-[12px] text-white/40 mt-1">Periksa pesanan sebelum pendanaan.</p>
+                <p className="text-[12px] text-white/40 mt-1">Periksa seluruh pesanan dan preview tampilan sebelum diluncurkan.</p>
               </div>
 
+              {/* LIVE CREATOR PREVIEW */}
+              <div className="bg-[#17191d] border border-white/[0.06] rounded-2xl overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/[0.01]">
+                  <div className="flex items-center gap-3">
+                    <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Eye className="size-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-[13px] font-semibold text-white">Preview Tampilan di Dashboard Kreator</h3>
+                      <p className="text-[11px] text-white/40 mt-0.5">
+                        Simulasi bagaimana job videografi/edit ini akan ditampilkan kepada videografer & editor.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center bg-black/40 border border-white/10 rounded-xl p-1 shrink-0 self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab("card")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all",
+                        previewTab === "card"
+                          ? "bg-white text-black font-semibold shadow-sm"
+                          : "text-white/60 hover:text-white"
+                      )}
+                    >
+                      Card Feed Explore
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab("detail")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all",
+                        previewTab === "detail"
+                          ? "bg-white text-black font-semibold shadow-sm"
+                          : "text-white/60 hover:text-white"
+                      )}
+                    >
+                      Halaman Detail Job
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-5 sm:p-6 bg-gradient-to-b from-black/40 to-black/20">
+                  {previewTab === "card" ? (
+                    <div className="max-w-[580px] mx-auto">
+                      <div className="group border border-white/10 bg-[#111316] overflow-hidden shadow-2xl rounded-2xl flex flex-col sm:flex-row transition-all">
+                        <div className="relative w-full sm:w-[210px] h-[170px] sm:h-auto shrink-0 overflow-hidden bg-black/60">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                            src={
+                              thumbnail || 
+                              (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) || 
+                              "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&q=80&w=1200"
+                            } 
+                            alt={title || "Campaign Thumbnail"} 
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#111316] sm:bg-gradient-to-r sm:from-transparent sm:to-[#111316] opacity-70" />
+                          <Badge className="absolute top-3 left-3 bg-black/70 backdrop-blur-md border border-white/15 text-white font-semibold text-[10px] px-2.5 py-0.5 rounded">
+                            Dealer Showroom
+                          </Badge>
+                        </div>
+
+                        <div className="p-4 sm:p-5 flex flex-col justify-between grow">
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="text-[10px] font-bold text-primary tracking-wider uppercase flex items-center gap-1">
+                                <Camera className="size-3" /> VIDEOGRAPHY / EDIT
+                              </span>
+                              <span className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded">
+                                Deadline: {finalDeadline || "Fleksibel"}
+                              </span>
+                            </div>
+                            
+                            <h4 className="font-bold text-[15px] text-white line-clamp-1 mb-1.5">
+                              {title || "Judul Proyek Videografi"}
+                            </h4>
+                            
+                            <p className="text-[12px] text-white/60 line-clamp-2 leading-relaxed mb-3">
+                              {usagePurpose || "Produksi dan editing materi video berkualitas sinematik untuk promosi kendaraan."}
+                            </p>
+
+                            {/* Estimasi Sisa Budget (Persentase Saja) */}
+                            <div className="space-y-1.5 mb-3">
+                              <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-white/40">Sisa Kuota Budget</span>
+                                <span className="font-semibold text-primary font-mono">100% Tersedia</span>
+                              </div>
+                              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full w-full" />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between pt-3.5 border-t border-white/5">
+                            <div>
+                              <span className="text-[10px] text-white/40 block">Fee Kontrak</span>
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                                  <CircleDollarSign className="size-3.5" />
+                                </div>
+                                <p className="text-[13px] font-bold text-white">
+                                  Rp {numFeeAmount.toLocaleString("id-ID")}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="rounded-full bg-white/10 text-white font-semibold px-3.5 py-1.5 text-[11px] flex items-center">
+                              Lihat Detail
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-w-[680px] mx-auto">
+                      <div className="relative w-full h-[200px] sm:h-[240px] rounded-2xl overflow-hidden bg-black/80 border border-white/10">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={
+                            thumbnail ||
+                            (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) ||
+                            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&q=80&w=1200"
+                          }
+                          alt={title || "Campaign Thumbnail"}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
+                                <Camera className="size-3" /> VIDEOGRAPHY / EDIT
+                              </Badge>
+                              <span className="text-[10px] text-white/60 bg-black/60 border border-white/10 px-2 py-0.5 rounded capitalize">
+                                {serviceType?.replace(/_/g, " ")}
+                              </span>
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-tight">
+                              {title || "Judul Campaign"}
+                            </h3>
+                            <p className="text-[12px] text-white/70 mt-0.5">Dealer Showroom</p>
+                          </div>
+
+                          <div className="flex flex-col sm:items-end gap-0.5 shrink-0">
+                            <span className="text-[10px] text-white/40">Total Honor</span>
+                            <div className="flex items-center gap-1.5 text-lg font-extrabold text-primary">
+                              <CircleDollarSign className="size-4" />
+                              Rp {numFeeAmount.toLocaleString("id-ID")}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rule Badges & Sisa Budget */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[11px]">
+                        <div className="p-3 rounded-xl bg-[#111316] border border-white/[0.06] flex flex-col justify-between">
+                          <div>
+                            <span className="text-[10px] text-white/40 block">Sisa Kuota Budget</span>
+                            <span className="text-primary font-bold">100% Tersedia</span>
+                          </div>
+                          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2">
+                            <div className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full w-full" />
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#111316] border border-white/[0.06]">
+                          <span className="text-[10px] text-white/40 block">Output Video</span>
+                          <span className="text-white font-semibold">{outputCount} Final</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#111316] border border-white/[0.06]">
+                          <span className="text-[10px] text-white/40 block">Batas Revisi</span>
+                          <span className="text-white font-semibold">{revisionLimit || "0"} Kali</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#111316] border border-white/[0.06]">
+                          <span className="text-[10px] text-white/40 block">Deadline</span>
+                          <span className="text-white font-semibold">{finalDeadline || "Fleksibel"}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-[#111316] border border-white/[0.06] space-y-2 text-[12px]">
+                        <span className="font-semibold text-white">Spesifikasi Hasil & Arahan</span>
+                        <p className="text-white/70 text-[11px] leading-relaxed">
+                          Format: {outputSpecs} • Durasi: {outputDuration}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/10">
+                        <div className="text-[11px] text-white/60">
+                          Videografer / Editor dapat mengajukan portofolio dan menerima tawaran ini.
+                        </div>
+                        <div className="px-4 py-2 rounded-xl bg-white text-black font-bold text-[12px] shadow-sm">
+                          Terima Job & Mulai Proyek
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* RINCIAN PARAMETER */}
               <div className="bg-[#17191d] border border-white/[0.04] p-5 rounded-xl space-y-5">
                 {/* Judul & Fokus */}
                 <div>
@@ -773,6 +1225,18 @@ export function VideographyCampaignForm({
                     <div className="text-white/40">Judul</div><div className="text-white font-medium">{title}</div>
                     <div className="text-white/40">Layanan</div><div className="text-white capitalize">{serviceType?.replace(/_/g, " ")}</div>
                     <div className="text-white/40">Tujuan</div><div className="text-white">{usagePurpose}</div>
+                    <div className="text-white/40">Thumbnail / Banner</div>
+                    <div className="text-white flex items-center gap-2">
+                      <div className="h-8 w-14 rounded bg-black/40 overflow-hidden border border-white/10 shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={thumbnail || (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) || "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&q=80&w=1200"}
+                          alt="Thumbnail"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-[11px] text-white/60">Terpasang</span>
+                    </div>
                   </div>
                 </div>
 
@@ -788,6 +1252,39 @@ export function VideographyCampaignForm({
                     <div className="text-white/40">Jumlah Hasil</div><div className="text-white">{outputCount} Final</div>
                     <div className="text-white/40">Spesifikasi</div><div className="text-white">{outputSpecs}, {outputDuration}</div>
                     <div className="text-white/40">Batas Revisi</div><div className="text-white">{revisionLimit || "0"} Kali</div>
+                    <div className="text-white/40">Hak Penggunaan</div><div className="text-white">{usageRights}</div>
+                    {visualReferences && (
+                      <>
+                        <div className="text-white/40">Referensi Visual</div>
+                        <div className="text-primary truncate">
+                          <a
+                            href={visualReferences.trim().startsWith("http://") || visualReferences.trim().startsWith("https://") ? visualReferences.trim() : `https://${visualReferences.trim()}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline inline-flex items-center gap-1 font-medium"
+                          >
+                            <ExternalLink className="size-3 shrink-0" />
+                            <span className="truncate">{visualReferences}</span>
+                          </a>
+                        </div>
+                      </>
+                    )}
+                    {isEditingIncluded && !isFootageIncluded && sourceMaterialUrl && (
+                      <>
+                        <div className="text-white/40">Materi Mentah</div>
+                        <div className="text-primary truncate">
+                          <a
+                            href={sourceMaterialUrl.trim().startsWith("http://") || sourceMaterialUrl.trim().startsWith("https://") ? sourceMaterialUrl.trim() : `https://${sourceMaterialUrl.trim()}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline inline-flex items-center gap-1 font-medium"
+                          >
+                            <ExternalLink className="size-3 shrink-0" />
+                            <span className="truncate">{sourceMaterialUrl}</span>
+                          </a>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -804,10 +1301,36 @@ export function VideographyCampaignForm({
                     {isFootageIncluded && (
                       <>
                         <div className="text-white/40">Jadwal Produksi</div><div className="text-white">{productionSchedule}</div>
+                        {productionLocation && (
+                          <>
+                            <div className="text-white/40">Lokasi / Alamat</div>
+                            <div className="text-primary truncate">
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(productionLocation)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline inline-flex items-center gap-1 font-medium truncate max-w-full"
+                              >
+                                <MapPin className="size-3 shrink-0" />
+                                <span className="truncate">{productionLocation}</span>
+                                <ExternalLink className="size-2.5 shrink-0 opacity-70" />
+                              </a>
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                     <div className="text-white/40">Deadline Final</div><div className="text-white">{finalDeadline}</div>
                   </div>
+                </div>
+              </div>
+
+              {/* Payment & Activation Notice */}
+              <div className="p-4 rounded-xl bg-primary/[0.05] border border-primary/20 flex items-start gap-3 text-xs text-white/80 leading-relaxed">
+                <Info className="size-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-semibold text-primary block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
+                  Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draft (Menunggu Pembayaran)</span>. Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard & feed kreator setelah pembayaran alokasi budget diselesaikan.
                 </div>
               </div>
 
@@ -835,22 +1358,21 @@ export function VideographyCampaignForm({
               Lanjut <ChevronRight className="size-4" />
             </Button>
           ) : (
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               <Button
                 variant="outline"
                 onClick={() => handleSubmit("draft")}
                 disabled={isPending}
-                className="h-9 px-5 rounded-lg text-[12px] font-medium border-white/10 bg-transparent hover:bg-white/5 text-white"
+                className="h-9 px-5 rounded-lg text-[12px] font-medium border-white/10 bg-transparent hover:bg-white/5 text-white w-full sm:w-auto"
               >
                 Simpan Draft
               </Button>
               <Button
-                onClick={() => handleSubmit("active")}
+                onClick={() => handleSubmit("draft")}
                 disabled={isPending}
-                className="gap-2 h-9 px-6 rounded-lg text-[12px] font-bold"
-                style={{ background: "var(--primary)", color: "#0a0a0c" }}
+                className="gap-2 h-9 px-6 rounded-lg text-[12px] font-bold bg-primary text-black hover:bg-primary/90 shadow-sm transition-all w-full sm:w-auto"
               >
-                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Lanjut ke Pembayaran"}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Buat & Lanjut ke Pembayaran"}
               </Button>
             </div>
           )}

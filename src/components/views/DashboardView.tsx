@@ -533,7 +533,7 @@ export function DashboardView({
                             variant="outline"
                             className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 font-medium ${
                               vid.status === "active"
-                                ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                                ? "border-primary/30 text-primary bg-primary/10"
                                 : vid.status === "pending"
                                 ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
                                 : "border-rose-500/30 text-rose-400 bg-rose-500/10"

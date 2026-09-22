@@ -19,6 +19,7 @@ import {
   Car,
   Loader2,
   Share2,
+  ExternalLink,
 } from "lucide-react";
 import { type Campaign } from "@/lib/campaigns-data";
 import { toast } from "sonner";
@@ -125,13 +126,24 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
           {/* Key Info Chips */}
           <motion.div initial="hidden" animate="show" variants={fadeUp} custom={2}>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 bg-[#111316] border border-white/5 rounded-xl px-4 py-2.5">
-                <MapPin className="size-4 text-[#D4AF37]" />
-                <span className="text-[13px] font-semibold text-white">{campaign.location}</span>
-              </div>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(campaign.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Buka lokasi di Google Maps"
+                className="flex items-center gap-2 bg-[#111316] border border-white/5 hover:border-primary/40 rounded-xl px-4 py-2.5 transition-colors group cursor-pointer"
+              >
+                <MapPin className="size-4 text-[#D4AF37] group-hover:scale-110 transition-transform" />
+                <span className="text-[13px] font-semibold text-white group-hover:text-primary transition-colors">{campaign.location}</span>
+                <ExternalLink className="size-3 text-white/30 group-hover:text-primary transition-colors" />
+              </a>
               <div className="flex items-center gap-2 bg-[#111316] border border-white/5 rounded-xl px-4 py-2.5">
                 <Clock className="size-4 text-[#D4AF37]" />
                 <span className="text-[13px] font-semibold text-white">Deadline: {campaign.deadline}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-[#111316] border border-[#D4AF37]/20 rounded-xl px-4 py-2.5">
+                <span className="text-[13px] font-semibold text-white/70">Sisa Kuota Budget:</span>
+                <span className="text-[13px] font-bold text-[#D4AF37] font-mono">85% Tersedia</span>
               </div>
               {campaign.tags.map((tag) => (
                 <div key={tag} className="flex items-center gap-2 bg-[#111316] border border-white/5 rounded-xl px-4 py-2.5">
@@ -196,7 +208,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
           </motion.div>
         </div>
 
-        {/* Right: Apply Card (sticky) */}
+        {/* Right: Actions & Requirements */}
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={2} className="w-full lg:w-[320px] shrink-0">
           <div className="lg:sticky lg:top-24 flex flex-col gap-4">
             <Card className="bg-[#111316] border-[#D4AF37]/20 rounded-2xl overflow-hidden relative shadow-[0_0_40px_rgba(212,175,55,0.07)]">
@@ -216,7 +228,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                 <div className="w-full h-[1px] bg-white/5" />
 
                 {/* Reward breakdown */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2.5">
                   <div className="flex justify-between items-center">
                     <span className="text-[12px] text-muted-foreground font-semibold">Bayaran</span>
                     <span className="text-[15px] font-black text-[#D4AF37]">{campaign.reward}</span>
@@ -229,6 +241,17 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                     <span className="text-[12px] text-muted-foreground font-semibold">Kuota</span>
                     <span className="text-[14px] font-bold text-white">{campaign.quota}</span>
                   </div>
+                  
+                  {/* Sisa Budget Percentage */}
+                  <div className="pt-2 border-t border-white/5 space-y-1.5">
+                    <div className="flex justify-between items-center text-[12px]">
+                      <span className="text-muted-foreground font-semibold">Sisa Kuota Budget</span>
+                      <span className="font-bold text-[#D4AF37] font-mono">85% Tersedia</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#D4AF37]/80 to-[#D4AF37] rounded-full w-[85%]" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="w-full h-[1px] bg-white/5" />
@@ -239,7 +262,7 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                   disabled={applying || applied}
                   className={`w-full h-12 rounded-xl font-black text-[15px] transition-all shadow-lg ${
                     applied
-                      ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                      ? "bg-primary/20 text-primary border border-primary/40 shadow-[0_0_20px_rgba(212,175,55,0.2)]"
                       : "bg-gradient-to-r from-[#D4AF37] to-[#b39023] text-black hover:opacity-90 shadow-[0_0_20px_rgba(212,175,55,0.3)]"
                   }`}
                 >
