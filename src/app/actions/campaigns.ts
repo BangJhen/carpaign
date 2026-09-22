@@ -32,8 +32,8 @@ export async function createCampaign(input: CreateCampaignInput) {
     throw new Error("Judul campaign minimal 3 karakter.");
   }
 
-  if (!input.budget || input.budget < 1000000) {
-    throw new Error("Minimal budget campaign adalah Rp 1.000.000.");
+  if (!input.budget || input.budget < 100000) {
+    throw new Error("Minimal budget campaign adalah Rp 100.000.");
   }
 
   if (input.type === "Clipping") {

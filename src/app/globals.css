@@ -93,6 +93,9 @@
   html {
     @apply font-sans;
   }
+  textarea {
+    resize: none;
+  }
 }
 
 @keyframes shimmer {

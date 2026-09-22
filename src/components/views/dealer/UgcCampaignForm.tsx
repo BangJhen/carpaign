@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle, Eye, Video, CircleDollarSign, ExternalLink } from "lucide-react";
+import { ChevronRight, ChevronLeft, Loader2, Info, Building2, MapPin, AlertCircle, Eye, Video, CircleDollarSign, ExternalLink, Check } from "lucide-react";
+import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,12 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Vehicle = VehicleItem;
+
+const TARGET_PLATFORMS = [
+  { id: "TikTok", label: "TikTok", icon: TikTokIcon },
+  { id: "Instagram Reels", label: "Instagram Reels", icon: InstagramIcon },
+  { id: "YouTube Shorts", label: "YouTube Shorts", icon: YouTubeIcon },
+];
 
 const USAGE_RIGHTS_OPTIONS = [
   "Boleh di-repost akun dealer & digunakan untuk Ads berbayar",
@@ -64,7 +71,21 @@ export function UgcCampaignForm({
   const [thumbnail, setThumbnail] = useState("");
   const [mainObjective, setMainObjective] = useState("");
   const [audienceRegion, setAudienceRegion] = useState("Nasional (Seluruh Indonesia)");
-  const [publishPlatforms, setPublishPlatforms] = useState("TikTok & Instagram Reels");
+  const [publishPlatforms, setPublishPlatforms] = useState("TikTok, Instagram Reels");
+
+  const togglePublishPlatform = (platformId: string) => {
+    clearFieldError("publishPlatforms");
+    const current = publishPlatforms
+      ? publishPlatforms.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+    let next: string[];
+    if (current.includes(platformId)) {
+      next = current.filter((p) => p !== platformId);
+    } else {
+      next = [...current, platformId];
+    }
+    setPublishPlatforms(next.join(", "));
+  };
 
   // Step 2 State
   const [contentType, setContentType] = useState("Review Unit");
@@ -186,6 +207,8 @@ export function UgcCampaignForm({
       const numFee = parseInt(rawFee, 10);
       if (!rawFee || isNaN(numFee) || numFee <= 0) {
         newErrors.feePerCreator = "Fee per kreator harus berupa nominal lebih dari 0";
+      } else if (numFee < 100000) {
+        newErrors.feePerCreator = "Fee per kreator minimal Rp 100.000";
       }
 
       if (productionMethod === "visit" && !productionLocation.trim()) {
@@ -337,7 +360,7 @@ export function UgcCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Judul Campaign <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Judul Campaign {!title.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     value={title}
                     onChange={(e) => {
@@ -351,7 +374,7 @@ export function UgcCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi {!promotionalFocus && <span className="text-red-400">*</span>}</label>
                   <Select value={promotionalFocus} onValueChange={(val: any) => {
                     setPromotionalFocus(val);
                     clearFieldError("promotionalFocus");
@@ -389,7 +412,7 @@ export function UgcCampaignForm({
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tujuan Utama <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Tujuan Utama {!mainObjective.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     value={mainObjective}
                     onChange={(e) => {
@@ -404,7 +427,7 @@ export function UgcCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens {!audienceRegion && <span className="text-red-400">*</span>}</label>
                     <Select
                       value={audienceRegion}
                       onValueChange={(val) => {
@@ -435,28 +458,33 @@ export function UgcCampaignForm({
                     {errors.audienceRegion && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.audienceRegion}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi <span className="text-red-400">*</span></label>
-                    <Select
-                      value={publishPlatforms}
-                      onValueChange={(val) => {
-                        setPublishPlatforms(val);
-                        clearFieldError("publishPlatforms");
-                      }}
-                    >
-                      <SelectTrigger
-                        className={cn(
-                          "bg-white/5 border-white/10 text-white",
-                          errors.publishPlatforms && "border-red-500/60 bg-red-500/[0.03]"
-                        )}
-                      >
-                        <SelectValue placeholder="Pilih Platform" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                        <SelectItem value="TikTok & Instagram Reels">TikTok & Instagram Reels</SelectItem>
-                        <SelectItem value="TikTok">TikTok Saja</SelectItem>
-                        <SelectItem value="Instagram Reels">Instagram Reels Saja</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi {!publishPlatforms.trim() && <span className="text-red-400">*</span>}</label>
+                    <div className="flex items-center gap-2 pt-0.5">
+                      {TARGET_PLATFORMS.map((p) => {
+                        const Icon = p.icon;
+                        const isSelected = publishPlatforms
+                          .split(",")
+                          .map((s) => s.trim())
+                          .includes(p.id);
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => togglePublishPlatform(p.id)}
+                            title={p.label}
+                            aria-label={p.label}
+                            className={cn(
+                              "size-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer select-none relative group",
+                              isSelected
+                                ? "bg-primary/15 border-primary/50 text-primary shadow-xs ring-1 ring-primary/25"
+                                : "bg-white/[0.02] border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white hover:border-white/20"
+                            )}
+                          >
+                            <Icon className="size-4.5 transition-transform group-hover:scale-110" />
+                          </button>
+                        );
+                      })}
+                    </div>
                     {errors.publishPlatforms && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.publishPlatforms}</p>}
                   </div>
                 </div>
@@ -490,7 +518,7 @@ export function UgcCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Tipe Konten <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Tipe Konten {!contentType.trim() && <span className="text-red-400">*</span>}</label>
                   <Select value={contentType} onValueChange={(val: any) => {
                     setContentType(val);
                     clearFieldError("contentType");
@@ -509,7 +537,7 @@ export function UgcCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Arahan Konten <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Arahan Konten {!contentGuidelines.trim() && <span className="text-red-400">*</span>}</label>
                   <Textarea
                     value={contentGuidelines}
                     onChange={(e) => {
@@ -534,7 +562,7 @@ export function UgcCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Jumlah Video per Kreator <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Jumlah Video per Kreator {!videosPerCreator.trim() && <span className="text-red-400">*</span>}</label>
                     <Input
                       type="number"
                       min="1"
@@ -548,7 +576,7 @@ export function UgcCampaignForm({
                     {errors.videosPerCreator && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.videosPerCreator}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Durasi Video <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Durasi Video {!videoSpecs && <span className="text-red-400">*</span>}</label>
                     <Select
                       value={videoSpecs}
                       onValueChange={(val) => {
@@ -637,7 +665,7 @@ export function UgcCampaignForm({
                 {/* Deliverables and Revision Container */}
                 <div className="bg-[#17191d] border border-white/[0.04] p-5 rounded-xl space-y-5">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Hasil yang Dibutuhkan <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Hasil yang Dibutuhkan {!requiredDeliverables && <span className="text-red-400">*</span>}</label>
                     <Select value={requiredDeliverables} onValueChange={(val: any) => {
                       setRequiredDeliverables(val);
                       clearFieldError("requiredDeliverables");
@@ -655,7 +683,7 @@ export function UgcCampaignForm({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Hak Penggunaan Konten <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Hak Penggunaan Konten {!usageRights.trim() && <span className="text-red-400">*</span>}</label>
                     <Select
                       value={usageRights}
                       onValueChange={(val) => {
@@ -684,7 +712,7 @@ export function UgcCampaignForm({
                   
                   {/* Spaced out Batas Revisi section */}
                   <div className="pt-4 border-t border-white/[0.06] space-y-2">
-                    <label className="text-[11px] font-medium text-white/40 block">Batas Revisi <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40 block">Batas Revisi {!revisionLimit.trim() && <span className="text-red-400">*</span>}</label>
                     <Input
                       type="number"
                       min="0"
@@ -712,16 +740,18 @@ export function UgcCampaignForm({
                 <p className="text-[12px] text-white/40 mt-1">Mengatur fee, jumlah kreator, lokasi, dan jadwal.</p>
               </div>
 
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex gap-3 text-primary/80">
-                <Info className="size-5 shrink-0" />
-                <p className="text-[12px] leading-relaxed">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-3">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Info className="size-3.5 text-primary" />
+                </div>
+                <p className="text-[12px] text-white/60 leading-relaxed">
                   Fee UGC adalah fee tetap per kreator berdasarkan pekerjaan yang disepakati. Fee akan dicadangkan dari budget saat kreator Anda setujui.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Jumlah Kreator <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Jumlah Kreator {!creatorCount.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     type="number"
                     min="1"
@@ -736,7 +766,7 @@ export function UgcCampaignForm({
                   {errors.creatorCount && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.creatorCount}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Fee per Kreator <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Fee per Kreator {!feePerCreator.trim() && <span className="text-red-400">*</span>}</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                     <Input
@@ -762,7 +792,7 @@ export function UgcCampaignForm({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Metode Produksi <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Metode Produksi {!productionMethod && <span className="text-red-400">*</span>}</label>
                   <Select value={productionMethod} onValueChange={(val: any) => {
                     setProductionMethod(val);
                     clearFieldError("productionMethod");
@@ -781,7 +811,7 @@ export function UgcCampaignForm({
                 {productionMethod === "visit" && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-medium text-white/40">Lokasi Produksi / Alamat Dealer <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Lokasi Produksi / Alamat Dealer {!productionLocation.trim() && <span className="text-red-400">*</span>}</label>
                       {productionLocation.trim() && (
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(productionLocation.trim())}`}
@@ -831,7 +861,7 @@ export function UgcCampaignForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-medium text-white/40">Rentang Jadwal Produksi <span className="text-red-400">*</span></label>
+                <label className="text-[11px] font-medium text-white/40">Rentang Jadwal Produksi {!productionDateRange.trim() && <span className="text-red-400">*</span>}</label>
                 <Input
                   value={productionDateRange}
                   onChange={(e) => {
@@ -846,7 +876,7 @@ export function UgcCampaignForm({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Pengumpulan Draft <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Batas Pengumpulan Draft {!draftDeadline.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     type="date"
                     value={draftDeadline}
@@ -859,7 +889,7 @@ export function UgcCampaignForm({
                   {errors.draftDeadline && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.draftDeadline}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Publikasi <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Batas Publikasi {!publishDeadline.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     type="date"
                     value={publishDeadline}
@@ -1187,10 +1217,12 @@ export function UgcCampaignForm({
               </div>
 
               {/* Payment & Activation Notice */}
-              <div className="p-4 rounded-xl bg-primary/[0.05] border border-primary/20 flex items-start gap-3 text-xs text-white/80 leading-relaxed">
-                <Info className="size-4 text-primary shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-start gap-3.5 text-xs text-white/60 leading-relaxed">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="size-3.5 text-primary" />
+                </div>
                 <div>
-                  <span className="font-semibold text-primary block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
+                  <span className="font-semibold text-white/90 block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
                   Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draft (Menunggu Pembayaran)</span>. Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard & feed kreator setelah pembayaran alokasi budget diselesaikan.
                 </div>
               </div>

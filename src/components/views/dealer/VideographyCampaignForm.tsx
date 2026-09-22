@@ -229,6 +229,8 @@ export function VideographyCampaignForm({
       const numFee = parseInt(rawFee, 10);
       if (!rawFee || isNaN(numFee) || numFee <= 0) {
         newErrors.feeAmount = "Fee pekerjaan harus berupa nominal lebih dari 0";
+      } else if (numFee < 100000) {
+        newErrors.feeAmount = "Fee pekerjaan minimal Rp 100.000";
       }
 
       if (isFootageIncluded && !productionLocation.trim()) {
@@ -327,7 +329,7 @@ export function VideographyCampaignForm({
           <ChevronLeft className="size-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-white">Buat Campaign Videographer/Edit</h1>
+          <h1 className="text-xl font-semibold text-white">Buat Campaign Shoot & Edit</h1>
           <p className="text-[12px] text-white/40">Produksi aset konten visual untuk dealer</p>
         </div>
       </div>
@@ -385,7 +387,7 @@ export function VideographyCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Judul Pekerjaan <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Judul Pekerjaan {!title.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     value={title}
                     onChange={(e) => {
@@ -399,7 +401,7 @@ export function VideographyCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Jenis Layanan <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Jenis Layanan {!serviceType && <span className="text-red-400">*</span>}</label>
                   <Select value={serviceType} onValueChange={(val: any) => {
                     setServiceType(val);
                     clearFieldError("serviceType");
@@ -417,7 +419,7 @@ export function VideographyCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Objek Konten <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Objek Konten {!promotionalFocus && <span className="text-red-400">*</span>}</label>
                   <Select value={promotionalFocus} onValueChange={(val: any) => {
                     setPromotionalFocus(val);
                     clearFieldError("promotionalFocus");
@@ -456,7 +458,7 @@ export function VideographyCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Tujuan Penggunaan <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Tujuan Penggunaan {!usagePurpose.trim() && <span className="text-red-400">*</span>}</label>
                     <Input
                       value={usagePurpose}
                       onChange={(e) => {
@@ -469,15 +471,8 @@ export function VideographyCampaignForm({
                     {errors.usagePurpose && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.usagePurpose}</p>}
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-medium text-white/40">Platform Tujuan <span className="text-red-400">*</span></label>
-                      {targetPlatform && (
-                        <span className="text-[10px] font-semibold text-primary">
-                          {targetPlatform}
-                        </span>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <label className="text-[11px] font-medium text-white/40">Platform Tujuan {!targetPlatform.trim() && <span className="text-red-400">*</span>}</label>
+                    <div className="flex items-center gap-2 pt-0.5">
                       {TARGET_PLATFORMS.map((p) => {
                         const Icon = p.icon;
                         const isSelected = targetPlatform
@@ -489,36 +484,16 @@ export function VideographyCampaignForm({
                             key={p.id}
                             type="button"
                             onClick={() => togglePlatform(p.id)}
+                            title={p.label}
+                            aria-label={p.label}
                             className={cn(
-                              "p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer relative group",
+                              "size-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer select-none relative group",
                               isSelected
-                                ? "bg-primary/10 border-primary/40 text-white shadow-sm ring-1 ring-primary/25"
-                                : "bg-white/[0.02] border-white/10 text-white/50 hover:bg-white/[0.06] hover:text-white hover:border-white/20"
+                                ? "bg-primary/15 border-primary/50 text-primary shadow-xs ring-1 ring-primary/25"
+                                : "bg-white/[0.02] border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white hover:border-white/20"
                             )}
                           >
-                            {isSelected && (
-                              <div className="absolute top-1.5 right-1.5 size-3.5 rounded-full bg-primary flex items-center justify-center text-black">
-                                <Check className="size-2 stroke-[3]" />
-                              </div>
-                            )}
-                            <div
-                              className={cn(
-                                "size-7 rounded-lg flex items-center justify-center transition-colors",
-                                isSelected
-                                  ? "bg-primary/20 text-primary"
-                                  : "bg-white/5 text-white/50 group-hover:text-white group-hover:bg-white/10"
-                              )}
-                            >
-                              <Icon className="size-4" />
-                            </div>
-                            <span
-                              className={cn(
-                                "text-[11px] font-medium tracking-tight text-center truncate w-full px-1",
-                                isSelected ? "text-primary font-semibold" : "text-white/70"
-                              )}
-                            >
-                              {p.label}
-                            </span>
+                            <Icon className="size-4.5 transition-transform group-hover:scale-110" />
                           </button>
                         );
                       })}
@@ -561,7 +536,7 @@ export function VideographyCampaignForm({
                   <div className="p-5 border border-white/10 rounded-xl bg-white/[0.02] space-y-4">
                     <h3 className="text-[13px] font-semibold text-white mb-2">Kebutuhan Footage</h3>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Daftar Objek / Shot <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Daftar Objek / Shot {!shotList.trim() && <span className="text-red-400">*</span>}</label>
                       <Textarea
                         value={shotList}
                         onChange={(e) => {
@@ -590,22 +565,9 @@ export function VideographyCampaignForm({
                     <h3 className="text-[13px] font-semibold text-white mb-2">Kebutuhan Editing</h3>
                     {!isFootageIncluded && (
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-medium text-white/40">
-                            Link Materi Sumber (Drive/Dropbox) <span className="text-red-400">*</span>
-                          </label>
-                          {sourceMaterialUrl.trim() && (
-                            <a
-                              href={sourceMaterialUrl.trim().startsWith("http://") || sourceMaterialUrl.trim().startsWith("https://") ? sourceMaterialUrl.trim() : `https://${sourceMaterialUrl.trim()}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 hover:bg-primary/20 px-2.5 py-0.5 rounded-md border border-primary/20"
-                            >
-                              <ExternalLink className="size-3" />
-                              <span>Buka & Uji Link</span>
-                            </a>
-                          )}
-                        </div>
+                        <label className="text-[11px] font-medium text-white/40">
+                          Link Materi Sumber (Drive/Dropbox) {!sourceMaterialUrl.trim() && <span className="text-red-400">*</span>}
+                        </label>
                         <div className="relative">
                           <Input
                             value={sourceMaterialUrl}
@@ -651,7 +613,7 @@ export function VideographyCampaignForm({
                 <div className="space-y-5 pt-2 border-t border-white/10">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Jumlah Hasil Final <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Jumlah Hasil Final {!outputCount.trim() && <span className="text-red-400">*</span>}</label>
                       <Select
                         value={outputCount}
                         onValueChange={(val) => {
@@ -678,7 +640,7 @@ export function VideographyCampaignForm({
                       {errors.outputCount && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.outputCount}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Durasi (Per Video) <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Durasi (Per Video) {!outputDuration.trim() && <span className="text-red-400">*</span>}</label>
                       <Select
                         value={outputDuration}
                         onValueChange={(val) => {
@@ -705,7 +667,7 @@ export function VideographyCampaignForm({
                       {errors.outputDuration && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.outputDuration}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Rasio & Resolusi <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Rasio & Resolusi {!outputSpecs.trim() && <span className="text-red-400">*</span>}</label>
                       <Select
                         value={outputSpecs}
                         onValueChange={(val) => {
@@ -790,7 +752,7 @@ export function VideographyCampaignForm({
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Hak Penggunaan Konten <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Hak Penggunaan Konten {!usageRights.trim() && <span className="text-red-400">*</span>}</label>
                       <Select
                         value={usageRights}
                         onValueChange={(val) => {
@@ -821,7 +783,7 @@ export function VideographyCampaignForm({
                   {/* Spaced out Batas Revisi section */}
                   <div className="pt-4 border-t border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Batas Revisi <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Batas Revisi {!revisionLimit.trim() && <span className="text-red-400">*</span>}</label>
                       <Input
                         type="number"
                         min="0"
@@ -859,15 +821,17 @@ export function VideographyCampaignForm({
                 <p className="text-[12px] text-white/40 mt-1">Mengatur fee, lokasi, jadwal, dan kriteria penyedia.</p>
               </div>
 
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex gap-3 text-primary/80">
-                <Info className="size-5 shrink-0" />
-                <p className="text-[12px] leading-relaxed">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-3">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Info className="size-3.5 text-primary" />
+                </div>
+                <p className="text-[12px] text-white/60 leading-relaxed">
                   Fee tetap ini berlaku untuk keseluruhan pekerjaan dan akan dicadangkan dari sistem saat Anda menyetujui penyedia/kreator terpilih.
                 </p>
               </div>
 
               <div className="space-y-2 max-w-sm">
-                <label className="text-[11px] font-medium text-white/40">Fee Pekerjaan Keseluruhan <span className="text-red-400">*</span></label>
+                <label className="text-[11px] font-medium text-white/40">Fee Pekerjaan Keseluruhan {!feeAmount.trim() && <span className="text-red-400">*</span>}</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-white/25">Rp</span>
                   <Input
@@ -890,7 +854,7 @@ export function VideographyCampaignForm({
                   <>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-medium text-white/40">Lokasi Pengambilan Gambar <span className="text-red-400">*</span></label>
+                        <label className="text-[11px] font-medium text-white/40">Lokasi Pengambilan Gambar {!productionLocation.trim() && <span className="text-red-400">*</span>}</label>
                         {productionLocation.trim() && (
                           <a
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(productionLocation.trim())}`}
@@ -927,7 +891,7 @@ export function VideographyCampaignForm({
                       {errors.productionLocation && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.productionLocation}</p>}
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-medium text-white/40">Jadwal Pengambilan Gambar <span className="text-red-400">*</span></label>
+                      <label className="text-[11px] font-medium text-white/40">Jadwal Pengambilan Gambar {!productionSchedule.trim() && <span className="text-red-400">*</span>}</label>
                       <Input
                         value={productionSchedule}
                         onChange={(e) => {
@@ -955,7 +919,7 @@ export function VideographyCampaignForm({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Penyerahan Draft <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Batas Penyerahan Draft {!draftDeadline.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     type="date"
                     value={draftDeadline}
@@ -968,7 +932,7 @@ export function VideographyCampaignForm({
                   {errors.draftDeadline && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.draftDeadline}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Batas Hasil Akhir / Final <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Batas Hasil Akhir / Final {!finalDeadline.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     type="date"
                     value={finalDeadline}
@@ -1326,10 +1290,12 @@ export function VideographyCampaignForm({
               </div>
 
               {/* Payment & Activation Notice */}
-              <div className="p-4 rounded-xl bg-primary/[0.05] border border-primary/20 flex items-start gap-3 text-xs text-white/80 leading-relaxed">
-                <Info className="size-4 text-primary shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-start gap-3.5 text-xs text-white/60 leading-relaxed">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="size-3.5 text-primary" />
+                </div>
                 <div>
-                  <span className="font-semibold text-primary block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
+                  <span className="font-semibold text-white/90 block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
                   Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draft (Menunggu Pembayaran)</span>. Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard & feed kreator setelah pembayaran alokasi budget diselesaikan.
                 </div>
               </div>

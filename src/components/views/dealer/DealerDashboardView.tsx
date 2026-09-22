@@ -7,12 +7,11 @@ import {
   TrendingUp, 
   Play, 
   Eye, 
-  Video, 
-  Users, 
-  CreditCard, 
+  Megaphone, 
   PlusCircle, 
   ChevronRight,
-  Car
+  Car,
+  Clock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell
 } from "recharts";
 
 const fadeUp = {
@@ -79,9 +79,9 @@ const MONTHLY_PERFORMANCE_DATA = [
 ];
 
 const CAMPAIGN_DISTRIBUTION_DATA = [
-  { type: "Clipping", count: 4, creators: 16, views: 36000 },
-  { type: "UGC/Review", count: 6, creators: 24, views: 78000 },
-  { type: "Videographer/Edit", count: 5, creators: 18, views: 62000 },
+  { type: "Clip & Publish", count: 4, creators: 16, views: 36000, color: "#D4AF37" },
+  { type: "UGC & Review", count: 6, creators: 24, views: 78000, color: "#F3C64F" },
+  { type: "Shoot & Edit", count: 5, creators: 18, views: 62000, color: "#E0B738" },
 ];
 
 const RECENT_SUBMISSIONS_PREVIEW = [
@@ -122,9 +122,9 @@ function CustomChartTooltip({ active, payload, label, metricType }: CustomToolti
   if (active && payload && payload.length) {
     const val = payload[0].value;
     return (
-      <div className="bg-[#111317] border border-white/15 p-3 rounded-xl shadow-2xl space-y-1">
-        <p className="text-[11px] font-mono text-muted-foreground uppercase">{label}</p>
-        <p className="text-sm font-bold text-white">
+      <div className="bg-[#14161a] border border-primary/30 p-3 rounded-xl shadow-2xl space-y-1 backdrop-blur-md">
+        <p className="text-[11px] font-mono text-white/50 uppercase tracking-wider">{label}</p>
+        <p className="text-sm font-bold text-primary">
           {metricType === "views"
             ? `${val.toLocaleString("id-ID")} Tayangan`
             : `${val} Submisi Video`}
@@ -139,9 +139,7 @@ export function DealerDashboardView({
   topCampaigns,
   totalCampaigns,
   activeCampaigns,
-  profileCompleteness,
   totalVehicles,
-  availableVehicles,
 }: Props) {
   const { data: session } = useSession();
   const dealerName = session?.user?.name?.split(" ")[0] || "Dealer";
@@ -156,26 +154,30 @@ export function DealerDashboardView({
     {
       label: "Total Tayangan",
       value: "156.2K",
-      sub: "Kenaikan 24% dari periode sebelumnya",
+      sub: "Kenaikan 24% dari periode lalu",
       trend: "up",
+      icon: Eye,
     },
     {
       label: "Kampanye Aktif",
       value: String(activeCampaigns),
       sub: `${totalCampaigns} total kampanye dibuat`,
       trend: "neutral",
+      icon: Megaphone,
     },
     {
       label: "Submisi Konten",
       value: "58",
       sub: "3 submisi menunggu review",
-      trend: "up",
+      trend: "alert",
+      icon: Play,
     },
     {
       label: "Unit Showroom",
       value: String(totalVehicles),
-      sub: `${totalVehicles} unit terdaftar`,
+      sub: `${totalVehicles} unit terdaftar aktif`,
       trend: "neutral",
+      icon: Car,
     },
   ];
 
@@ -190,13 +192,13 @@ export function DealerDashboardView({
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <p className="text-[11px] font-mono font-medium uppercase tracking-[0.2em] text-muted-foreground mb-1">
+          <p className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-primary/80 mb-1">
             Dealer Portal
           </p>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-            Selamat datang, <span className="text-white font-bold">{dealerName}</span>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Selamat datang, <span className="text-primary">{dealerName}</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-white/50 mt-1">
             Ringkasan performa jangkauan video, submisi kreator, dan kesiapan armada showroom.
           </p>
         </div>
@@ -205,7 +207,7 @@ export function DealerDashboardView({
           <Link href="/dealer/campaigns/create">
             <Button
               size="sm"
-              className="h-9 px-4 rounded-xl gap-2 text-xs font-semibold bg-white text-black hover:bg-white/90 shadow-sm transition-all"
+              className="h-10 px-5 rounded-xl gap-2 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all cursor-pointer"
             >
               <PlusCircle className="size-4" />
               <span>Buat Kampanye</span>
@@ -216,30 +218,45 @@ export function DealerDashboardView({
 
       {/* 4 Primary Metric Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {statCards.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            custom={i + 1}
-          >
-            <Card className="bg-[#0f1114] border-white/10 p-5 hover:border-white/20 transition-all h-full flex flex-col justify-between rounded-2xl shadow-sm">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-2">
-                {stat.label}
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                {stat.value}
-              </p>
-              <div className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1.5 leading-none">
-                {stat.trend === "up" && (
-                  <TrendingUp className="size-3.5 text-white shrink-0" />
-                )}
-                <span className="truncate">{stat.sub}</span>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+        {statCards.map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              custom={i + 1}
+            >
+              <Card className="bg-[#111316] border-white/[0.08] hover:border-primary/40 hover:bg-white/[0.02] p-5 transition-all h-full flex flex-col justify-between rounded-2xl shadow-sm relative overflow-hidden group">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[11px] font-mono uppercase tracking-wider text-white/40">
+                    {stat.label}
+                  </p>
+                  <div className="size-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Icon className="size-4" />
+                  </div>
+                </div>
+                
+                <p className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-primary transition-colors">
+                  {stat.value}
+                </p>
+
+                <div className="text-[11px] text-white/40 mt-2.5 flex items-center gap-1.5 leading-none">
+                  {stat.trend === "up" && (
+                    <TrendingUp className="size-3.5 text-primary shrink-0" />
+                  )}
+                  {stat.trend === "alert" && (
+                    <Clock className="size-3.5 text-primary shrink-0" />
+                  )}
+                  <span className={stat.trend === "alert" ? "text-primary/90 font-medium truncate" : "truncate"}>
+                    {stat.sub}
+                  </span>
+                </div>
+              </Card>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Main Charts Section */}
@@ -252,14 +269,14 @@ export function DealerDashboardView({
           custom={5}
           className="lg:col-span-2"
         >
-          <Card className="bg-[#0f1114] border-white/10 rounded-2xl p-6 h-full flex flex-col justify-between shadow-lg">
+          <Card className="bg-[#111316] border-white/[0.08] rounded-2xl p-6 h-full flex flex-col justify-between shadow-lg">
             {/* Chart Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/[0.06]">
               <div>
                 <h2 className="text-sm font-semibold text-white">
                   Pertumbuhan Jangkauan Kampanye
                 </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-white/40 mt-0.5">
                   Statistik tayangan video dan submisi kreator secara berkala
                 </p>
               </div>
@@ -271,10 +288,10 @@ export function DealerDashboardView({
                   <button
                     type="button"
                     onClick={() => setMetricTab("views")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
                       metricTab === "views"
-                        ? "bg-white/15 text-white shadow-sm"
-                        : "text-muted-foreground hover:text-white"
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-xs font-semibold"
+                        : "text-white/40 hover:text-white"
                     }`}
                   >
                     Tayangan
@@ -282,10 +299,10 @@ export function DealerDashboardView({
                   <button
                     type="button"
                     onClick={() => setMetricTab("submissions")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
                       metricTab === "submissions"
-                        ? "bg-white/15 text-white shadow-sm"
-                        : "text-muted-foreground hover:text-white"
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-xs font-semibold"
+                        : "text-white/40 hover:text-white"
                     }`}
                   >
                     Submisi
@@ -297,10 +314,10 @@ export function DealerDashboardView({
                   <button
                     type="button"
                     onClick={() => setTimeframe("7d")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
                       timeframe === "7d"
-                        ? "bg-white/15 text-white shadow-sm"
-                        : "text-muted-foreground hover:text-white"
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-xs font-semibold"
+                        : "text-white/40 hover:text-white"
                     }`}
                   >
                     7H
@@ -308,10 +325,10 @@ export function DealerDashboardView({
                   <button
                     type="button"
                     onClick={() => setTimeframe("30d")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
                       timeframe === "30d"
-                        ? "bg-white/15 text-white shadow-sm"
-                        : "text-muted-foreground hover:text-white"
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-xs font-semibold"
+                        : "text-white/40 hover:text-white"
                     }`}
                   >
                     30H
@@ -328,25 +345,26 @@ export function DealerDashboardView({
                   margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
                 >
                   <defs>
-                    <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ffffff" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#ffffff" stopOpacity={0.0} />
+                    <linearGradient id="goldAreaGlow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.35} />
+                      <stop offset="60%" stopColor="#D4AF37" stopOpacity={0.08} />
+                      <stop offset="100%" stopColor="#D4AF37" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(255,255,255,0.05)"
+                    stroke="rgba(255,255,255,0.04)"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="day"
-                    stroke="rgba(255,255,255,0.2)"
-                    tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }}
+                    stroke="rgba(255,255,255,0.15)"
+                    tick={{ fill: "rgba(255,255,255,0.45)", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    stroke="rgba(255,255,255,0.2)"
+                    stroke="rgba(255,255,255,0.15)"
                     tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
@@ -364,34 +382,38 @@ export function DealerDashboardView({
                   <Area
                     type="monotone"
                     dataKey={metricTab === "views" ? "views" : "submissions"}
-                    stroke="#ffffff"
-                    strokeWidth={2}
+                    stroke="#D4AF37"
+                    strokeWidth={2.5}
                     fillOpacity={1}
-                    fill="url(#chartGlow)"
+                    fill="url(#goldAreaGlow)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
 
             {/* Key Performance Indicators Footer */}
-            <div className="grid grid-cols-3 gap-3 pt-5 mt-4 border-t border-white/5 text-center">
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-3 gap-3 pt-5 mt-4 border-t border-white/[0.06] text-center">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-primary/20 transition-colors">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
                   Rata Rata Harian
                 </p>
-                <p className="text-sm font-semibold text-white mt-1">22.3K Views</p>
+                <p className="text-sm font-bold text-white mt-1">
+                  22.3K <span className="text-[11px] font-normal text-primary/80">Views</span>
+                </p>
               </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-primary/20 transition-colors">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
                   Rasio Interaksi
                 </p>
-                <p className="text-sm font-semibold text-white mt-1">4.8 Persen</p>
+                <p className="text-sm font-bold text-primary mt-1">4.8%</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-primary/20 transition-colors">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
                   Efisiensi Biaya
                 </p>
-                <p className="text-sm font-semibold text-white mt-1">Rp 142 per View</p>
+                <p className="text-sm font-bold text-white mt-1">
+                  Rp 142 <span className="text-[11px] font-normal text-primary/80">/ View</span>
+                </p>
               </div>
             </div>
           </Card>
@@ -405,12 +427,12 @@ export function DealerDashboardView({
           custom={6}
           className="lg:col-span-1"
         >
-          <Card className="bg-[#0f1114] border-white/10 rounded-2xl p-6 h-full flex flex-col justify-between shadow-lg">
+          <Card className="bg-[#111316] border-white/[0.08] rounded-2xl p-6 h-full flex flex-col justify-between shadow-lg">
             <div>
               <h2 className="text-sm font-semibold text-white">
                 Distribusi Tipe Kampanye
               </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-white/40 mt-0.5">
                 Alokasi format konten yang sedang berjalan
               </p>
             </div>
@@ -421,16 +443,16 @@ export function DealerDashboardView({
                 <BarChart
                   data={CAMPAIGN_DISTRIBUTION_DATA}
                   layout="vertical"
-                  margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+                  margin={{ top: 5, right: 15, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(255,255,255,0.05)"
+                    stroke="rgba(255,255,255,0.04)"
                     horizontal={false}
                   />
                   <XAxis
                     type="number"
-                    stroke="rgba(255,255,255,0.2)"
+                    stroke="rgba(255,255,255,0.15)"
                     tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
@@ -438,46 +460,56 @@ export function DealerDashboardView({
                   <YAxis
                     dataKey="type"
                     type="category"
-                    stroke="rgba(255,255,255,0.2)"
-                    tick={{ fill: "rgba(255,255,255,0.8)", fontSize: 11 }}
+                    stroke="rgba(255,255,255,0.15)"
+                    tick={{ fill: "rgba(255,255,255,0.85)", fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
-                    width={85}
+                    width={100}
                   />
                   <Tooltip
-                    cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                    cursor={{ fill: "rgba(255,255,255,0.03)" }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const d = payload[0].payload;
                         return (
-                          <div className="bg-[#111317] border border-white/15 p-2.5 rounded-xl shadow-xl space-y-0.5 text-xs">
-                            <p className="font-semibold text-white">{d.type}</p>
-                            <p className="text-muted-foreground">{d.count} Kampanye Aktif</p>
-                            <p className="text-muted-foreground">{d.creators} Kreator Terdaftar</p>
+                          <div className="bg-[#14161a] border border-primary/30 p-3 rounded-xl shadow-xl space-y-1 text-xs backdrop-blur-md">
+                            <p className="font-bold text-primary">{d.type}</p>
+                            <p className="text-white/60">{d.count} Kampanye Aktif</p>
+                            <p className="text-white/90 font-medium">{d.creators} Kreator Terdaftar</p>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="creators" fill="#ffffff" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="creators" radius={[0, 8, 8, 0]}>
+                    {CAMPAIGN_DISTRIBUTION_DATA.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {/* Mini summary list */}
-            <div className="space-y-2 pt-4 border-t border-white/5">
+            <div className="space-y-2 pt-4 border-t border-white/[0.06]">
               {CAMPAIGN_DISTRIBUTION_DATA.map((item) => (
                 <div
                   key={item.type}
-                  className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white/[0.02]"
+                  className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]"
                 >
-                  <span className="text-white/80 font-medium">{item.type}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground font-mono text-[11px]">
+                    <span 
+                      className="size-2 rounded-full shrink-0 shadow-xs" 
+                      style={{ backgroundColor: item.color }} 
+                    />
+                    <span className="text-white/90 font-medium">{item.type}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-white/40 font-mono text-[11px]">
                       {item.count} kampanye
                     </span>
-                    <span className="text-white font-mono text-[11px]">
+                    <span className="text-primary font-mono text-[11px] font-semibold">
                       {item.creators} kreator
                     </span>
                   </div>
@@ -498,61 +530,67 @@ export function DealerDashboardView({
           custom={7}
           className="lg:col-span-3"
         >
-          <Card className="bg-[#0f1114] border-white/10 rounded-2xl overflow-hidden shadow-lg h-full flex flex-col justify-between">
+          <Card className="bg-[#111316] border-white/[0.08] rounded-2xl overflow-hidden shadow-lg h-full flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+              <div className="flex items-center justify-between px-6 py-4.5 border-b border-white/[0.06]">
                 <div>
                   <h2 className="text-sm font-semibold text-white">Submisi Konten Terbaru</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-white/40 mt-0.5">
                     Draf video kreator yang siap ditinjau
                   </p>
                 </div>
                 <Link
                   href="/dealer/submissions"
-                  className="text-xs font-medium flex items-center gap-1 text-white/70 hover:text-white transition-colors"
+                  className="text-xs font-semibold flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                 >
                   <span>Buka Review Konten</span>
                   <ArrowUpRight className="size-3.5" />
                 </Link>
               </div>
 
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/[0.04]">
                 {RECENT_SUBMISSIONS_PREVIEW.map((item) => (
                   <div
                     key={item.id}
                     className="p-4 px-6 flex items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="size-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white shrink-0">
-                        <SocialIcon platform={item.platform} className="size-4 text-white" />
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="size-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-white shrink-0">
+                        <SocialIcon platform={item.platform} className="size-4.5 text-white/80" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-white truncate">
                           {item.creator}
                         </p>
-                        <p className="text-[11px] text-muted-foreground truncate">
+                        <p className="text-[11px] text-white/40 truncate mt-0.5">
                           {item.campaign}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-[10px] font-mono text-muted-foreground block">
+                      <span className="text-[10px] font-mono text-white/40 block mb-1">
                         {item.time}
                       </span>
-                      <span className="text-[11px] font-medium text-white/90 block mt-0.5">
-                        {item.status}
-                      </span>
+                      {item.status === "Menunggu Review" ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 inline-block">
+                          {item.status}
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-block">
+                          {item.status}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="p-4 px-6 border-t border-white/5 bg-white/[0.01]">
+            <div className="p-4 px-6 border-t border-white/[0.06] bg-white/[0.01]">
               <Link
                 href="/dealer/submissions"
-                className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-medium text-white flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full py-2.5 rounded-xl bg-white/[0.03] hover:bg-primary/10 hover:text-primary hover:border-primary/30 border border-white/10 text-xs font-medium text-white/80 flex items-center justify-center gap-1.5 transition-all"
               >
                 <span>Periksa Semua Submisi</span>
                 <ChevronRight className="size-3.5" />
@@ -569,27 +607,27 @@ export function DealerDashboardView({
           custom={8}
           className="lg:col-span-2"
         >
-          <Card className="bg-[#0f1114] border-white/10 rounded-2xl overflow-hidden shadow-lg h-full flex flex-col justify-between">
+          <Card className="bg-[#111316] border-white/[0.08] rounded-2xl overflow-hidden shadow-lg h-full flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+              <div className="flex items-center justify-between px-6 py-4.5 border-b border-white/[0.06]">
                 <div>
                   <h2 className="text-sm font-semibold text-white">Kampanye Utama</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-white/40 mt-0.5">
                     Aktivitas kampanye yang sedang aktif
                   </p>
                 </div>
                 <Link
                   href="/dealer/campaigns"
-                  className="text-xs font-medium flex items-center gap-1 text-white/70 hover:text-white transition-colors"
+                  className="text-xs font-semibold flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                 >
                   <span>Semua</span>
                   <ArrowUpRight className="size-3.5" />
                 </Link>
               </div>
 
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/[0.04]">
                 {topCampaigns.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-muted-foreground">
+                  <div className="p-6 text-center text-xs text-white/40">
                     Belum ada data kampanye aktif.
                   </div>
                 ) : (
@@ -598,17 +636,17 @@ export function DealerDashboardView({
                       key={campaign.id}
                       className="p-4 px-6 hover:bg-white/[0.02] transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-white leading-snug truncate">
                             {campaign.title}
                           </p>
-                          <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+                          <div className="flex items-center gap-3 mt-1.5 text-[11px] text-white/40">
                             <span>{campaign.applicants} kreator</span>
                             <span>{campaign.views} tayangan</span>
                           </div>
                         </div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white shrink-0">
+                        <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
                           {campaign.status === "active" ? "Aktif" : "Selesai"}
                         </span>
                       </div>
@@ -619,23 +657,25 @@ export function DealerDashboardView({
             </div>
 
             {/* Quick Inventory Summary Link */}
-            <div className="p-4 px-6 border-t border-white/5 bg-white/[0.01]">
+            <div className="p-4 px-6 border-t border-white/[0.06] bg-white/[0.01]">
               <Link
                 href="/dealer/inventory"
-                className="flex items-center justify-between group py-1"
+                className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-primary/30 hover:bg-primary/[0.03] transition-all flex items-center justify-between group"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                    <Car className="size-4" />
+                <div className="flex items-center gap-3">
+                  <div className="size-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                    <Car className="size-4.5" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-white">Inventory Kendaraan</p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs font-semibold text-white group-hover:text-primary transition-colors">
+                      Inventory Kendaraan
+                    </p>
+                    <p className="text-[10px] text-white/40">
                       {totalVehicles} unit terdaftar
                     </p>
                   </div>
                 </div>
-                <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-white transition-colors" />
+                <ArrowUpRight className="size-4 text-white/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </Link>
             </div>
           </Card>

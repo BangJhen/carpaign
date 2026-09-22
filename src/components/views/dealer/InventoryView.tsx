@@ -311,7 +311,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
               Belum Ada Unit Kendaraan
             </h3>
             <p className="text-white/40 text-sm max-w-md mb-6">
-              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Clipping, UGC/Review, atau Videographer/Edit.
+              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Clip & Publish, UGC & Review, atau Shoot & Edit.
             </p>
             <Button
               onClick={handleOpenAdd}
@@ -465,7 +465,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
 
                     <div className="space-y-1.5">
                       <label className="text-[12px] font-medium text-white/60">
-                        Nama Unit (Merk, Model & Varian) <span className="text-red-400">*</span>
+                        Nama Unit (Merk, Model & Varian) {!form.name.trim() && <span className="text-red-400">*</span>}
                       </label>
                       <Input
                         value={form.name}
@@ -507,7 +507,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
 
                       <div className="space-y-1.5">
                         <label className="text-[12px] font-medium text-white/60">
-                          Tahun Pembuatan <span className="text-red-400">*</span>
+                          Tahun Pembuatan {!form.year.trim() && <span className="text-red-400">*</span>}
                         </label>
                         <Input
                           value={form.year}
@@ -531,7 +531,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div className="space-y-1.5">
                         <label className="text-[12px] font-medium text-white/60">
-                          Warna Eksterior <span className="text-red-400">*</span>
+                          Warna Eksterior {!form.color.trim() && <span className="text-red-400">*</span>}
                         </label>
                         <Input
                           value={form.color}
@@ -577,7 +577,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
 
                     <div className="space-y-1.5">
                       <label className="text-[12px] font-medium text-white/60">
-                        Lokasi Showroom / Cabang <span className="text-red-400">*</span>
+                        Lokasi Showroom / Cabang {!form.location.trim() && <span className="text-red-400">*</span>}
                       </label>
                       <Input
                         value={form.location}

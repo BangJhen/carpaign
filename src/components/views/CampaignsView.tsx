@@ -29,9 +29,9 @@ const fadeUp: Variants = {
 
 const jobTypes = [
   { id: "all", label: "Semua", icon: LayoutGrid, color: "text-muted-foreground", campaignType: "all" },
-  { id: "clipping", label: "Clipping", icon: Scissors, color: "text-muted-foreground", campaignType: "Clipping" },
-  { id: "ugc", label: "UGC/Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC/Review" },
-  { id: "videographer", label: "Videographer/Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Videographer/Edit" },
+  { id: "clipping", label: "Clip & Publish", icon: Scissors, color: "text-muted-foreground", campaignType: "Clipping" },
+  { id: "ugc", label: "UGC & Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC/Review" },
+  { id: "videographer", label: "Shoot & Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Videographer/Edit" },
 ];
 
 const featuredCampaigns = [

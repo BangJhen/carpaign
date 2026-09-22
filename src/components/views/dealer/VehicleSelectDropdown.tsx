@@ -117,7 +117,7 @@ export function VehicleSelectDropdown({
       {/* Label and Info */}
       <div className="flex items-center justify-between">
         <label className="text-[11px] font-medium text-white/50 flex items-center gap-1">
-          {label} {required && <span className="text-red-400">*</span>}
+          {label} {required && selectedVehicleIds.length === 0 && <span className="text-red-400">*</span>}
         </label>
         {isMultiple && vehicles.length > 0 && selectedVehicleIds.length > 0 && (
           <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">

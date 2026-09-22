@@ -17,8 +17,10 @@ import {
   CircleDollarSign,
   ExternalLink,
   Layers,
-  Sparkles
+  Sparkles,
+  Check
 } from "lucide-react";
+import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +35,12 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Vehicle = VehicleItem;
+
+const TARGET_PLATFORMS = [
+  { id: "TikTok", label: "TikTok", icon: TikTokIcon },
+  { id: "Instagram Reels", label: "Instagram Reels", icon: InstagramIcon },
+  { id: "YouTube Shorts", label: "YouTube Shorts", icon: YouTubeIcon },
+];
 
 const steps = [
   "Informasi Campaign",
@@ -83,7 +91,21 @@ export function ClippingCampaignForm({
   const [thumbnail, setThumbnail] = useState("");
   const [description, setDescription] = useState("");
   const [audienceRegion, setAudienceRegion] = useState("Nasional (Seluruh Indonesia)");
-  const [publishPlatforms, setPublishPlatforms] = useState("TikTok & Instagram Reels");
+  const [publishPlatforms, setPublishPlatforms] = useState("TikTok, Instagram Reels");
+
+  const togglePublishPlatform = (platformId: string) => {
+    clearFieldError("publishPlatforms");
+    const current = publishPlatforms
+      ? publishPlatforms.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+    let next: string[];
+    if (current.includes(platformId)) {
+      next = current.filter((p) => p !== platformId);
+    } else {
+      next = [...current, platformId];
+    }
+    setPublishPlatforms(next.join(", "));
+  };
 
   // Step 2 State
   const [sourceMaterial, setSourceMaterial] = useState("");
@@ -120,7 +142,7 @@ export function ClippingCampaignForm({
   const numCpm = parseNumberId(cpm);
   const numMaxViews = parseNumberId(maxViewsPerClipper);
   
-  const isBudgetInvalid = numBudget > 0 && numBudget < 1000000;
+  const isBudgetInvalid = numBudget > 0 && numBudget < 100000;
   const isCpmInvalid = numCpm > 0 && numCpm < 500;
   const isMaxViewsInvalid = numMaxViews > 0 && numMaxViews < 10000;
 
@@ -175,8 +197,8 @@ export function ClippingCampaignForm({
     }
 
     if (currentStep === 3) {
-      if (!budget.trim() || numBudget < 1000000) {
-        newErrors.budget = "Minimal budget campaign adalah Rp 1.000.000 (tidak bisa di bawah 1 juta)";
+      if (!budget.trim() || numBudget < 100000) {
+        newErrors.budget = "Minimal budget campaign adalah Rp 100.000 (tidak bisa di bawah 100 ribu)";
       }
 
       if (!cpm.trim() || numCpm < 500) {
@@ -195,8 +217,8 @@ export function ClippingCampaignForm({
   const handleNext = () => {
     setError("");
     if (!validateStep(step)) {
-      if (step === 3 && numBudget < 1000000) {
-        toast.error("Tidak dapat melanjutkan: Minimal budget campaign adalah Rp 1.000.000");
+      if (step === 3 && numBudget < 100000) {
+        toast.error("Tidak dapat melanjutkan: Minimal budget campaign adalah Rp 100.000");
       }
       return;
     }
@@ -318,7 +340,7 @@ export function ClippingCampaignForm({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Judul Campaign <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Judul Campaign {!title.trim() && <span className="text-red-400">*</span>}</label>
                   <Input
                     value={title}
                     onChange={(e) => {
@@ -332,7 +354,7 @@ export function ClippingCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Fokus Promosi {!promotionalFocus && <span className="text-red-400">*</span>}</label>
                   <Select value={promotionalFocus} onValueChange={(val: any) => {
                     setPromotionalFocus(val);
                     clearFieldError("promotionalFocus");
@@ -370,7 +392,7 @@ export function ClippingCampaignForm({
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Deskripsi Singkat Campaign <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Deskripsi Singkat Campaign {!description.trim() && <span className="text-red-400">*</span>}</label>
                   <Textarea
                     value={description}
                     onChange={(e) => {
@@ -385,7 +407,7 @@ export function ClippingCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Target Wilayah Audiens {!audienceRegion && <span className="text-red-400">*</span>}</label>
                     <Select
                       value={audienceRegion}
                       onValueChange={(val) => {
@@ -416,28 +438,33 @@ export function ClippingCampaignForm({
                     {errors.audienceRegion && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.audienceRegion}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi <span className="text-red-400">*</span></label>
-                    <Select
-                      value={publishPlatforms}
-                      onValueChange={(val) => {
-                        setPublishPlatforms(val);
-                        clearFieldError("publishPlatforms");
-                      }}
-                    >
-                      <SelectTrigger
-                        className={cn(
-                          "bg-white/5 border-white/10 text-white",
-                          errors.publishPlatforms && "border-red-500/60 bg-red-500/[0.03]"
-                        )}
-                      >
-                        <SelectValue placeholder="Pilih Platform" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                        <SelectItem value="TikTok & Instagram Reels">TikTok & Instagram Reels</SelectItem>
-                        <SelectItem value="TikTok">TikTok Saja</SelectItem>
-                        <SelectItem value="Instagram Reels">Instagram Reels Saja</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <label className="text-[11px] font-medium text-white/40">Platform Publikasi {!publishPlatforms.trim() && <span className="text-red-400">*</span>}</label>
+                    <div className="flex items-center gap-2 pt-0.5">
+                      {TARGET_PLATFORMS.map((p) => {
+                        const Icon = p.icon;
+                        const isSelected = publishPlatforms
+                          .split(",")
+                          .map((s) => s.trim())
+                          .includes(p.id);
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => togglePublishPlatform(p.id)}
+                            title={p.label}
+                            aria-label={p.label}
+                            className={cn(
+                              "size-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer select-none relative group",
+                              isSelected
+                                ? "bg-primary/15 border-primary/50 text-primary shadow-xs ring-1 ring-primary/25"
+                                : "bg-white/[0.02] border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white hover:border-white/20"
+                            )}
+                          >
+                            <Icon className="size-4.5 transition-transform group-hover:scale-110" />
+                          </button>
+                        );
+                      })}
+                    </div>
                     {errors.publishPlatforms && <p className="text-[11px] text-red-400 font-medium mt-1">{errors.publishPlatforms}</p>}
                   </div>
                 </div>
@@ -469,31 +496,20 @@ export function ClippingCampaignForm({
                 <p className="text-[12px] text-white/40 mt-1">Sediakan bahan footage dan instruksi pembuatan video bagi kreator clipper.</p>
               </div>
 
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex gap-3 text-primary/80">
-                <Info className="size-5 shrink-0" />
-                <p className="text-[12px] leading-relaxed">
+              <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-3">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Info className="size-3.5 text-primary" />
+                </div>
+                <p className="text-[12px] text-white/60 leading-relaxed">
                   Layanan Clipping memanfaatkan materi video/foto yang sudah Anda sediakan di folder cloud storage. Pastikan link dapat diakses publik.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-medium text-white/40">
-                      Materi Sumber (Link Google Drive / Dropbox) <span className="text-red-400">*</span>
-                    </label>
-                    {sourceMaterial.trim() && (
-                      <a
-                        href={sourceMaterial.trim().startsWith("http://") || sourceMaterial.trim().startsWith("https://") ? sourceMaterial.trim() : `https://${sourceMaterial.trim()}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 hover:bg-primary/20 px-2.5 py-0.5 rounded-md border border-primary/20"
-                      >
-                        <ExternalLink className="size-3" />
-                        <span>Buka & Uji Link</span>
-                      </a>
-                    )}
-                  </div>
+                  <label className="text-[11px] font-medium text-white/40">
+                    Materi Sumber (Link Google Drive / Dropbox) {!sourceMaterial.trim() && <span className="text-red-400">*</span>}
+                  </label>
                   <div className="relative">
                     <Input
                       value={sourceMaterial}
@@ -524,7 +540,7 @@ export function ClippingCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-white/40">Arahan Konten <span className="text-red-400">*</span></label>
+                  <label className="text-[11px] font-medium text-white/40">Arahan Konten {!contentGuidelines.trim() && <span className="text-red-400">*</span>}</label>
                   <Textarea
                     value={contentGuidelines}
                     onChange={(e) => {
@@ -549,7 +565,7 @@ export function ClippingCampaignForm({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-medium text-white/40">Durasi Video <span className="text-red-400">*</span></label>
+                    <label className="text-[11px] font-medium text-white/40">Durasi Video {!videoSpecs && <span className="text-red-400">*</span>}</label>
                     <Select
                       value={videoSpecs}
                       onValueChange={(val) => {
@@ -595,12 +611,12 @@ export function ClippingCampaignForm({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-medium text-red-400/70">Larangan Konten (Opsional)</label>
+                  <label className="text-[11px] font-medium text-white/40">Larangan Konten (Opsional)</label>
                   <Textarea
                     value={forbiddenContent}
                     onChange={(e) => setForbiddenContent(e.target.value)}
                     placeholder="Contoh: Dilarang mengubah informasi harga, jangan menyebut brand kompetitor..."
-                    className="bg-white/5 border-red-500/20 text-white placeholder:text-white/20 focus:border-red-500/50 min-h-[60px]"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20 min-h-[60px]"
                   />
                 </div>
               </div>
@@ -621,13 +637,13 @@ export function ClippingCampaignForm({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-[11px] font-medium text-white/40">
-                      Total Budget Campaign <span className="text-red-400">*</span>
+                      Total Budget Campaign {!budget.trim() && <span className="text-red-400">*</span>}
                     </label>
                     <span className={cn(
                       "text-[10px] font-mono transition-colors",
                       isBudgetInvalid || errors.budget ? "text-red-400 font-semibold" : "text-white/40"
                     )}>
-                      Min. Rp 1.000.000
+                      Min. Rp 100.000
                     </span>
                   </div>
                   
@@ -641,11 +657,11 @@ export function ClippingCampaignForm({
                         clearFieldError("budget");
                       }}
                       onBlur={() => {
-                        if (numBudget > 0 && numBudget < 1000000) {
-                          toast.error("Minimal budget campaign adalah Rp 1.000.000 (tidak bisa di bawah 1 juta)");
+                        if (numBudget > 0 && numBudget < 100000) {
+                          toast.error("Minimal budget campaign adalah Rp 100.000 (tidak bisa di bawah 100 ribu)");
                         }
                       }}
-                      placeholder="1.000.000"
+                      placeholder="100.000"
                       className={cn(
                         "pl-10 bg-white/5 border-white/10 text-white font-medium placeholder:text-white/20 transition-all",
                         (isBudgetInvalid || errors.budget) && "border-red-500/70 bg-red-500/[0.04] text-red-100 ring-1 ring-red-500/30 focus:border-red-500"
@@ -664,7 +680,7 @@ export function ClippingCampaignForm({
                       <div>
                         <p className="font-semibold text-red-300">Budget di bawah batas minimal</p>
                         <p className="text-red-400/90 mt-0.5">
-                          Minimal budget campaign adalah <strong>Rp 1.000.000</strong>. Anda tidak dapat membuat campaign dengan budget di bawah 1 juta.
+                          Minimal budget campaign adalah <strong>Rp 100.000</strong>. Anda tidak dapat membuat campaign dengan budget di bawah 100 ribu.
                         </p>
                       </div>
                     </motion.div>
@@ -677,7 +693,7 @@ export function ClippingCampaignForm({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-[11px] font-medium text-white/40">
-                      Tarif per 1.000 Views (CPM) <span className="text-red-400">*</span>
+                      Tarif per 1.000 Views (CPM) {!cpm.trim() && <span className="text-red-400">*</span>}
                     </label>
                     <span className={cn(
                       "text-[10px] font-mono transition-colors",
@@ -751,7 +767,7 @@ export function ClippingCampaignForm({
               )}>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-medium text-white/60">
-                    Batas Maksimal Views per Clipper <span className="text-red-400">*</span>
+                    Batas Maksimal Views per Clipper {!maxViewsPerClipper.trim() && <span className="text-red-400">*</span>}
                   </label>
                   <span className={cn(
                     "text-[10px] font-mono transition-colors",
@@ -1185,10 +1201,12 @@ export function ClippingCampaignForm({
               </div>
 
               {/* Payment & Activation Notice */}
-              <div className="p-4 rounded-xl bg-primary/[0.05] border border-primary/20 flex items-start gap-3 text-xs text-white/80 leading-relaxed">
-                <Info className="size-4 text-primary shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-start gap-3.5 text-xs text-white/60 leading-relaxed">
+                <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Info className="size-3.5 text-primary" />
+                </div>
                 <div>
-                  <span className="font-semibold text-primary block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
+                  <span className="font-semibold text-white/90 block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
                   Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draft (Menunggu Pembayaran)</span>. Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard & feed kreator setelah pembayaran alokasi budget diselesaikan.
                 </div>
               </div>

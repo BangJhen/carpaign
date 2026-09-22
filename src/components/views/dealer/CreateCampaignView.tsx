@@ -11,21 +11,21 @@ import { VideographyCampaignForm } from "./VideographyCampaignForm";
 const CAMPAIGN_TYPES: { value: CampaignType; title: string; description: string; objective: string; icon: any }[] = [
   {
     value: "Clipping",
-    title: "Clipping",
+    title: "Clip & Publish",
     objective: "Meningkatkan awareness",
     description: "Menyebarkan konten agar lebih banyak orang mengenal dealer atau unitnya",
     icon: Scissors,
   },
   {
     value: "UGC/Review",
-    title: "UGC/Review",
+    title: "UGC & Review",
     objective: "Mendukung peningkatan sales",
     description: "Konten kreator yang menjelaskan produk dan membangun kepercayaan calon pembeli",
     icon: Video,
   },
   {
     value: "Videographer/Edit",
-    title: "Videographer/Edit",
+    title: "Shoot & Edit",
     objective: "Memenuhi kebutuhan konten",
     description: "Jasa pengambilan footage, produksi video, atau pengeditan konten",
     icon: Camera,
