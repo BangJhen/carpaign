@@ -35,9 +35,11 @@ export default async function CreatorCampaignsPage() {
     .orderBy(desc(campaignsTable.createdAt));
 
   const mappedDbCampaigns: Campaign[] = dbRows.map((row) => {
+    const rawDeadlineTime = row.deadline ? new Date(row.deadline).getTime() : NaN;
+    const validDeadline = isNaN(rawDeadlineTime) ? Date.now() + 14 * 86400000 : rawDeadlineTime;
     const daysRemaining = Math.max(
       1,
-      Math.ceil((new Date(row.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      Math.ceil((validDeadline - Date.now()) / (1000 * 60 * 60 * 24))
     );
     const thumbnail = (row.details as any)?.thumbnail;
     return {

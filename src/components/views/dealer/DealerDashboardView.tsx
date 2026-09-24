@@ -499,10 +499,6 @@ export function DealerDashboardView({
                   className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]"
                 >
                   <div className="flex items-center gap-2">
-                    <span 
-                      className="size-2 rounded-full shrink-0 shadow-xs" 
-                      style={{ backgroundColor: item.color }} 
-                    />
                     <span className="text-white/90 font-medium">{item.type}</span>
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -577,7 +573,7 @@ export function DealerDashboardView({
                           {item.status}
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-block">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-white/90 border border-white/15 inline-block">
                           {item.status}
                         </span>
                       )}

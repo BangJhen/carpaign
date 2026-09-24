@@ -282,7 +282,7 @@ export function ClippingCampaignForm({
           <ChevronLeft className="size-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-white">Buat Campaign Clipping</h1>
+          <h1 className="text-xl font-semibold text-white">Buat Campaign Clip & Publish</h1>
           <p className="text-[12px] text-white/40">Meningkatkan awareness brand dan showroom melalui kompilasi konten kreator</p>
         </div>
       </div>
@@ -940,7 +940,7 @@ export function ClippingCampaignForm({
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="text-[10px] font-bold text-primary tracking-wider uppercase flex items-center gap-1">
-                                <Scissors className="size-3" /> CLIPPING
+                                <Scissors className="size-3" /> CLIP & PUBLISH
                               </span>
                               <span className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded">
                                 30 Hari Tersisa
@@ -948,7 +948,7 @@ export function ClippingCampaignForm({
                             </div>
                             
                             <h4 className="font-bold text-[15px] text-white line-clamp-1 mb-1.5">
-                              {title || "Judul Campaign Clipping"}
+                              {title || "Judul Campaign Clip & Publish"}
                             </h4>
                             
                             <p className="text-[12px] text-white/60 line-clamp-2 leading-relaxed mb-3">
@@ -1009,7 +1009,7 @@ export function ClippingCampaignForm({
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Badge className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
-                                <Scissors className="size-3" /> CLIPPING
+                                <Scissors className="size-3" /> CLIP & PUBLISH
                               </Badge>
                               <span className="text-[10px] text-white/60 bg-black/60 border border-white/10 px-2 py-0.5 rounded">
                                 {audienceRegion}

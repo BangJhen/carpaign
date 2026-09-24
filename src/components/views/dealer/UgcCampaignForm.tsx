@@ -105,9 +105,13 @@ export function UgcCampaignForm({
   const [feePerCreator, setFeePerCreator] = useState("500.000");
   const [productionMethod, setProductionMethod] = useState<"visit" | "remote">("visit");
   const [productionLocation, setProductionLocation] = useState("");
-  const [productionDateRange, setProductionDateRange] = useState("1 Okt 2026 - 10 Okt 2026");
-  const [draftDeadline, setDraftDeadline] = useState("5 Okt 2026");
-  const [publishDeadline, setPublishDeadline] = useState("12 Okt 2026");
+  const [productionDateRange, setProductionDateRange] = useState("Sesuai kesepakatan");
+  const [draftDeadline, setDraftDeadline] = useState(
+    new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
+  const [publishDeadline, setPublishDeadline] = useState(
+    new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
   const [creatorCriteria, setCreatorCriteria] = useState("Niche Otomotif / Lifestyle, Min. 5k Followers, Engagement Rate > 3%");
   const [transportationTerms, setTransportationTerms] = useState("Termasuk dalam fee atau ditanggung kreator");
 
@@ -245,14 +249,35 @@ export function UgcCampaignForm({
     setError("");
     startTransition(async () => {
       try {
+        const now = new Date();
+        let deadlineIso = "";
+        try {
+          if (publishDeadline && !isNaN(new Date(publishDeadline).getTime())) {
+            deadlineIso = new Date(publishDeadline).toISOString();
+          } else {
+            deadlineIso = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+          }
+        } catch {
+          deadlineIso = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+        }
+
+        let startIso = now.toISOString();
+        try {
+          if (draftDeadline && !isNaN(new Date(draftDeadline).getTime())) {
+            startIso = new Date(draftDeadline).toISOString();
+          }
+        } catch {
+          startIso = now.toISOString();
+        }
+
         const payload = {
           title,
           promotionalFocus,
           vehicles: selectedVehicles,
           type: "UGC/Review" as const,
           budget: numBudget,
-          startDate: productionDateRange.split(" - ")[0] || draftDeadline, // fallback to draftDeadline if range format is weird
-          deadline: publishDeadline,
+          startDate: startIso,
+          deadline: deadlineIso,
           status,
           details: {
             thumbnail: thumbnail || (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) || null,
@@ -302,7 +327,7 @@ export function UgcCampaignForm({
           <ChevronLeft className="size-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-white">Buat Campaign UGC/Review</h1>
+          <h1 className="text-xl font-semibold text-white">Buat Campaign UGC & Review</h1>
           <p className="text-[12px] text-white/40">Membangun kepercayaan dan mendorong sales</p>
         </div>
       </div>
@@ -992,7 +1017,7 @@ export function UgcCampaignForm({
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="text-[10px] font-bold text-primary tracking-wider uppercase flex items-center gap-1">
-                                <Video className="size-3" /> UGC / REVIEW
+                                <Video className="size-3" /> UGC & REVIEW
                               </span>
                               <span className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded">
                                 Kuota: {numCreatorCount} Kreator
@@ -1000,7 +1025,7 @@ export function UgcCampaignForm({
                             </div>
                             
                             <h4 className="font-bold text-[15px] text-white line-clamp-1 mb-1.5">
-                              {title || "Judul Campaign UGC"}
+                              {title || "Judul Campaign UGC & Review"}
                             </h4>
                             
                             <p className="text-[12px] text-white/60 line-clamp-2 leading-relaxed mb-3">
@@ -1057,7 +1082,7 @@ export function UgcCampaignForm({
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Badge className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
-                                <Video className="size-3" /> UGC / REVIEW
+                                <Video className="size-3" /> UGC & REVIEW
                               </Badge>
                               <span className="text-[10px] text-white/60 bg-black/60 border border-white/10 px-2 py-0.5 rounded">
                                 {audienceRegion}

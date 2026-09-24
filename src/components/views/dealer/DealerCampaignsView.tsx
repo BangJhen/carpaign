@@ -41,6 +41,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cancelCampaign, payCampaign } from "@/app/actions/campaigns";
+import { formatCampaignType } from "@/lib/utils";
 import { toast } from "sonner";
 
 const fadeUp = {
@@ -108,9 +109,8 @@ export function StatusBadge({ status }: { status: CampaignStatus }) {
   const config = statusConfig[status] ?? statusConfig.draft;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${config.bg} ${config.text} border ${config.border} whitespace-nowrap shadow-xs`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${config.bg} ${config.text} border ${config.border} whitespace-nowrap shadow-xs`}
     >
-      <span className={`size-1.5 rounded-full shrink-0 ${config.dot}`} />
       <span>{config.label}</span>
     </span>
   );
@@ -338,10 +338,8 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                               {campaign.title}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[11px] text-white/40 truncate max-w-[200px]">{campaign.focus}</span>
-                              <span className="text-white/20 text-[10px]">•</span>
                               <span className="text-[10px] font-semibold text-white/60 bg-white/5 border border-white/10 px-2 py-0.5 rounded">
-                                {campaign.type}
+                                {formatCampaignType(campaign.type)}
                               </span>
                             </div>
                           </td>
@@ -441,7 +439,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-[10px] font-semibold text-white/60 bg-white/5 border border-white/10 px-2 py-0.5 rounded">
-                            {campaign.type}
+                            {formatCampaignType(campaign.type)}
                           </span>
                           <StatusBadge status={campaign.status} />
                         </div>
@@ -481,12 +479,11 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                         </div>
                       </div>
 
-                      {/* Title & Focus */}
+                      {/* Title */}
                       <div>
                         <h4 className="text-[14px] font-bold text-white leading-snug">
                           {campaign.title}
                         </h4>
-                        <p className="text-[11px] text-white/40 mt-0.5 line-clamp-1">{campaign.focus}</p>
                       </div>
 
                       {/* 4 Stat Pills */}
@@ -537,8 +534,8 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
             <div className="space-y-6">
               <DialogHeader className="space-y-3 text-left">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-primary/10 text-primary border border-primary/25 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5">
-                    {selectedDetail.type}
+                  <Badge className="bg-primary/10 text-primary border border-primary/25 text-[10px] font-bold tracking-wider px-2.5 py-0.5">
+                    {formatCampaignType(selectedDetail.type)}
                   </Badge>
                   <StatusBadge status={selectedDetail.status} />
                 </div>
@@ -546,7 +543,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                   {selectedDetail.title}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-white/45">
-                  {selectedDetail.focus} • Dibuat pada {selectedDetail.createdAt || "-"}
+                  Dibuat pada {selectedDetail.createdAt || "-"}
                 </DialogDescription>
               </DialogHeader>
 
@@ -630,7 +627,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
               <div className="rounded-xl bg-[#1a1c20] border border-white/5 divide-y divide-white/[0.04] text-xs">
                 <div className="flex items-center justify-between p-3 sm:px-4">
                   <span className="text-white/40 font-medium">Tipe Kampanye</span>
-                  <span className="text-white font-semibold">{selectedDetail.type}</span>
+                  <span className="text-white font-semibold">{formatCampaignType(selectedDetail.type)}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 sm:px-4">
                   <span className="text-white/40 font-medium">Fokus Promosi</span>

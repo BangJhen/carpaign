@@ -7,6 +7,8 @@ import { DealerLayout } from "@/components/layout/DealerLayout";
 import { DealerCampaignsView } from "@/components/views/dealer/DealerCampaignsView";
 import type { Campaign } from "@/components/views/dealer/DealerCampaignsView";
 
+import { formatCampaignType } from "@/lib/utils";
+
 export const metadata = {
   title: "Manajemen Kampanye - Dealer Dashboard | Carpaign",
 };
@@ -22,20 +24,31 @@ export default async function DealerCampaignsPage() {
       .where(eq(campaigns.dealerId, session.user.id))
       .orderBy(campaigns.createdAt);
 
+    const formatDateStr = (dateVal: any) => {
+      if (!dateVal) return "-";
+      try {
+        const d = dateVal instanceof Date ? dateVal : new Date(dateVal);
+        if (isNaN(d.getTime())) return "-";
+        return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+      } catch {
+        return "-";
+      }
+    };
+
     data = rows.map((r) => ({
       id: r.id,
       title: r.title,
       focus: r.promotionalFocus === "dealer" ? "Dealer Keseluruhan" : r.promotionalFocus === "single_unit" ? "1 Unit Kendaraan" : "Beberapa Unit",
-      type: r.type,
+      type: formatCampaignType(r.type),
       budget: `Rp ${r.budget.toLocaleString("id-ID")}`,
       rawBudget: r.budget,
-      deadline: r.deadline ? r.deadline.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
-      startDate: r.startDate ? r.startDate.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
+      deadline: formatDateStr(r.deadline),
+      startDate: formatDateStr(r.startDate),
       applicants: r.applicantsCount,
       views: r.views,
       status: r.status,
       details: r.details as any,
-      createdAt: r.createdAt ? r.createdAt.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-",
+      createdAt: formatDateStr(r.createdAt),
     }));
   }
 

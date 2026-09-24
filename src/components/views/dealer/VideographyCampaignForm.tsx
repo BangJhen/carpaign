@@ -136,10 +136,14 @@ export function VideographyCampaignForm({
   // Step 3 State
   const [feeAmount, setFeeAmount] = useState("1.500.000");
   const [productionLocation, setProductionLocation] = useState("");
-  const [productionSchedule, setProductionSchedule] = useState("10 Okt 2026");
+  const [productionSchedule, setProductionSchedule] = useState("Sesuai kesepakatan");
   const [sourceMaterialDate, setSourceMaterialDate] = useState("");
-  const [draftDeadline, setDraftDeadline] = useState("15 Okt 2026");
-  const [finalDeadline, setFinalDeadline] = useState("20 Okt 2026");
+  const [draftDeadline, setDraftDeadline] = useState(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
+  const [finalDeadline, setFinalDeadline] = useState(
+    new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
   const [providerCriteria, setProviderCriteria] = useState("Peralatan kamera min. Sony A7/Mirrorless 4K, stabil gimbal");
   const [transportationTerms, setTransportationTerms] = useState("Termasuk dalam fee");
 
@@ -269,14 +273,35 @@ export function VideographyCampaignForm({
     setError("");
     startTransition(async () => {
       try {
+        const now = new Date();
+        let deadlineIso = "";
+        try {
+          if (finalDeadline && !isNaN(new Date(finalDeadline).getTime())) {
+            deadlineIso = new Date(finalDeadline).toISOString();
+          } else {
+            deadlineIso = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+          }
+        } catch {
+          deadlineIso = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+        }
+
+        let startIso = now.toISOString();
+        try {
+          if (draftDeadline && !isNaN(new Date(draftDeadline).getTime())) {
+            startIso = new Date(draftDeadline).toISOString();
+          }
+        } catch {
+          startIso = now.toISOString();
+        }
+
         const payload = {
           title,
           promotionalFocus,
           vehicles: selectedVehicles,
           type: "Videographer/Edit" as const,
           budget: numFeeAmount,
-          startDate: productionSchedule.split(" - ")[0] || sourceMaterialDate || draftDeadline,
-          deadline: finalDeadline,
+          startDate: startIso,
+          deadline: deadlineIso,
           status,
           details: {
             thumbnail: thumbnail || (selectedVehicles.length > 0 ? vehicles.find((v) => v.id === selectedVehicles[0])?.image : null) || null,
@@ -1045,7 +1070,7 @@ export function VideographyCampaignForm({
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="text-[10px] font-bold text-primary tracking-wider uppercase flex items-center gap-1">
-                                <Camera className="size-3" /> VIDEOGRAPHY / EDIT
+                                <Camera className="size-3" /> SHOOT & EDIT
                               </span>
                               <span className="text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded">
                                 Deadline: {finalDeadline || "Fleksibel"}
@@ -1053,7 +1078,7 @@ export function VideographyCampaignForm({
                             </div>
                             
                             <h4 className="font-bold text-[15px] text-white line-clamp-1 mb-1.5">
-                              {title || "Judul Proyek Videografi"}
+                              {title || "Judul Proyek Shoot & Edit"}
                             </h4>
                             
                             <p className="text-[12px] text-white/60 line-clamp-2 leading-relaxed mb-3">
@@ -1110,7 +1135,7 @@ export function VideographyCampaignForm({
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Badge className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 bg-primary/10 border-primary/30 text-primary flex items-center gap-1">
-                                <Camera className="size-3" /> VIDEOGRAPHY / EDIT
+                                <Camera className="size-3" /> SHOOT & EDIT
                               </Badge>
                               <span className="text-[10px] text-white/60 bg-black/60 border border-white/10 px-2 py-0.5 rounded capitalize">
                                 {serviceType?.replace(/_/g, " ")}

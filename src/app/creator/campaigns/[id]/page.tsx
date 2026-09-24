@@ -1,5 +1,6 @@
 import { JobDetailView } from "@/components/views/JobDetailView";
 import { campaigns as fallbackCampaigns, type Campaign } from "@/lib/campaigns-data";
+import { formatCampaignType } from "@/lib/utils";
 import { db } from "@/db/db";
 import { campaigns as campaignsTable, dealerProfiles } from "@/db/schema";
 import { user } from "@/db/auth-schema";
@@ -42,24 +43,28 @@ async function getCampaignById(id: string): Promise<Campaign | null> {
 
   if (dbRows.length === 0) return null;
   const row = dbRows[0];
+  const rawDeadlineTime = row.deadline ? new Date(row.deadline).getTime() : NaN;
+  const validDeadline = isNaN(rawDeadlineTime) ? Date.now() + 14 * 86400000 : rawDeadlineTime;
   const daysRemaining = Math.max(
     1,
-    Math.ceil((new Date(row.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    Math.ceil((validDeadline - Date.now()) / (1000 * 60 * 60 * 24))
   );
+
+  const formattedType = formatCampaignType(row.type);
 
   return {
     id: row.id as any,
     brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
     vehicle: row.title,
-    type: row.type,
+    type: formattedType,
     reward: `Rp${row.budget.toLocaleString("id-ID")}`,
-    description: `Kampanye ${row.type} resmi dari ${row.dealerName || row.userDealerName || "dealer rekanan"}.`,
+    description: `Kampanye ${formattedType} resmi dari ${row.dealerName || row.userDealerName || "dealer rekanan"}.`,
     image:
       (row.details as any)?.thumbnail ||
       row.coverImage ||
       "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1200",
     quota: `${row.applicantsCount} Pelamar`,
-    tags: [row.type, "Aktif"],
+    tags: [formattedType, "Aktif"],
     typeColor: "bg-white/10 text-white border-white/20",
     location: "Indonesia",
     deadline: `${daysRemaining} Hari`,
@@ -70,7 +75,7 @@ async function getCampaignById(id: string): Promise<Campaign | null> {
     ],
     brief: `Pengerjaan materi promosi otomotif untuk kampanye ${row.title}. Fokus pada kualitas visual, audio jernih, dan pesan promosi dealer.`,
     specs: [
-      { label: "Tipe Kampanye", value: row.type },
+      { label: "Tipe Kampanye", value: formattedType },
       { label: "Batas Waktu", value: `${daysRemaining} Hari Tersisa` },
     ],
   };

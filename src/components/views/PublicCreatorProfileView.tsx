@@ -38,7 +38,7 @@ interface PortfolioVideo {
   title: string;
   platform: "tiktok" | "instagram" | "youtube";
   platformLabel: string;
-  campaignType: "UGC/Review" | "Clipping" | "Videographer/Edit";
+  campaignType: "UGC & Review" | "Clip & Publish" | "Shoot & Edit";
   views: string;
   duration: string;
   carModel: string;
@@ -51,7 +51,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "Review Lengkap BMW M4 Competition — First Drive & Sound Test",
     platform: "tiktok",
     platformLabel: "TikTok",
-    campaignType: "UGC/Review",
+    campaignType: "UGC & Review",
     views: "142.500 tayangan",
     duration: "01:15",
     carModel: "BMW M4 Competition",
@@ -65,7 +65,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "Cinematic Reel Porsche 911 GT3 RS di Sirkuit",
     platform: "instagram",
     platformLabel: "Instagram",
-    campaignType: "Videographer/Edit",
+    campaignType: "Shoot & Edit",
     views: "98.200 tayangan",
     duration: "00:45",
     carModel: "Porsche 911 GT3 RS",
@@ -79,7 +79,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "Showroom Walkthrough Unit Terbaru Mercedes-AMG G63",
     platform: "youtube",
     platformLabel: "YouTube",
-    campaignType: "Videographer/Edit",
+    campaignType: "Shoot & Edit",
     views: "83.600 tayangan",
     duration: "04:20",
     carModel: "Mercedes-AMG G63",
@@ -95,7 +95,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "Shorts Toyota GR Yaris — Akselerasi & Downshift Exhaust",
     platform: "tiktok",
     platformLabel: "TikTok",
-    campaignType: "Clipping",
+    campaignType: "Clip & Publish",
     views: "115.000 tayangan",
     duration: "00:30",
     carModel: "Toyota GR Yaris",
@@ -109,7 +109,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "First Impression Hyundai Ioniq 5 N — Electric Drift Experience",
     platform: "instagram",
     platformLabel: "Instagram",
-    campaignType: "UGC/Review",
+    campaignType: "UGC & Review",
     views: "72.400 tayangan",
     duration: "01:00",
     carModel: "Hyundai Ioniq 5 N",
@@ -123,7 +123,7 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
     title: "UGC Test Drive & Kupas Fitur Mitsubishi Pajero Sport",
     platform: "youtube",
     platformLabel: "YouTube",
-    campaignType: "UGC/Review",
+    campaignType: "UGC & Review",
     views: "64.800 tayangan",
     duration: "08:12",
     carModel: "Pajero Sport Dakar",
@@ -138,17 +138,17 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
 
 const CAMPAIGN_SPECIALIZATIONS = [
   {
-    title: "Clipping",
+    title: "Clip & Publish",
     description:
       "Memotong video rekaman dealer menjadi format vertikal 9:16 untuk TikTok dan Instagram Reels.",
   },
   {
-    title: "UGC / Review",
+    title: "UGC & Review",
     description:
       "Ulasan unit mobil secara otentik, pengalaman berkendara, dan pemaparan fitur kendaraan.",
   },
   {
-    title: "Videographer / Edit",
+    title: "Shoot & Edit",
     description:
       "Pengambilan video di showroom atau lintasan dengan teknik sinematografi dan penataan warna profesional.",
   },
@@ -415,7 +415,7 @@ export function PublicCreatorProfileView({ profile }: Props) {
                 <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
                   <span className="text-[11px] text-white/40">Kategori Kampanye</span>
                   <p className="font-medium text-white/90">
-                    UGC Review, Clipping & Sinematik
+                    Clip & Publish, UGC & Review, Shoot & Edit
                   </p>
                 </div>
               </div>

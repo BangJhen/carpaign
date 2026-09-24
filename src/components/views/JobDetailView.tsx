@@ -22,6 +22,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { type Campaign } from "@/lib/campaigns-data";
+import { formatCampaignType } from "@/lib/utils";
 import { toast } from "sonner";
 
 const fadeUp: Variants = {
@@ -94,8 +95,8 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
 
           <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             <div>
-              <Badge className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 border mb-4 ${campaign.typeColor}`}>
-                {campaign.type}
+              <Badge className={`text-[10px] font-black tracking-widest px-3 py-1 border mb-4 ${campaign.typeColor}`}>
+                {formatCampaignType(campaign.type)}
               </Badge>
               <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
                 {campaign.vehicle}
@@ -141,9 +142,9 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                 <Clock className="size-4 text-[#D4AF37]" />
                 <span className="text-[13px] font-semibold text-white">Deadline: {campaign.deadline}</span>
               </div>
-              <div className="flex items-center gap-2 bg-[#111316] border border-[#D4AF37]/20 rounded-xl px-4 py-2.5">
+              <div className="flex items-center gap-2 bg-[#111316] border border-primary/20 rounded-xl px-4 py-2.5">
                 <span className="text-[13px] font-semibold text-white/70">Sisa Kuota Budget:</span>
-                <span className="text-[13px] font-bold text-[#D4AF37] font-mono">85% Tersedia</span>
+                <span className="text-[13px] font-bold text-primary">85% Tersedia</span>
               </div>
               {campaign.tags.map((tag) => (
                 <div key={tag} className="flex items-center gap-2 bg-[#111316] border border-white/5 rounded-xl px-4 py-2.5">
@@ -245,8 +246,8 @@ export function JobDetailView({ campaign }: JobDetailViewProps) {
                   {/* Sisa Budget Percentage */}
                   <div className="pt-2 border-t border-white/5 space-y-1.5">
                     <div className="flex justify-between items-center text-[12px]">
-                      <span className="text-muted-foreground font-semibold">Sisa Kuota Budget</span>
-                      <span className="font-bold text-[#D4AF37] font-mono">85% Tersedia</span>
+                      <span className="text-white/50 font-medium">Sisa Kuota Budget</span>
+                      <span className="font-bold text-primary text-xs">85% Tersedia</span>
                     </div>
                     <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-[#D4AF37]/80 to-[#D4AF37] rounded-full w-[85%]" />

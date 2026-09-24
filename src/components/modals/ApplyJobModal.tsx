@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Car, MapPin, Clock, Wallet, FileText, CheckCircle2, Loader2, Star } from "lucide-react";
+import { formatCampaignType } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Job {
@@ -67,8 +68,8 @@ export function ApplyJobModal({ open, onOpenChange, job }: ApplyJobModalProps) {
                 {job.title}
               </DialogTitle>
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                <Badge variant="outline" className="border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/10 text-[10px] font-bold uppercase">
-                  {job.type}
+                <Badge variant="outline" className="border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/10 text-[10px] font-bold">
+                  {formatCampaignType(job.type)}
                 </Badge>
                 <span className="text-sm text-muted-foreground font-medium">{job.dealer}</span>
               </div>

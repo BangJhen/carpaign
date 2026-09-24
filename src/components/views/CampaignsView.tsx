@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 import { campaigns, type Campaign } from "@/lib/campaigns-data";
+import { formatCampaignType } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -29,9 +30,9 @@ const fadeUp: Variants = {
 
 const jobTypes = [
   { id: "all", label: "Semua", icon: LayoutGrid, color: "text-muted-foreground", campaignType: "all" },
-  { id: "clipping", label: "Clip & Publish", icon: Scissors, color: "text-muted-foreground", campaignType: "Clipping" },
-  { id: "ugc", label: "UGC & Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC/Review" },
-  { id: "videographer", label: "Shoot & Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Videographer/Edit" },
+  { id: "clipping", label: "Clip & Publish", icon: Scissors, color: "text-muted-foreground", campaignType: "Clip & Publish" },
+  { id: "ugc", label: "UGC & Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC & Review" },
+  { id: "videographer", label: "Shoot & Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Shoot & Edit" },
 ];
 
 const featuredCampaigns = [
@@ -41,7 +42,7 @@ const featuredCampaigns = [
     title: "BMW X5 Test Drive dan Review Experience",
     brand: "BMW Tunas",
     brandLogo: "BMW",
-    type: "UGC/Review",
+    type: "UGC & Review",
     reward: "Rp5.000",
   },
   {
@@ -50,7 +51,7 @@ const featuredCampaigns = [
     title: "Lexus RX Luxury Review",
     brand: "Lexus Gallery",
     brandLogo: "L",
-    type: "Videographer/Edit",
+    type: "Shoot & Edit",
     reward: "Rp7.500",
   },
   {
@@ -59,7 +60,7 @@ const featuredCampaigns = [
     title: "Porsche 911 Carrera S Cinematic",
     brand: "Porsche Centre",
     brandLogo: "P",
-    type: "Clipping",
+    type: "Clip & Publish",
     reward: "Rp10.000",
   }
 ];
@@ -79,7 +80,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
   const filteredCampaigns = useMemo(() => {
     let result = activeTab === "all" 
       ? allCampaigns 
-      : allCampaigns.filter(c => c.type === selectedJobType?.campaignType);
+      : allCampaigns.filter(c => formatCampaignType(c.type) === selectedJobType?.campaignType);
 
     if (selectedBrand !== "all") {
       result = result.filter(c => 
@@ -139,12 +140,12 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-80" />
 
                 {/* Content Overlay */}
-                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-[700px]">
-                  <Badge className="bg-primary text-primary-foreground font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-3xl">
+                  <Badge className="bg-primary text-black font-extrabold tracking-widest text-[10px] w-fit px-3 py-1 mb-4 rounded-md border-none shadow-[0_0_15px_rgba(212,175,55,0.3)]">
                     FEATURED
                   </Badge>
 
-                  <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-5">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
                     {featured.title}
                   </h1>
 
@@ -157,31 +158,49 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                       </div>
                       <span className="text-sm font-semibold text-white/90">{featured.brand}</span>
                     </div>
-                    <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3">
-                      {featured.type}
+                    <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3 py-0.5 rounded-md">
+                      {formatCampaignType(featured.type)}
                     </Badge>
                   </div>
 
-                  <div className="w-full max-w-[300px] h-[1px] bg-white/10 mb-6" />
+                  {/* Clean Bottom Row: Left Stack (Reward + Sisa Kuota Bar) and Right CTA Button */}
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 pt-2">
+                    {/* Left Column: Reward & Sisa Kuota Stacked */}
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[11px] font-medium text-white/50 mb-0.5">Potensi Reward</p>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            {featured.reward}
+                          </span>
+                          <span className="text-xs sm:text-sm text-white/60 font-medium whitespace-nowrap">
+                            / 1.000 Views
+                          </span>
+                        </div>
+                      </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                    <div>
-                      <p className="text-sm font-medium text-white/60 mb-0.5">Reward</p>
-                      <p className="text-2xl font-bold text-white tracking-tight">
-                        {featured.reward} <span className="text-sm font-normal text-white/70">per 1.000 Views</span>
-                      </p>
-                    </div>
-
-                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3.5 py-2 rounded-xl">
-                      <p className="text-[11px] text-white/60">Sisa Kuota Budget</p>
-                      <p className="text-[13px] font-bold text-primary font-mono">92% Tersedia</p>
+                      {/* Sisa Kuota Budget Gold Progress Bar directly below */}
+                      <div className="w-full sm:w-[240px] space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/60 font-medium text-[11px] sm:text-xs">Sisa Kuota Budget</span>
+                          <span className="text-primary font-bold text-[11px] sm:text-xs">92% Tersedia</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                            style={{ width: "92%" }}
+                          />
+                        </div>
+                      </div>
                     </div>
                     
+                    {/* Right Action CTA Button */}
                     <Button
                       onClick={() => goToJob(featured.id)}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(212,175,55,0.2)] transition-all sm:ml-auto w-full sm:w-auto z-10"
+                      className="bg-primary text-black hover:bg-primary/90 font-bold px-7 h-11 rounded-xl text-xs sm:text-sm shadow-[0_0_25px_rgba(212,175,55,0.25)] transition-all w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 shrink-0"
                     >
-                      Lihat Detail
+                      <span>Lihat Detail</span>
+                      <ArrowUpRight className="size-4" />
                     </Button>
                   </div>
                 </div>
@@ -306,7 +325,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <span className="text-[11px] font-bold text-primary tracking-wider uppercase">
-                          {campaign.type}
+                          {formatCampaignType(campaign.type)}
                         </span>
                         <span className="text-[11px] text-muted-foreground/80">
                           {campaign.deadline || "Tersedia"}
@@ -320,8 +339,8 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                       {/* Estimasi Sisa Budget (Hanya Persentase) */}
                       <div className="space-y-1.5 mb-2">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-muted-foreground/70">Sisa Kuota Budget</span>
-                          <span className="font-semibold text-primary font-mono">
+                          <span className="text-white/50 font-medium">Sisa Kuota Budget</span>
+                          <span className="font-bold text-primary text-xs">
                             {(campaign as any).remainingBudgetPercent || (Number(campaign.id) % 3 === 0 ? 68 : Number(campaign.id) % 2 === 0 ? 84 : 92)}% Tersedia
                           </span>
                         </div>
