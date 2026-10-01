@@ -658,24 +658,19 @@ export function ProfileView({
                       {slugStatus === "saving" && (
                         <span className="text-[11px] text-white/50 flex items-center gap-1 font-medium">
                           <Loader2 className="size-3 animate-spin text-primary" />
-                          Menyimpan otomatis...
+                          Menyimpan...
                         </span>
                       )}
                       {slugStatus === "saved" && (
                         <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
                           <Check className="size-3 stroke-[2.5]" />
-                          Tersimpan otomatis
+                          Tersimpan
                         </span>
                       )}
                       {slugStatus === "error" && (
                         <span className="text-[11px] text-rose-400 flex items-center gap-1 font-medium">
                           <AlertCircle className="size-3" />
                           {slugError || "Gagal simpan"}
-                        </span>
-                      )}
-                      {slugStatus === "idle" && (referralCode || form.referralCode) && (
-                        <span className="text-[11px] text-primary font-medium">
-                          Wajib ditaruh di bio medsos
                         </span>
                       )}
                     </div>
@@ -733,22 +728,6 @@ export function ProfileView({
                         <span>Buka</span>
                       </button>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between flex-wrap gap-1 text-[11px] mt-1">
-                    <p className="text-white/40">
-                      Gunakan huruf kecil, angka, dan strip (-) tanpa spasi. Otomatis tersimpan saat diketik.
-                    </p>
-                    {(referralCode || form.referralCode) && (
-                      <button
-                        type="button"
-                        onClick={handleOpenLink}
-                        className="text-primary hover:underline font-mono inline-flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>{typeof window !== "undefined" ? `${window.location.origin}/${referralCode || form.referralCode}` : `carpaign.id/${referralCode || form.referralCode}`}</span>
-                        <ExternalLink className="size-2.5" />
-                      </button>
-                    )}
                   </div>
                 </div>
 
