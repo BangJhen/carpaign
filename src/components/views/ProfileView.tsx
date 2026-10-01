@@ -207,12 +207,78 @@ export function ProfileView({
 
   const referralCode = form.referralCode || initialProfile?.referralCode || "";
   const [linkCopied, setLinkCopied] = useState(false);
+  const [slugStatus, setSlugStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [slugError, setSlugError] = useState<string>("");
+  const slugDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}/${referralCode}`;
+  const saveReferralCode = async (newCode: string, silent = false) => {
+    const cleanCode = newCode.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
+    if (!cleanCode) return;
+    if (cleanCode.length < 3) {
+      setSlugStatus("error");
+      setSlugError("Minimal 3 karakter");
+      return;
+    }
+
+    setSlugStatus("saving");
+    setSlugError("");
+    try {
+      await updateCreatorProfile({ referralCode: cleanCode });
+      setSlugStatus("saved");
+      if (!silent) {
+        toast.success("Link bio tersimpan!", {
+          description: `Shortlink profil Anda: carpaign.id/${cleanCode}`,
+        });
+      }
+      setTimeout(() => setSlugStatus("idle"), 2500);
+    } catch (err: any) {
+      setSlugStatus("error");
+      const msg = err?.message || "Gagal menyimpan link bio.";
+      setSlugError(msg);
+      toast.error("Gagal mengubah shortlink", { description: msg });
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+    setForm((prev) => ({ ...prev, referralCode: val }));
+    setSlugStatus("saving");
+    setSlugError("");
+
+    if (slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current);
+    }
+
+    slugDebounceRef.current = setTimeout(() => {
+      saveReferralCode(val, true);
+    }, 700);
+  };
+
+  const handleCopyLink = async () => {
+    const currentCode = form.referralCode || referralCode || "creators";
+    if (slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current);
+    }
+    if (form.referralCode && form.referralCode !== initialProfile?.referralCode) {
+      await saveReferralCode(form.referralCode, true);
+    }
+    const url = typeof window !== "undefined" ? `${window.location.origin}/${currentCode}` : `https://carpaign.id/${currentCode}`;
     navigator.clipboard.writeText(url).catch(() => {});
     setLinkCopied(true);
+    toast.success("Link bio berhasil disalin!");
     setTimeout(() => setLinkCopied(false), 2500);
+  };
+
+  const handleOpenLink = async () => {
+    const currentCode = form.referralCode || referralCode || "creators";
+    if (slugDebounceRef.current) {
+      clearTimeout(slugDebounceRef.current);
+    }
+    if (form.referralCode && form.referralCode !== initialProfile?.referralCode) {
+      await saveReferralCode(form.referralCode, true);
+    }
+    const url = typeof window !== "undefined" ? `${window.location.origin}/${currentCode}` : `/${currentCode}`;
+    window.open(url, "_blank");
   };
 
   const [isPending, startTransition] = useTransition();
@@ -588,25 +654,51 @@ export function ProfileView({
                     <label className="text-xs font-semibold text-white/80">
                       Custom Shortlink Bio (Kode Profil Kreator)
                     </label>
-                    {referralCode && (
-                      <span className="text-[11px] text-primary font-medium">
-                        Wajib ditaruh di bio medsos
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {slugStatus === "saving" && (
+                        <span className="text-[11px] text-white/50 flex items-center gap-1 font-medium">
+                          <Loader2 className="size-3 animate-spin text-primary" />
+                          Menyimpan otomatis...
+                        </span>
+                      )}
+                      {slugStatus === "saved" && (
+                        <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+                          <Check className="size-3 stroke-[2.5]" />
+                          Tersimpan otomatis
+                        </span>
+                      )}
+                      {slugStatus === "error" && (
+                        <span className="text-[11px] text-rose-400 flex items-center gap-1 font-medium">
+                          <AlertCircle className="size-3" />
+                          {slugError || "Gagal simpan"}
+                        </span>
+                      )}
+                      {slugStatus === "idle" && (referralCode || form.referralCode) && (
+                        <span className="text-[11px] text-primary font-medium">
+                          Wajib ditaruh di bio medsos
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center rounded-xl bg-[#16181C] border border-white/10 hover:border-white/20 focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/30 overflow-hidden h-11 transition-all">
+                  <div className={`flex items-center rounded-xl bg-[#16181C] border ${
+                    slugStatus === "error"
+                      ? "border-rose-500/50 focus-within:border-rose-500"
+                      : slugStatus === "saved"
+                      ? "border-emerald-500/40 focus-within:border-emerald-500"
+                      : "border-white/10 hover:border-white/20 focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/30"
+                  } overflow-hidden h-11 transition-all`}>
                     <span className="px-3.5 text-xs font-mono text-white/40 bg-white/[0.02] border-r border-white/5 h-full flex items-center shrink-0 select-none">
                       carpaign.id/
                     </span>
                     <input
                       value={form.referralCode}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          referralCode: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-                        })
-                      }
+                      onChange={handleSlugChange}
+                      onBlur={() => {
+                        if (form.referralCode && form.referralCode !== initialProfile?.referralCode) {
+                          saveReferralCode(form.referralCode);
+                        }
+                      }}
                       placeholder="nama-kreator"
                       className="w-full bg-transparent px-3 text-xs text-white outline-none placeholder:text-white/30 font-mono"
                     />
@@ -617,7 +709,7 @@ export function ProfileView({
                         type="button"
                         onClick={handleCopyLink}
                         title="Salin link bio"
-                        className={`inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-xs font-medium transition-colors ${
+                        className={`inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                           linkCopied
                             ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                             : "bg-white/[0.04] text-white/70 hover:text-white hover:bg-white/[0.08] border border-white/[0.08]"
@@ -631,33 +723,31 @@ export function ProfileView({
                         <span className="hidden sm:inline">{linkCopied ? "Disalin" : "Salin"}</span>
                       </button>
 
-                      <a
-                        href={`/${referralCode || form.referralCode || "creators"}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={handleOpenLink}
                         title="Buka halaman profil publik"
-                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-xs font-semibold bg-primary text-black hover:bg-primary/90 transition-colors shadow-none"
+                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-xs font-semibold bg-primary text-black hover:bg-primary/90 transition-colors shadow-none cursor-pointer"
                       >
                         <ExternalLink className="size-3.5" />
                         <span>Buka</span>
-                      </a>
+                      </button>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between flex-wrap gap-1 text-[11px] mt-1">
                     <p className="text-white/40">
-                      Gunakan huruf kecil, angka, dan strip (-) tanpa spasi.
+                      Gunakan huruf kecil, angka, dan strip (-) tanpa spasi. Otomatis tersimpan saat diketik.
                     </p>
                     {(referralCode || form.referralCode) && (
-                      <a
-                        href={`/${referralCode || form.referralCode}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline font-mono inline-flex items-center gap-1"
+                      <button
+                        type="button"
+                        onClick={handleOpenLink}
+                        className="text-primary hover:underline font-mono inline-flex items-center gap-1 cursor-pointer"
                       >
                         <span>{typeof window !== "undefined" ? `${window.location.origin}/${referralCode || form.referralCode}` : `carpaign.id/${referralCode || form.referralCode}`}</span>
                         <ExternalLink className="size-2.5" />
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
