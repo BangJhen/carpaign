@@ -3,7 +3,7 @@ import { db } from "@/db/db";
 import { campaigns as campaignsTable, dealerProfiles } from "@/db/schema";
 import { user } from "@/db/auth-schema";
 import { eq, desc } from "drizzle-orm";
-import { campaigns as fallbackCampaigns, type Campaign } from "@/lib/campaigns-data";
+import { campaigns as fallbackCampaigns, mapDbRowToCampaign, type Campaign } from "@/lib/campaigns-data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,44 +34,17 @@ export default async function CreatorCampaignsPage() {
     .where(eq(campaignsTable.status, "active"))
     .orderBy(desc(campaignsTable.createdAt));
 
-  const mappedDbCampaigns: Campaign[] = dbRows.map((row) => {
-    const rawDeadlineTime = row.deadline ? new Date(row.deadline).getTime() : NaN;
-    const validDeadline = isNaN(rawDeadlineTime) ? Date.now() + 14 * 86400000 : rawDeadlineTime;
-    const daysRemaining = Math.max(
-      1,
-      Math.ceil((validDeadline - Date.now()) / (1000 * 60 * 60 * 24))
-    );
-    const thumbnail = (row.details as any)?.thumbnail;
-    return {
-      id: row.id as any,
-      brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
-      vehicle: row.title,
-      type: row.type,
-      reward: `Rp${row.budget.toLocaleString("id-ID")}`,
-      description: `Kampanye ${row.type} resmi dari ${row.dealerName || row.userDealerName || "dealer rekanan"}.`,
-      image:
-        thumbnail ||
-        row.coverImage ||
-        "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1200",
-      quota: `${row.applicantsCount} Pelamar`,
-      tags: [row.type, "Aktif"],
-      typeColor: "bg-white/10 text-white border-white/20",
-      location: "Indonesia",
-      deadline: `${daysRemaining} Hari`,
-      requirements: [
-        "Kamera berkualitas tinggi resolusi 4K",
-        "Pengalaman pembuatan konten otomotif",
-        "Mampu mematuhi timeline pengerjaan",
-      ],
-      brief: `Pengerjaan materi promosi otomotif untuk kampanye ${row.title}. Fokus pada kualitas visual, audio jernih, dan pesan promosi dealer.`,
-      specs: [
-        { label: "Tipe Kampanye", value: row.type },
-        { label: "Batas Waktu", value: `${daysRemaining} Hari Tersisa` },
-      ],
-    };
-  });
+  const mappedDbCampaigns: Campaign[] = dbRows.map((row, index) =>
+    mapDbRowToCampaign(row, index)
+  );
 
-  const allCampaigns = [...mappedDbCampaigns, ...fallbackCampaigns];
+  // Filter fallback campaigns so they don't duplicate titles already in DB
+  const existingTitles = new Set(mappedDbCampaigns.map((c) => c.vehicle.toLowerCase()));
+  const filteredFallbacks = fallbackCampaigns.filter(
+    (fb) => !existingTitles.has(fb.vehicle.toLowerCase()) && !existingTitles.has(fb.brand.toLowerCase())
+  );
+
+  const allCampaigns = [...mappedDbCampaigns, ...filteredFallbacks];
 
   return <CampaignsView initialCampaigns={allCampaigns} />;
 }

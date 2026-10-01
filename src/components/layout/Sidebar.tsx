@@ -8,14 +8,10 @@ import {
   Megaphone,
   BarChart2,
   Wallet,
-  Trophy,
-  Crown,
   Headset,
   HelpCircle,
   ChevronRight,
-  Medal,
   LogOut,
-  Car
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,8 +32,6 @@ const navMain = [
   { href: "/creator/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/creator/analitik", label: "Analitik", icon: BarChart2 },
   { href: "/creator/pendapatan", label: "Pendapatan", icon: Wallet },
-  { href: "/creator/rank-rewards", label: "Rank & Rewards", icon: Trophy },
-  { href: "/creator/leaderboard", label: "Leaderboard", icon: Crown },
 ];
 
 const navSupport = [
@@ -121,31 +115,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Active Campaigns */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-semibold text-foreground/90 tracking-wide px-1 mb-3">
-            Campaign Aktif Diikuti
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={<Link href="/creator/campaigns" />}
-                  className="h-auto py-2.5 px-3 text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all rounded-lg flex items-center gap-3"
-                >
-                  <div className="size-10 rounded bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                    <Car className="size-4 text-white/50" />
-                  </div>
-                  <div className="flex flex-col gap-0.5 overflow-hidden">
-                    <span className="text-sm font-medium text-foreground truncate">Falcon Pictures</span>
-                    <span className="text-[11px] text-muted-foreground truncate">Toyota Avanza 2022</span>
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {/* Support */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] font-semibold text-foreground/90 tracking-wide px-1 mb-3 mt-2">
@@ -199,14 +168,10 @@ export function AppSidebar() {
                     {getInitials(session?.user?.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-sm font-semibold text-foreground truncate max-w-[120px]">
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-semibold text-foreground truncate max-w-[130px]">
                     {session?.user?.name || "Memuat..."}
                   </span>
-                  <div className="flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full border border-primary/20">
-                    <Medal className="size-3" />
-                    {formatRole((session?.user as any)?.role)} Level {(session?.user as any)?.tier || 1}
-                  </div>
                 </div>
               </div>
               <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-foreground/80 transition-colors" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Calendar,
@@ -15,9 +15,17 @@ import {
   User,
   CheckCircle2,
   Video,
+  Car,
+  Tag,
+  Clock,
+  ShieldCheck,
+  MessageCircle,
+  X,
+  Share2,
+  Sparkles,
 } from "lucide-react";
 import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
-import type { PublicCreatorProfile } from "@/app/actions/publicCreator";
+import type { PublicCreatorProfile, PublicPromotedCampaign } from "@/app/actions/publicCreator";
 import { toast } from "sonner";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -31,7 +39,7 @@ const PerformanceChart = dynamic(() => import("./PerformanceChart"), {
   ),
 });
 
-type PlatformFilter = "all" | "tiktok" | "instagram" | "youtube";
+type CampaignCategoryFilter = "all" | "UGC & Review" | "Clip & Publish" | "Shoot & Edit";
 
 interface PortfolioVideo {
   id: string;
@@ -48,13 +56,13 @@ interface PortfolioVideo {
 const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
   {
     id: "vid-1",
-    title: "Review Lengkap BMW M4 Competition — First Drive & Sound Test",
+    title: "Review Lengkap Honda HR-V RS Turbo — First Drive & Sound Test",
     platform: "tiktok",
     platformLabel: "TikTok",
     campaignType: "UGC & Review",
     views: "142.500 tayangan",
     duration: "01:15",
-    carModel: "BMW M4 Competition",
+    carModel: "Honda HR-V RS",
     getUrl: (p) =>
       p.tiktokUsername
         ? `https://www.tiktok.com/@${p.tiktokUsername.replace(/^@/, "")}`
@@ -76,13 +84,13 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
   },
   {
     id: "vid-3",
-    title: "Showroom Walkthrough Unit Terbaru Mercedes-AMG G63",
+    title: "Showroom Walkthrough Unit Terbaru BMW 330i M Sport",
     platform: "youtube",
     platformLabel: "YouTube",
     campaignType: "Shoot & Edit",
     views: "83.600 tayangan",
     duration: "04:20",
-    carModel: "Mercedes-AMG G63",
+    carModel: "BMW 330i M Sport",
     getUrl: (p) =>
       p.youtubeUsername
         ? p.youtubeUsername.startsWith("http")
@@ -92,13 +100,13 @@ const PORTFOLIO_VIDEOS: PortfolioVideo[] = [
   },
   {
     id: "vid-4",
-    title: "Shorts Toyota GR Yaris — Akselerasi & Downshift Exhaust",
+    title: "Shorts Toyota Avanza Veloz — Kenyamanan Kabin Keluarga",
     platform: "tiktok",
     platformLabel: "TikTok",
     campaignType: "Clip & Publish",
     views: "115.000 tayangan",
     duration: "00:30",
-    carModel: "Toyota GR Yaris",
+    carModel: "Toyota Veloz TSS",
     getUrl: (p) =>
       p.tiktokUsername
         ? `https://www.tiktok.com/@${p.tiktokUsername.replace(/^@/, "")}`
@@ -155,7 +163,7 @@ const CAMPAIGN_SPECIALIZATIONS = [
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 14 },
   show: {
     opacity: 1,
     y: 0,
@@ -200,32 +208,34 @@ interface Props {
 
 export function PublicCreatorProfileView({ profile }: Props) {
   const [copied, setCopied] = useState(false);
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformFilter>("all");
+  const [selectedCategory, setSelectedCategory] = useState<CampaignCategoryFilter>("all");
+  const [activeCampaignModal, setActiveCampaignModal] = useState<PublicPromotedCampaign | null>(null);
 
   const referralCode = profile.referralCode || "kreator";
   const creatorName = profile.fullName ?? profile.username ?? "Kreator Otomotif";
 
   const publicUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/c/${referralCode}`
-      : `https://carpaign.id/c/${referralCode}`;
+      ? `${window.location.origin}/${referralCode}`
+      : `https://carpaign.id/${referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicUrl).catch(() => {});
     setCopied(true);
-    toast.success("Link portofolio disalin");
+    toast.success("Link bio kreator berhasil disalin");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const filteredVideos =
-    selectedPlatform === "all"
-      ? PORTFOLIO_VIDEOS
-      : PORTFOLIO_VIDEOS.filter((v) => v.platform === selectedPlatform);
+  const campaigns = profile.promotedCampaigns || [];
+  const filteredCampaigns =
+    selectedCategory === "all"
+      ? campaigns
+      : campaigns.filter((c) => c.type === selectedCategory);
 
   const cleanPhone = cleanPhoneForWhatsApp(profile.phone);
-  const waUrl = cleanPhone
+  const creatorWaUrl = cleanPhone
     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-        `Halo ${creatorName}, saya ingin mendiskusikan peluang kolaborasi kampanye otomotif melalui Carpaign.`
+        `Halo ${creatorName}, saya melihat halaman katalog mobil Carpaign Anda dan ingin mendiskusikan peluang kolaborasi.`
       )}`
     : null;
 
@@ -253,8 +263,11 @@ export function PublicCreatorProfileView({ profile }: Props) {
       icon: YouTubeIcon,
       username: profile.youtubeUsername,
       fallbackUrl: `https://www.youtube.com/@${(profile.username || "kreator").replace(/^@/, "")}`,
-      buildUrl: (u: string) =>
-        u.startsWith("http") ? u : `https://www.youtube.com/@${u.replace(/^@/, "")}`,
+      buildUrl: (u: string) => {
+        if (u.startsWith("http")) return u;
+        if (u.includes("youtube.com")) return `https://${u}`;
+        return `https://www.youtube.com/@${u.replace(/^@/, "")}`;
+      },
     },
   ];
 
@@ -271,7 +284,7 @@ export function PublicCreatorProfileView({ profile }: Props) {
               Carpaign
             </Link>
             <span className="text-white/20 text-xs">/</span>
-            <span className="text-xs text-white/50">Portofolio Kreator</span>
+            <span className="text-xs text-white/50">Katalog Promosi Kreator</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -282,23 +295,23 @@ export function PublicCreatorProfileView({ profile }: Props) {
               {copied ? (
                 <Check className="size-3.5 text-white" />
               ) : (
-                <Copy className="size-3.5 text-white/60" />
+                <Share2 className="size-3.5 text-white/60" />
               )}
-              <span>{copied ? "Tersalin" : "Salin Link"}</span>
+              <span>{copied ? "Tersalin" : "Bagikan Link"}</span>
             </button>
 
             <Link
-              href="/dealer/campaigns/create"
+              href="/creator/dashboard"
               className="inline-flex items-center gap-1 h-8 px-3.5 rounded-lg text-xs font-semibold text-black bg-white hover:bg-white/90 transition-colors"
             >
-              <span>Ajak Kolaborasi</span>
+              <span>Dashboard Kreator</span>
               <ChevronRight className="size-3 text-black/60" />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Dashboard */}
+      {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Section 1: Hero Header Kreator */}
         <motion.section
@@ -308,7 +321,7 @@ export function PublicCreatorProfileView({ profile }: Props) {
           className="rounded-2xl bg-[#0F1114] border border-white/[0.08] overflow-hidden"
         >
           {/* Cover Banner */}
-          <div className="h-36 sm:h-44 w-full bg-[#14161A] relative overflow-hidden">
+          <div className="h-36 sm:h-48 w-full bg-[#14161A] relative overflow-hidden">
             {profile.coverImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -317,9 +330,9 @@ export function PublicCreatorProfileView({ profile }: Props) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-b from-white/[0.04] to-transparent" />
+              <div className="w-full h-full bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1114] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1114] via-[#0F1114]/50 to-transparent" />
           </div>
 
           {/* Profile Identity Body */}
@@ -327,7 +340,7 @@ export function PublicCreatorProfileView({ profile }: Props) {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 -mt-14 sm:-mt-16">
               {/* Avatar & Main Identity */}
               <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-                <div className="size-24 sm:size-28 rounded-2xl flex-shrink-0 border-2 border-white/10 bg-[#121418] overflow-hidden">
+                <div className="size-24 sm:size-28 rounded-2xl flex-shrink-0 border-2 border-white/10 bg-[#121418] overflow-hidden shadow-none">
                   {profile.avatarImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -344,14 +357,10 @@ export function PublicCreatorProfileView({ profile }: Props) {
 
                 <div className="space-y-1 pb-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] font-medium text-white/80 bg-white/[0.06] border border-white/[0.1] px-2.5 py-0.5 rounded-md">
-                      Kreator Otomotif
+                    <span className="text-[11px] font-medium text-white/80 bg-white/[0.06] border border-white/[0.1] px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+                      <ShieldCheck className="size-3 text-primary" />
+                      Kreator Otomotif Resmi
                     </span>
-                    {profile.tier && (
-                      <span className="text-[11px] font-medium text-white/60 bg-white/[0.03] border border-white/[0.06] px-2 py-0.5 rounded-md">
-                        Tier {profile.tier}
-                      </span>
-                    )}
                   </div>
 
                   <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
@@ -368,190 +377,196 @@ export function PublicCreatorProfileView({ profile }: Props) {
                 </div>
               </div>
 
-              {/* Location & Join Date badges */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/50 self-start sm:self-end pb-1">
+              {/* Verified Social Media Pills */}
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-end pb-1">
+                {socialAccounts.map((account) => {
+                  const isConnected = !!account.username && account.username.trim() !== "";
+                  const targetUrl = isConnected
+                    ? account.buildUrl(account.username!)
+                    : account.fallbackUrl;
+                  const displayHandle = isConnected
+                    ? account.username!.startsWith("@")
+                      ? account.username
+                      : `@${account.username}`
+                    : profile.username || "@kreator";
+
+                  return (
+                    <a
+                      key={account.key}
+                      href={targetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-white/80 hover:text-white transition-all group"
+                    >
+                      <account.icon className="size-3.5 text-white/60 group-hover:text-white transition-colors" />
+                      <span>{account.name}</span>
+                      <span className="text-[10px] text-white/40 font-mono hidden sm:inline">
+                        {displayHandle}
+                      </span>
+                      <ExternalLink className="size-2.5 text-white/30 group-hover:text-white/60" />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Bio Description & Location */}
+            <div className="mt-5 pt-4 border-t border-white/[0.06] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <p className="text-xs sm:text-sm text-white/70 max-w-3xl leading-relaxed">
+                {profile.bio ||
+                  "Kreator otomotif aktif yang menyajikan ulasan kendaraan terbaru, promo dealer terverifikasi, dan konten sinematografi otomotif."}
+              </p>
+              <div className="flex items-center gap-4 text-xs text-white/40 shrink-0">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="size-3.5 text-white/40" />
                   <span>{profile.city || "Jakarta, Indonesia"}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="size-3.5 text-white/40" />
-                  <span>Bergabung {formatJoinDate(profile.joinedAt)}</span>
+                  <span>Sejak {formatJoinDate(profile.joinedAt)}</span>
                 </div>
               </div>
             </div>
           </div>
         </motion.section>
 
-        {/* Section 2: Profil & Media Sosial Resmi (Dua Kolom) */}
+        {/* Section 2: CENTERPIECE — Katalog Mobil & Kampanye yang Sedang Dipromosikan */}
         <motion.section
           initial="hidden"
           animate="show"
           variants={fadeUp}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="space-y-5"
         >
-          {/* Kolom 1: Biodata & Tentang Kreator (2 Kolom) */}
-          <div className="lg:col-span-2 rounded-2xl bg-[#0F1114] border border-white/[0.08] p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-white/[0.06] pb-3">
-              <User className="size-4 text-white/70" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
-                Biodata & Profil Kreator
-              </h2>
+          {/* Header Section & Filter Tabs */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Car className="size-4 text-primary" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+                  Mobil & Kampanye yang Sedang Dipromosikan
+                </h2>
+              </div>
+              <p className="text-xs text-white/50 mt-1">
+                Katalog unit mobil dan penawaran promo dealer resmi yang direkomendasikan langsung oleh {creatorName}.
+              </p>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-sm text-white/80 leading-relaxed whitespace-pre-line">
-                {profile.bio ||
-                  "Kreator otomotif yang berfokus pada ulasan kendaraan baru dan bekas, sinematografi showroom, serta konten promosi digital untuk dealer otomotif."}
-              </p>
-
-              <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-                  <span className="text-[11px] text-white/40">Wilayah Domisili</span>
-                  <p className="font-medium text-white/90">
-                    {profile.city || "Jakarta Selatan, Indonesia"}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
-                  <span className="text-[11px] text-white/40">Kategori Kampanye</span>
-                  <p className="font-medium text-white/90">
-                    Clip & Publish, UGC & Review, Shoot & Edit
-                  </p>
-                </div>
-              </div>
+            {/* Category Filter */}
+            <div className="flex items-center gap-1 bg-white/[0.02] p-1 rounded-lg border border-white/[0.06] shrink-0 self-start sm:self-auto overflow-x-auto max-w-full">
+              {(
+                [
+                  { key: "all", label: "Semua Unit" },
+                  { key: "UGC & Review", label: "UGC & Review" },
+                  { key: "Clip & Publish", label: "Clip & Publish" },
+                  { key: "Shoot & Edit", label: "Shoot & Edit" },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSelectedCategory(tab.key)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                    selectedCategory === tab.key
+                      ? "bg-white text-black font-semibold"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Kolom 2: Akun Media Sosial Resmi (1 Kolom) */}
-          <div className="lg:col-span-1 rounded-2xl bg-[#0F1114] border border-white/[0.08] p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-white/[0.06] pb-3">
-              <Film className="size-4 text-white/70" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
-                Media Sosial Resmi
-              </h2>
-            </div>
-
-            <div className="space-y-2.5">
-              {socialAccounts.map((account) => {
-                const isConnected = !!account.username && account.username.trim() !== "";
-                const displayHandle = isConnected
-                  ? account.username!.startsWith("@")
-                    ? account.username
-                    : `@${account.username}`
-                  : profile.username || "@kreator";
-                const targetUrl = isConnected
-                  ? account.buildUrl(account.username!)
-                  : account.fallbackUrl;
-
-                return (
-                  <a
-                    key={account.key}
-                    href={targetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-lg bg-white/[0.05] flex items-center justify-center text-white flex-shrink-0">
-                        <account.icon className="size-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-white/90 group-hover:text-white transition-colors">
-                          {account.name}
-                        </p>
-                        <p className="text-[11px] text-white/40 font-mono truncate max-w-[130px]">
-                          {displayHandle}
-                        </p>
-                      </div>
+          {/* Promoted Campaigns Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredCampaigns.map((camp) => (
+              <div
+                key={camp.id}
+                className="group rounded-2xl bg-[#0F1114] border border-white/[0.08] hover:border-white/20 transition-all overflow-hidden flex flex-col justify-between"
+              >
+                <div>
+                  {/* Vehicle Thumbnail */}
+                  <div className="h-48 w-full bg-[#14161A] relative overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={camp.image}
+                      alt={camp.vehicle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F1114] via-transparent to-transparent" />
+                    
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold text-white bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-md">
+                        {camp.type}
+                      </span>
+                      <span className="text-[10px] font-semibold text-primary bg-[#0A0A0C]/90 border border-primary/30 px-2 py-0.5 rounded-md">
+                        Promo Dealer Resmi
+                      </span>
                     </div>
 
-                    <ExternalLink className="size-3.5 text-white/30 group-hover:text-white/70 transition-colors flex-shrink-0" />
-                  </a>
-                );
-              })}
-            </div>
+                    {/* Bottom Promo Highlight Ribbon */}
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.1] backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white">
+                        <Tag className="size-3 text-primary" />
+                        <span>{camp.promoHighlight}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Content Body */}
+                  <div className="p-5 space-y-3">
+                    <div>
+                      <span className="text-[11px] font-medium text-white/40 block">
+                        {camp.brand} • {camp.location.split(",")[0]}
+                      </span>
+                      <h3 className="text-base font-bold text-white tracking-tight mt-0.5 group-hover:text-primary transition-colors">
+                        {camp.vehicle}
+                      </h3>
+                    </div>
+
+                    <p className="text-xs text-white/60 line-clamp-2 leading-relaxed">
+                      {camp.description}
+                    </p>
+
+                    {/* Key Specs Pills */}
+                    <div className="pt-1 flex flex-wrap gap-1.5">
+                      {camp.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[10px] font-medium text-white/50 bg-white/[0.03] border border-white/[0.06] px-2 py-0.5 rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer Actions */}
+                <div className="p-5 pt-0">
+                  <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => setActiveCampaignModal(camp)}
+                      className="inline-flex items-center justify-center gap-1.5 flex-1 h-9 px-3 rounded-xl text-xs font-semibold text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] transition-all"
+                    >
+                      <span>Lihat Promo & Spek</span>
+                    </button>
+
+                    <Link
+                      href={`/${referralCode}/campaign/${camp.id}`}
+                      className="inline-flex items-center justify-center gap-1 h-9 px-3 rounded-xl text-xs font-semibold text-black bg-white hover:bg-white/90 transition-all shrink-0"
+                    >
+                      <span>Detail Promo</span>
+                      <ChevronRight className="size-3" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.section>
 
-        {/* Section 3: Ringkasan Metrik & Grafik Performa */}
-        <motion.section
-          initial="hidden"
-          animate="show"
-          variants={fadeUp}
-          className="space-y-4"
-        >
-          <div className="flex items-center gap-2">
-            <TrendingUp className="size-4 text-white/70" />
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
-              Performa Konten & Jangkauan
-            </h2>
-          </div>
-
-          {/* 3 Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
-              <div>
-                <span className="text-xs text-white/40">Total Tayangan (6 Bulan)</span>
-                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
-                  446.200
-                </p>
-                <p className="text-[11px] text-white/50 mt-0.5">
-                  Akumulasi seluruh platform video
-                </p>
-              </div>
-              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
-                <Eye className="size-4" />
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
-              <div>
-                <span className="text-xs text-white/40">Rata-rata Engagement</span>
-                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
-                  6.8%
-                </p>
-                <p className="text-[11px] text-white/50 mt-0.5">
-                  Tingkat like, share, dan komentar
-                </p>
-              </div>
-              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
-                <TrendingUp className="size-4" />
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
-              <div>
-                <span className="text-xs text-white/40">Video Diselesaikan</span>
-                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
-                  24 Konten
-                </p>
-                <p className="text-[11px] text-white/50 mt-0.5">
-                  100% tepat waktu sesuai tenggat
-                </p>
-              </div>
-              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
-                <Video className="size-4" />
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Chart Card */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#0F1114] border border-white/[0.08] space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-white/60">
-                Tren Tayangan Bulanan
-              </span>
-              <span className="text-[11px] text-white/40 font-mono">
-                Januari — Juni
-              </span>
-            </div>
-            <div className="h-[240px] w-full">
-              <PerformanceChart dataKey="views" />
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Section 4: Portofolio Video Sosial Media (dengan Logo Platform) */}
+        {/* Section 3: Karya Video & Bukti Konten Media Sosial */}
         <motion.section
           initial="hidden"
           animate="show"
@@ -563,43 +578,18 @@ export function PublicCreatorProfileView({ profile }: Props) {
               <div className="flex items-center gap-2">
                 <Video className="size-4 text-white/70" />
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
-                  Karya Video Sosial Media
+                  Karya Video & Review Otomotif
                 </h2>
               </div>
               <p className="text-xs text-white/40 mt-0.5">
-                Daftar video yang telah dipublikasikan beserta logo platform dan tautan langsung.
+                Portofolio video yang telah dipublikasikan di akun TikTok, Instagram Reels, dan YouTube resmi {creatorName}.
               </p>
-            </div>
-
-            {/* Platform Filter */}
-            <div className="flex items-center gap-1 bg-white/[0.02] p-1 rounded-lg border border-white/[0.06]">
-              {(
-                [
-                  { key: "all", label: "Semua", icon: null },
-                  { key: "tiktok", label: "TikTok", icon: TikTokIcon },
-                  { key: "instagram", label: "Instagram", icon: InstagramIcon },
-                  { key: "youtube", label: "YouTube", icon: YouTubeIcon },
-                ] as const
-              ).map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setSelectedPlatform(tab.key)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                    selectedPlatform === tab.key
-                      ? "bg-white text-black font-semibold"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                >
-                  {tab.icon && <tab.icon className="size-3" />}
-                  <span>{tab.label}</span>
-                </button>
-              ))}
             </div>
           </div>
 
           {/* Video Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {filteredVideos.map((video) => {
+            {PORTFOLIO_VIDEOS.map((video) => {
               const videoUrl = video.getUrl(profile);
               const PlatformIcon =
                 video.platform === "tiktok"
@@ -614,7 +604,6 @@ export function PublicCreatorProfileView({ profile }: Props) {
                   className="rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.15] p-4 flex flex-col justify-between gap-4 transition-colors"
                 >
                   <div className="space-y-2.5">
-                    {/* Platform Logo Badge & Campaign Category */}
                     <div className="flex items-center justify-between gap-2 text-[11px]">
                       <div className="flex items-center gap-1.5 font-medium text-white/80 bg-white/[0.04] px-2 py-0.5 rounded border border-white/[0.08]">
                         <PlatformIcon className="size-3.5 text-white/80" />
@@ -641,7 +630,7 @@ export function PublicCreatorProfileView({ profile }: Props) {
                       className="inline-flex items-center gap-1.5 text-xs font-medium text-white/80 hover:text-white transition-colors"
                     >
                       <PlatformIcon className="size-3 text-white/60" />
-                      <span>Buka Video</span>
+                      <span>Buka di {video.platformLabel}</span>
                       <ExternalLink className="size-3 text-white/40" />
                     </a>
                   </div>
@@ -651,7 +640,83 @@ export function PublicCreatorProfileView({ profile }: Props) {
           </div>
         </motion.section>
 
-        {/* Section 5: Layanan Kampanye & Kontak Dealer */}
+        {/* Section 4: Ringkasan Metrik & Statistik Jangkauan */}
+        <motion.section
+          initial="hidden"
+          animate="show"
+          variants={fadeUp}
+          className="space-y-4"
+        >
+          <div className="flex items-center gap-2">
+            <TrendingUp className="size-4 text-white/70" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
+              Performa & Jangkauan Audiens
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
+              <div>
+                <span className="text-xs text-white/40">Total Tayangan (6 Bulan)</span>
+                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
+                  446.200
+                </p>
+                <p className="text-[11px] text-white/50 mt-0.5">
+                  Akumulasi seluruh platform video
+                </p>
+              </div>
+              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
+                <Eye className="size-4" />
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
+              <div>
+                <span className="text-xs text-white/40">Rata-rata Engagement</span>
+                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
+                  6.8%
+                </p>
+                <p className="text-[11px] text-white/50 mt-0.5">
+                  Tingkat interaksi audiens aktif
+                </p>
+              </div>
+              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
+                <TrendingUp className="size-4" />
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#0F1114] border border-white/[0.08] flex items-start justify-between">
+              <div>
+                <span className="text-xs text-white/40">Kampanye Selesai</span>
+                <p className="text-2xl font-bold text-white tracking-tight mt-1.5">
+                  24 Proyek
+                </p>
+                <p className="text-[11px] text-white/50 mt-0.5">
+                  100% tepat waktu sesuai brief
+                </p>
+              </div>
+              <div className="size-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/60">
+                <Video className="size-4" />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#0F1114] border border-white/[0.08] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-white/60">
+                Tren Tayangan Bulanan Konten Otomotif
+              </span>
+              <span className="text-[11px] text-white/40 font-mono">
+                Januari — Juni
+              </span>
+            </div>
+            <div className="h-[240px] w-full">
+              <PerformanceChart dataKey="views" />
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Section 5: Informasi Hubungi Dealer & Kerja Sama */}
         <motion.section
           initial="hidden"
           animate="show"
@@ -660,10 +725,10 @@ export function PublicCreatorProfileView({ profile }: Props) {
         >
           <div>
             <h2 className="text-xs font-semibold uppercase tracking-wider text-white/70">
-              Layanan Kampanye yang Diterima
+              Layanan Kampanye & Promosi Dealer
             </h2>
             <p className="text-xs text-white/40 mt-0.5">
-              Jenis materi promosi otomotif yang dapat dikerjakan oleh kreator ini.
+              Jenis materi promosi kendaraan yang dikerjakan oleh {creatorName}.
             </p>
           </div>
 
@@ -684,43 +749,177 @@ export function PublicCreatorProfileView({ profile }: Props) {
             ))}
           </div>
 
-          {/* Action Row */}
           <div className="pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-0.5">
               <p className="text-xs font-medium text-white">
-                Bekerja sama dengan {creatorName}
+                Bekerja sama atau diskusikan kampanye dengan {creatorName}
               </p>
               <p className="text-xs text-white/40">
-                Semua proyek kampanye diproses secara aman melalui sistem escrow Carpaign.
+                Semua pemesanan dan kontrak promosi diproses secara transparan melalui sistem Carpaign.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              {waUrl && (
+              {creatorWaUrl && (
                 <a
-                  href={waUrl}
+                  href={creatorWaUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-xs font-medium text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] transition-colors"
                 >
-                  WhatsApp
+                  WhatsApp Kreator
                 </a>
               )}
               <Link
                 href="/dealer/campaigns/create"
                 className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-xs font-semibold text-black bg-white hover:bg-white/90 transition-colors"
               >
-                Mulai Kampanye
+                Ajak Kolaborasi Dealer
               </Link>
             </div>
           </div>
         </motion.section>
       </main>
 
+      {/* Interactive Quick Modal Detail Mobil & Promo */}
+      <AnimatePresence>
+        {activeCampaignModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-2xl bg-[#0F1114] border border-white/[0.1] rounded-2xl overflow-hidden shadow-none flex flex-col max-h-[90vh]"
+            >
+              {/* Modal Header Image */}
+              <div className="relative h-56 sm:h-64 w-full bg-[#14161A] shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activeCampaignModal.image}
+                  alt={activeCampaignModal.vehicle}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F1114] via-[#0F1114]/40 to-transparent" />
+                
+                <button
+                  onClick={() => setActiveCampaignModal(null)}
+                  className="absolute top-4 right-4 size-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+
+                <div className="absolute bottom-4 left-5 right-5">
+                  <span className="text-[10px] font-bold text-white bg-black/70 border border-white/10 px-2.5 py-1 rounded-md">
+                    {activeCampaignModal.brand}
+                  </span>
+                  <h3 className="text-xl font-bold text-white tracking-tight mt-1">
+                    {activeCampaignModal.vehicle}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
+                {/* Promo Highlight Box */}
+                <div className="p-4 rounded-xl bg-primary/10 border border-primary/30 flex items-start gap-3">
+                  <Tag className="size-4 text-primary shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-white">
+                      Program Promo: {activeCampaignModal.promoHighlight}
+                    </p>
+                    <p className="text-xs text-white/70">
+                      Penawaran resmi dealer rekanan melalui rekomendasi {creatorName}.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Description & Overview */}
+                <div className="space-y-1.5">
+                  <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+                    Ringkasan Kendaraan
+                  </h4>
+                  <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                    {activeCampaignModal.description}
+                  </p>
+                </div>
+
+                {/* Vehicle Specs Grid */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+                    Spesifikasi & Detail Utama
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    {activeCampaignModal.specs.map((spec) => (
+                      <div
+                        key={spec.label}
+                        className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-between"
+                      >
+                        <span className="text-white/40">{spec.label}</span>
+                        <span className="font-semibold text-white">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Showroom Location */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-white/80">
+                    <MapPin className="size-4 text-white/40" />
+                    <span>Lokasi Dealer: {activeCampaignModal.location}</span>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${activeCampaignModal.brand} ${activeCampaignModal.location}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    <span>Google Maps</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="p-4 sm:p-5 border-t border-white/[0.08] bg-[#0A0A0C] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                <div className="text-[11px] text-white/40 hidden sm:block">
+                  Konsultasi dan test drive gratis tanpa dipungut biaya.
+                </div>
+
+                <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                  {activeCampaignModal.dealerPhone && (
+                    <a
+                      href={`https://wa.me/${activeCampaignModal.dealerPhone}?text=${encodeURIComponent(
+                        `Halo ${activeCampaignModal.brand}, saya tertarik dengan penawaran ${activeCampaignModal.vehicle} (${activeCampaignModal.promoHighlight}) yang direkomendasikan oleh ${creatorName} di Carpaign.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-xs font-semibold bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/40 transition-colors"
+                    >
+                      <MessageCircle className="size-3.5" />
+                      <span>Hubungi Dealer</span>
+                    </a>
+                  )}
+
+                  <Link
+                    href={`/${referralCode}/campaign/${activeCampaignModal.id}`}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-xs font-semibold text-black bg-white hover:bg-white/90 transition-colors"
+                  >
+                    <span>Halaman Lengkap</span>
+                    <ChevronRight className="size-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Footer */}
       <footer className="border-t border-white/[0.08] py-6 mt-12 bg-[#0A0A0C]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
-          <span>Carpaign — Platform Kreator Otomotif</span>
+          <span>Carpaign — Platform Kreator & Kampanye Otomotif Resmi</span>
           <span>Hak Cipta Dilindungi</span>
         </div>
       </footer>

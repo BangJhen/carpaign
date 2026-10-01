@@ -17,10 +17,9 @@ import {
   Banknote,
   Eye,
   Video,
-  Award,
-  Zap,
   Check,
   Clock,
+  Zap,
   ArrowUpRight,
   Filter,
   RotateCcw,
@@ -178,58 +177,6 @@ const initialCreatorVideos = [
   },
 ];
 
-const activeCampaigns = [
-  {
-    id: "camp-1",
-    title: "Review Singkat All New HRV Tipe RS",
-    category: "SUV Promo",
-    brand: "Honda Jakarta Center",
-    reward: "Rp5.000 per 1.000 Views",
-    image:
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
-    type: "Clip & Publish",
-    views: "24.844",
-    socials: ["tiktok", "instagram"],
-    categoryTag: "SUV",
-  },
-  {
-    id: "camp-2",
-    title: "Promo Akhir Tahun Avanza Veloz",
-    category: "Showroom MPV",
-    brand: "Toyota Auto2000",
-    reward: "Rp3.000 per 1.000 Views",
-    image:
-      "https://images.unsplash.com/photo-1629897048514-3dd741427cb1?auto=format&fit=crop&q=80&w=600",
-    type: "Clip & Publish",
-    views: "33.328",
-    socials: ["tiktok", "instagram", "youtube"],
-    categoryTag: "MPV",
-  },
-  {
-    id: "camp-3",
-    title: "Test Drive Hyundai Ioniq 5 UGC Contest",
-    category: "EV Experience",
-    brand: "Hyundai Motors ID",
-    reward: "Rp7.000 per 1.000 Views",
-    image:
-      "https://images.unsplash.com/photo-1663248386850-8b173ccff5d8?auto=format&fit=crop&q=80&w=600",
-    type: "UGC & Review",
-    views: "1.712",
-    socials: ["tiktok", "youtube"],
-    categoryTag: "EV",
-  },
-];
-
-const STREAK_DAYS = [
-  { day: "H1", status: "completed", label: "Hari 1" },
-  { day: "H2", status: "completed", label: "Hari 2" },
-  { day: "H3", status: "completed", label: "Hari 3" },
-  { day: "H4", status: "completed", label: "Hari 4" },
-  { day: "H5", status: "active", label: "Hari 5 (Hari Ini)" },
-  { day: "H6", status: "upcoming", label: "Hari 6" },
-  { day: "H7", status: "reward", label: "Bonus +Rp50.000" },
-];
-
 export function DashboardView({
   initialCampaigns,
   userStats,
@@ -258,15 +205,6 @@ export function DashboardView({
   const [videoCampaignFilter, setVideoCampaignFilter] = useState<string>("all");
   const [videoSortFilter, setVideoSortFilter] = useState<string>("newest");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  // Campaigns Discovery state
-  const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [socialFilter, setSocialFilter] = useState<string | null>(null);
-
-  const campaignsList =
-    initialCampaigns && initialCampaigns.length > 0
-      ? initialCampaigns
-      : activeCampaigns;
 
   const statCards = [
     {
@@ -323,24 +261,6 @@ export function DashboardView({
       });
   }, [activeVideoTab, videoCampaignFilter, videoSortFilter]);
 
-  // Filtered Campaigns
-  const filteredCampaigns = useMemo(() => {
-    return campaignsList.filter((c) => {
-      if (typeFilter !== "all") {
-        const type = (c.type || "").toLowerCase();
-        if (typeFilter === "clipping" && !type.includes("clipping") && !type.includes("clip")) return false;
-        if (typeFilter === "ugc" && !type.includes("ugc") && !type.includes("review")) return false;
-        if (typeFilter === "videographer" && !type.includes("video") && !type.includes("shoot") && !type.includes("edit")) return false;
-      }
-      if (socialFilter) {
-        if (!c.socials || !c.socials.includes(socialFilter)) return false;
-      }
-      return true;
-    });
-  }, [campaignsList, typeFilter, socialFilter]);
-
-  const hasActiveCampaignFilters = typeFilter !== "all" || socialFilter !== null;
-
   const handleCopyLink = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
@@ -359,7 +279,7 @@ export function DashboardView({
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-6"
       >
         <div>
-          <p className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-primary/80 mb-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
             Kreator Studio
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
@@ -384,7 +304,7 @@ export function DashboardView({
           <Link href="/creator/campaigns">
             <Button
               size="sm"
-              className="h-10 px-5 rounded-xl gap-2 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all cursor-pointer"
+              className="h-10 px-5 rounded-xl gap-2 text-xs font-bold bg-primary text-black hover:bg-primary/90 transition-all cursor-pointer shadow-none"
             >
               <span>Jelajahi Kampanye</span>
               <ArrowUpRight className="size-4" />
@@ -447,240 +367,144 @@ export function DashboardView({
         })}
       </div>
 
-      {/* 3. Analytics Chart & Streak Challenge Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Creator Performance Chart */}
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={fadeUp}
-          custom={5}
-          className="lg:col-span-8"
-        >
-          <Card className="border-white/5 bg-[#111316] p-5 sm:p-6 rounded-2xl h-full flex flex-col justify-between">
-            {/* Chart Header Controls */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div>
-                <h3 className="text-base font-semibold text-white">
-                  Performa Konten & Reward
-                </h3>
-                <p className="text-xs text-white/50 mt-0.5">
-                  Pertumbuhan akumulasi tayangan dan estimasi pendapatan harian
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {/* Metric Selector */}
-                <div className="flex items-center bg-[#0a0a0c] border border-white/5 rounded-lg p-0.5">
-                  <button
-                    onClick={() => setMetricTab("views")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      metricTab === "views"
-                        ? "bg-primary text-black font-semibold shadow-sm"
-                        : "text-white/50 hover:text-white"
-                    }`}
-                  >
-                    Tayangan
-                  </button>
-                  <button
-                    onClick={() => setMetricTab("earnings")}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      metricTab === "earnings"
-                        ? "bg-primary text-black font-semibold shadow-sm"
-                        : "text-white/50 hover:text-white"
-                    }`}
-                  >
-                    Reward (Rp)
-                  </button>
-                </div>
-
-                {/* Timeframe Selector */}
-                <div className="flex items-center bg-[#0a0a0c] border border-white/5 rounded-lg p-0.5">
-                  <button
-                    onClick={() => setTimeframe("7d")}
-                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      timeframe === "7d"
-                        ? "bg-white/10 text-white font-semibold"
-                        : "text-white/40 hover:text-white"
-                    }`}
-                  >
-                    7 Hari
-                  </button>
-                  <button
-                    onClick={() => setTimeframe("30d")}
-                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      timeframe === "30d"
-                        ? "bg-white/10 text-white font-semibold"
-                        : "text-white/40 hover:text-white"
-                    }`}
-                  >
-                    30 Hari
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Recharts Area */}
-            <div className="h-[240px] w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={activeChartData}
-                  margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="creatorChartGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(255, 255, 255, 0.04)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="day"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#ffffff50", fontSize: 11, fontWeight: 500 }}
-                    dy={8}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#ffffff30", fontSize: 10, fontWeight: 400 }}
-                    tickFormatter={(val) => {
-                      if (metricTab === "earnings") {
-                        return val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val;
-                      }
-                      return val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val;
-                    }}
-                  />
-                  <Tooltip
-                    content={
-                      <CustomChartTooltip metricType={metricTab} />
-                    }
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey={metricTab}
-                    stroke="#D4AF37"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#creatorChartGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Micro Stats Footer */}
-            <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/5 mt-4 text-center">
-              <div>
-                <p className="text-[10px] text-white/40 uppercase font-mono">Rata-Rata Views</p>
-                <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">9.1K / Video</p>
-              </div>
-              <div className="border-x border-white/5">
-                <p className="text-[10px] text-white/40 uppercase font-mono">Rate Rata-Rata</p>
-                <p className="text-xs sm:text-sm font-semibold text-primary mt-0.5">Rp5.000 / 1K</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-white/40 uppercase font-mono">Approval Rate</p>
-                <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">92% Lolos</p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Right Column: Weekly Streak Challenge */}
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={fadeUp}
-          custom={6}
-          className="lg:col-span-4"
-        >
-          <Card className="border border-primary/20 bg-gradient-to-b from-[#181611] to-[#111316] p-5 sm:p-6 rounded-2xl h-full flex flex-col justify-between relative overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.04)]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
+      {/* 3. Analytics Chart */}
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={fadeUp}
+        custom={5}
+        className="w-full"
+      >
+        <Card className="border-white/5 bg-[#111316] p-5 sm:p-6 rounded-2xl shadow-none">
+          {/* Chart Header Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="size-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
-                    <Zap className="size-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white leading-tight">
-                      Tantangan Mingguan
-                    </h3>
-                    <p className="text-[11px] text-white/50">Konsistensi Konten Kreator</p>
-                  </div>
-                </div>
-
-                <Badge
-                  variant="outline"
-                  className="border-primary/30 text-primary bg-primary/10 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                >
-                  Pro Tier
-                </Badge>
-              </div>
-
-              <p className="text-xs text-white/70 leading-relaxed mb-5">
-                Submit minimal 1 video terverifikasi setiap hari untuk mempertahankan streak dan membuka bonus tier tunai.
+              <h3 className="text-base font-bold text-white">
+                Performa Konten & Reward
+              </h3>
+              <p className="text-xs text-white/50 mt-0.5">
+                Pertumbuhan akumulasi tayangan dan estimasi pendapatan harian Anda
               </p>
-
-              {/* Streak Capsules Grid */}
-              <div className="grid grid-cols-7 gap-1.5 mb-5">
-                {STREAK_DAYS.map((day) => {
-                  const isCompleted = day.status === "completed";
-                  const isActive = day.status === "active";
-                  const isReward = day.status === "reward";
-
-                  return (
-                    <div
-                      key={day.day}
-                      className={`flex flex-col items-center justify-center h-16 rounded-xl border transition-all text-center relative ${
-                        isCompleted
-                          ? "bg-primary/10 border-primary/30 text-primary"
-                          : isActive
-                          ? "bg-white/10 border-white/30 text-white shadow-sm ring-1 ring-primary/40"
-                          : isReward
-                          ? "bg-primary/20 border-primary/50 text-primary shadow-[0_0_15px_rgba(212,175,55,0.2)]"
-                          : "bg-white/5 border-white/5 text-white/30"
-                      }`}
-                    >
-                      {isCompleted && <Check className="size-3.5 mb-1 stroke-[2.5]" />}
-                      {isActive && <Clock className="size-3.5 mb-1 text-primary animate-pulse" />}
-                      {isReward && <Award className="size-3.5 mb-1 text-primary" />}
-                      {!isCompleted && !isActive && !isReward && (
-                        <span className="size-1.5 rounded-full bg-white/20 mb-2" />
-                      )}
-                      <span className="text-[11px] font-bold">{day.day}</span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
 
-            {/* Streak Progress Bar */}
-            <div className="pt-4 border-t border-white/10">
-              <div className="flex items-center justify-between text-xs mb-2">
-                <span className="text-white/60">Progres Minggu Ini</span>
-                <span className="font-semibold text-primary">4 dari 7 Hari</span>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {/* Metric Selector */}
+              <div className="flex items-center bg-[#0a0a0c] border border-white/5 rounded-xl p-0.5">
+                <button
+                  onClick={() => setMetricTab("views")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    metricTab === "views"
+                      ? "bg-primary text-black"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  Tayangan
+                </button>
+                <button
+                  onClick={() => setMetricTab("earnings")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    metricTab === "earnings"
+                      ? "bg-primary text-black"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                >
+                  Reward (Rp)
+                </button>
               </div>
-              <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5">
-                <div
-                  className="h-full bg-gradient-to-r from-primary/70 to-primary rounded-full transition-all duration-500"
-                  style={{ width: "57%" }}
+
+              {/* Timeframe Selector */}
+              <div className="flex items-center bg-[#0a0a0c] border border-white/5 rounded-xl p-0.5">
+                <button
+                  onClick={() => setTimeframe("7d")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    timeframe === "7d"
+                      ? "bg-white/10 text-white"
+                      : "text-white/40 hover:text-white"
+                  }`}
+                >
+                  7 Hari
+                </button>
+                <button
+                  onClick={() => setTimeframe("30d")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    timeframe === "30d"
+                      ? "bg-white/10 text-white"
+                      : "text-white/40 hover:text-white"
+                  }`}
+                >
+                  30 Hari
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Recharts Area */}
+          <div className="h-[260px] w-full mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={activeChartData}
+                margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="creatorChartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255, 255, 255, 0.04)"
+                  vertical={false}
                 />
-              </div>
-              <div className="flex items-center justify-between mt-3 text-[11px]">
-                <span className="text-white/40">Bonus Tersedia:</span>
-                <span className="font-bold text-white">+Rp50.000 Tunai</span>
-              </div>
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#ffffff50", fontSize: 11, fontWeight: 500 }}
+                  dy={8}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#ffffff30", fontSize: 10, fontWeight: 400 }}
+                  tickFormatter={(val) => {
+                    return val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val;
+                  }}
+                />
+                <Tooltip
+                  content={
+                    <CustomChartTooltip metricType={metricTab} />
+                  }
+                />
+                <Area
+                  type="monotone"
+                  dataKey={metricTab}
+                  stroke="#D4AF37"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#creatorChartGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Micro Stats Footer */}
+          <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/5 mt-4 text-center">
+            <div>
+              <p className="text-[10px] text-white/40 uppercase font-mono">Rata-Rata Views</p>
+              <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">9.1K / Video</p>
             </div>
-          </Card>
-        </motion.div>
-      </div>
+            <div className="border-x border-white/5">
+              <p className="text-[10px] text-white/40 uppercase font-mono">Rate Rata-Rata</p>
+              <p className="text-xs sm:text-sm font-semibold text-primary mt-0.5">Rp5.000 / 1K</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-white/40 uppercase font-mono">Approval Rate</p>
+              <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">92% Lolos</p>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
 
       {/* 4. Submisi Video Saya (Creator Content Management) */}
       <motion.div initial="hidden" animate="show" variants={fadeUp} custom={7}>
@@ -924,189 +748,6 @@ export function DashboardView({
             </div>
           </CardContent>
         </Card>
-      </motion.div>
-
-      {/* 5. Eksplorasi Kampanye Aktif (Campaign Discovery for Creators) */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} custom={8}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-          <div>
-            <h3 className="text-lg font-bold text-white">Eksplorasi Kampanye Aktif</h3>
-            <p className="text-xs text-white/50 mt-0.5">
-              Pilih brief kampanye dari showroom mitra dan mulai buat konten untuk klaim reward
-            </p>
-          </div>
-
-          {/* Campaign Filter Bar */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="h-9 text-xs bg-[#111316] border-white/10 hover:border-white/20 w-[160px] rounded-xl font-medium text-white">
-                <SelectValue placeholder="Semua Tipe" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#111316] border-white/10 text-white">
-                <SelectItem value="all">Semua Tipe</SelectItem>
-                <SelectItem value="clipping">Clip & Publish</SelectItem>
-                <SelectItem value="ugc">UGC & Review</SelectItem>
-                <SelectItem value="videographer">Shoot & Edit</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Social Platform Filter Pills */}
-            <div className="flex items-center gap-1.5 bg-[#111316] border border-white/10 rounded-xl p-0.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSocialFilter(socialFilter === "tiktok" ? null : "tiktok")}
-                className={`size-8 rounded-lg transition-all ${
-                  socialFilter === "tiktok"
-                    ? "bg-primary text-black"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-                title="Filter TikTok"
-              >
-                <TikTokIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSocialFilter(socialFilter === "instagram" ? null : "instagram")}
-                className={`size-8 rounded-lg transition-all ${
-                  socialFilter === "instagram"
-                    ? "bg-primary text-black"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-                title="Filter Instagram"
-              >
-                <InstagramIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSocialFilter(socialFilter === "youtube" ? null : "youtube")}
-                className={`size-8 rounded-lg transition-all ${
-                  socialFilter === "youtube"
-                    ? "bg-primary text-black"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-                title="Filter YouTube"
-              >
-                <YouTubeIcon className="size-3.5" />
-              </Button>
-            </div>
-
-            {hasActiveCampaignFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setTypeFilter("all");
-                  setSocialFilter(null);
-                }}
-                className="h-9 text-xs text-white/50 hover:text-white px-2.5 gap-1 rounded-xl"
-              >
-                <RotateCcw className="size-3.5" />
-                Reset
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Campaign Cards Grid */}
-        {filteredCampaigns.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredCampaigns.map((campaign, i) => (
-              <motion.div
-                key={campaign.id}
-                initial="hidden"
-                animate="show"
-                variants={fadeUp}
-                custom={9 + i}
-              >
-                <Card
-                  onClick={() => router.push(`/creator/campaigns/${campaign.id}`)}
-                  className="group cursor-pointer border-white/5 bg-[#111316] hover:bg-[#14171b] hover:border-white/15 transition-all duration-300 overflow-hidden rounded-2xl flex flex-col h-full"
-                >
-                  {/* Image Area */}
-                  <div className="relative h-[200px] w-full bg-[#0a0a0c] overflow-hidden">
-                    <img
-                      src={campaign.image}
-                      alt={campaign.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/60 to-transparent" />
-
-                    {/* Top Type Badge */}
-                    <div className="absolute top-3.5 right-3.5 z-10">
-                      <Badge className="bg-black/60 backdrop-blur-md text-[10px] font-semibold text-primary border border-primary/30 px-2.5 py-0.5 rounded-lg">
-                        {formatCampaignType(campaign.type)}
-                      </Badge>
-                    </div>
-
-                    {/* Showroom Brand Info */}
-                    <div className="absolute bottom-3.5 left-4 right-4 flex items-center justify-between z-10">
-                      <div className="flex items-center gap-2">
-                        <div className="size-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
-                          <span className="text-[8px] font-bold text-white font-mono">CP</span>
-                        </div>
-                        <span className="text-xs font-semibold text-white/90 truncate">
-                          {campaign.brand}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono font-medium text-white/60 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded">
-                        {campaign.categoryTag || "PROMO"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Content Details */}
-                  <CardContent className="p-5 pt-3.5 flex flex-col grow justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm sm:text-[15px] text-white group-hover:text-primary transition-colors line-clamp-1">
-                        {campaign.title}
-                      </h4>
-                      <div className="mt-2 text-primary font-bold text-sm">
-                        {campaign.reward}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 mt-4 border-t border-white/5 text-xs text-white/50">
-                      <div className="flex items-center gap-2">
-                        {campaign.socials?.includes("tiktok") && <TikTokIcon className="size-3.5" />}
-                        {campaign.socials?.includes("instagram") && <InstagramIcon className="size-3.5" />}
-                        {campaign.socials?.includes("youtube") && <YouTubeIcon className="size-3.5" />}
-                      </div>
-
-                      <div className="flex items-center gap-1 font-semibold text-white group-hover:text-primary transition-colors">
-                        <span>Lihat Brief</span>
-                        <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#111316]/50 py-16 text-center">
-            <Filter className="size-8 text-white/20 mb-3" />
-            <p className="text-sm font-semibold text-white mb-1">
-              Tidak ada kampanye yang sesuai dengan filter
-            </p>
-            <p className="text-xs text-white/40 max-w-sm mb-4">
-              Coba ganti tipe kampanye atau reset filter platform sosial media.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setTypeFilter("all");
-                setSocialFilter(null);
-              }}
-              className="text-xs border-white/10 text-white hover:bg-white/5 rounded-xl"
-            >
-              Reset Semua Filter
-            </Button>
-          </div>
-        )}
       </motion.div>
     </div>
   );

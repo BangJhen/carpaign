@@ -56,6 +56,29 @@ export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
     if (!isValid) {
       throw new Error("Shortlink hanya boleh berisi huruf kecil, angka, dan tanda strip (-).");
     }
+
+    const RESERVED_SLUGS = [
+      "api",
+      "login",
+      "register",
+      "dealer",
+      "campaigns",
+      "faq",
+      "bantuan",
+      "leaderboard",
+      "analitik",
+      "pendapatan",
+      "profile",
+      "rank-rewards",
+      "dashboard",
+      "admin",
+      "_next",
+    ];
+
+    if (RESERVED_SLUGS.includes(input.referralCode.toLowerCase())) {
+      throw new Error("Nama link tersebut sudah dicadangkan untuk sistem. Silakan pilih nama lain.");
+    }
+
     const checkDuplicate = await db
       .select()
       .from(creatorProfiles)
@@ -112,18 +135,32 @@ export async function updateCreatorProfile(input: UpdateCreatorProfileInput) {
 
   revalidatePath("/creator/profile");
   revalidatePath("/creator/dashboard");
+  revalidatePath("/");
+  if (input.referralCode) {
+    revalidatePath(`/${input.referralCode}`);
+    revalidatePath(`/c/${input.referralCode}`);
+  }
+  if (input.username) {
+    const cleanU = input.username.replace(/^@/, "");
+    revalidatePath(`/${cleanU}`);
+    revalidatePath(`/@${cleanU}`);
+    revalidatePath(`/c/${cleanU}`);
+  }
   return { success: true };
 }
 
-/** Fetch the referral code for the current logged-in creator */
+/** Fetch the referral code / custom slug for the current logged-in creator */
 export async function getMyReferralCode(): Promise<string | null> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) return null;
 
   const rows = await db
-    .select({ referralCode: creatorProfiles.referralCode })
+    .select({
+      referralCode: creatorProfiles.referralCode,
+      username: creatorProfiles.username,
+    })
     .from(creatorProfiles)
     .where(eq(creatorProfiles.userId, session.user.id));
 
-  return rows[0]?.referralCode ?? null;
+  return rows[0]?.referralCode || rows[0]?.username?.replace(/^@/, "") || null;
 }

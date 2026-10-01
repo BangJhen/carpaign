@@ -15,7 +15,7 @@ export const user = mysqlTable("user", {
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
-  image: varchar("image", { length: 255 }),
+  image: text("image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -23,7 +23,7 @@ export const user = mysqlTable("user", {
     .notNull(),
   role: varchar("role", { length: 32 }).default("creator").notNull(),
   tier: int("tier").default(1),
-  coverImage: varchar("cover_image", { length: 255 }),
+  coverImage: text("cover_image"),
 });
 
 export const session = mysqlTable(

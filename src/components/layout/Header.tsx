@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Gift, HandCoins } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, ExternalLink, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { InviteModal } from "@/components/modals/InviteModal";
 import { NotificationDropdown } from "@/components/modals/NotificationDropdown";
-
+import { getMyReferralCode } from "@/app/actions/creatorProfile";
+import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -26,80 +26,105 @@ interface HeaderProps {
 }
 
 export function Header({ title }: HeaderProps) {
-  const [inviteOpen, setInviteOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(2);
+  const [creatorSlug, setCreatorSlug] = useState<string>("creators");
+  const [copied, setCopied] = useState(false);
   const pathname = usePathname();
   const displayTitle = title || ROUTE_TITLES[pathname] || "Kreator Portal";
 
+  useEffect(() => {
+    getMyReferralCode()
+      .then((code) => {
+        if (code) setCreatorSlug(code);
+      })
+      .catch(() => {});
+  }, [pathname]);
+
+  const handleCopyLink = () => {
+    const fullUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/${creatorSlug}`
+        : `https://carpaign.id/${creatorSlug}`;
+    navigator.clipboard.writeText(fullUrl).catch(() => {});
+    setCopied(true);
+    toast.success("Link bio berhasil disalin", {
+      description: fullUrl,
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <>
-      {/* Clean Monochromatic Glassmorphic Header */}
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-[#0a0a0c]/85 backdrop-blur-xl border-b border-white/5 relative overflow-visible">
-        <div className="flex items-center gap-4 relative z-10">
-          <SidebarTrigger className="-ml-2 md:hidden text-muted-foreground hover:text-foreground" />
-          <h1 className="text-[15px] font-medium text-foreground">{displayTitle}</h1>
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-4 lg:px-8 bg-[#0a0a0c]/85 backdrop-blur-xl border-b border-white/5 relative overflow-visible">
+      <div className="flex items-center gap-4 relative z-10">
+        <SidebarTrigger className="-ml-2 md:hidden text-muted-foreground hover:text-foreground" />
+        <h1 className="text-[15px] font-medium text-foreground">{displayTitle}</h1>
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-3 relative z-20">
+        {/* Creator Bio Link (Clickable & Copyable) */}
+        <div className="flex items-center gap-1.5">
+          <a
+            href={`/${creatorSlug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Buka halaman katalog promosi Anda"
+            className="group inline-flex items-center gap-1.5 sm:gap-2 h-9 px-3 sm:px-3.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-primary/40 text-xs font-medium text-white/90 hover:text-white transition-all shadow-none"
+          >
+            <span className="text-white/40 group-hover:text-white/60 transition-colors hidden sm:inline text-xs">
+              carpaign.id/
+            </span>
+            <span className="font-semibold text-primary">{creatorSlug}</span>
+            <ExternalLink className="size-3.5 text-white/40 group-hover:text-white transition-colors ml-0.5 shrink-0" />
+          </a>
+
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            title="Salin link bio"
+            className="size-9 rounded-xl flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-white/70 hover:text-white transition-all shrink-0 cursor-pointer"
+          >
+            {copied ? (
+              <Check className="size-3.5 text-emerald-400" />
+            ) : (
+              <Copy className="size-3.5" />
+            )}
+          </button>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 relative z-20">
-          {/* Clean Neutral CTA Button */}
-          <Button
-            size="sm"
-            onClick={() => setInviteOpen(true)}
-            className="rounded-xl px-4 sm:px-5 h-9 gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-xs shadow-sm transition-all"
-          >
-            <HandCoins className="size-4 text-white/80" />
-            <span className="hidden sm:inline">Refer dan Dapatkan</span>
-            <span className="sm:hidden">Undang</span>
-          </Button>
-
-          <div className="flex items-center gap-1 border-l border-white/10 pl-4 ml-1">
-            {/* Gift */}
+        <div className="flex items-center gap-1 border-l border-white/10 pl-3 ml-0.5">
+          {/* Notifications */}
+          <div className="relative">
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setInviteOpen(true)}
-              className="size-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 hidden sm:flex"
+              onClick={() => setNotifOpen((v) => !v)}
+              className={`size-9 rounded-xl transition-all ${
+                notifOpen
+                  ? "bg-white/15 text-white border border-white/20 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+              }`}
+              aria-label="Buka notifikasi"
             >
-              <Gift className="size-4" />
+              <Bell className="size-4" />
             </Button>
 
-            {/* Notifications */}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setNotifOpen((v) => !v)}
-                className={`size-9 rounded-xl transition-all ${
-                  notifOpen 
-                    ? "bg-white/15 text-white border border-white/20 shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-                aria-label="Buka notifikasi"
-              >
-                <Bell className="size-4" />
-              </Button>
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black leading-none border-[1.5px] border-[#0a0a0c] shadow-sm pointer-events-none">
+                {unreadCount}
+              </span>
+            )}
 
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black leading-none border-[1.5px] border-[#0a0a0c] shadow-sm pointer-events-none">
-                  {unreadCount}
-                </span>
-              )}
-
-              {/* Notification Dropdown */}
-              <NotificationDropdown
-                open={notifOpen}
-                onClose={() => setNotifOpen(false)}
-                role="creator"
-                onUnreadCountChange={setUnreadCount}
-              />
-            </div>
+            {/* Notification Dropdown */}
+            <NotificationDropdown
+              open={notifOpen}
+              onClose={() => setNotifOpen(false)}
+              role="creator"
+              onUnreadCountChange={setUnreadCount}
+            />
           </div>
         </div>
-      </header>
-
-      {/* Modals */}
-      <InviteModal open={inviteOpen} onOpenChange={setInviteOpen} />
-    </>
+      </div>
+    </header>
   );
 }

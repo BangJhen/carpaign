@@ -192,7 +192,7 @@ export function DealerDashboardView({
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <p className="text-[11px] font-mono font-semibold uppercase tracking-[0.2em] text-primary/80 mb-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
             Dealer Portal
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
