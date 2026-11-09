@@ -7,6 +7,8 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -18,31 +20,36 @@ async function getCampaignById(id: string): Promise<Campaign | null> {
     if (found) return found;
   }
 
-  const dbRows = await db
-    .select({
-      id: campaignsTable.id,
-      title: campaignsTable.title,
-      type: campaignsTable.type,
-      budget: campaignsTable.budget,
-      status: campaignsTable.status,
-      views: campaignsTable.views,
-      deadline: campaignsTable.deadline,
-      applicantsCount: campaignsTable.applicantsCount,
-      promotionalFocus: campaignsTable.promotionalFocus,
-      thumbnail: campaignsTable.thumbnail,
-      details: campaignsTable.details,
-      dealerName: dealerProfiles.dealerName,
-      userDealerName: user.name,
-      coverImage: dealerProfiles.coverImage,
-    })
-    .from(campaignsTable)
-    .leftJoin(dealerProfiles, eq(campaignsTable.dealerId, dealerProfiles.userId))
-    .leftJoin(user, eq(campaignsTable.dealerId, user.id))
-    .where(eq(campaignsTable.id, id))
-    .limit(1);
+  try {
+    const dbRows = await db
+      .select({
+        id: campaignsTable.id,
+        title: campaignsTable.title,
+        type: campaignsTable.type,
+        budget: campaignsTable.budget,
+        status: campaignsTable.status,
+        views: campaignsTable.views,
+        deadline: campaignsTable.deadline,
+        applicantsCount: campaignsTable.applicantsCount,
+        promotionalFocus: campaignsTable.promotionalFocus,
+        thumbnail: campaignsTable.thumbnail,
+        details: campaignsTable.details,
+        dealerName: dealerProfiles.dealerName,
+        userDealerName: user.name,
+        coverImage: dealerProfiles.coverImage,
+      })
+      .from(campaignsTable)
+      .leftJoin(dealerProfiles, eq(campaignsTable.dealerId, dealerProfiles.userId))
+      .leftJoin(user, eq(campaignsTable.dealerId, user.id))
+      .where(eq(campaignsTable.id, id))
+      .limit(1);
 
-  if (dbRows.length === 0) return null;
-  return mapDbRowToCampaign(dbRows[0]);
+    if (dbRows.length === 0) return null;
+    return mapDbRowToCampaign(dbRows[0]);
+  } catch (error) {
+    console.error("Failed to query campaign by ID from DB:", error);
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

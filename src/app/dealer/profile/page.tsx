@@ -6,23 +6,29 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Profil Dealer Carpaign",
 };
 
 export default async function DealerProfilePage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-
   let profile = null;
 
-  if (session?.user?.id) {
-    const rows = await db
-      .select()
-      .from(dealerProfiles)
-      .where(eq(dealerProfiles.userId, session.user.id));
-    if (rows.length > 0) {
-      profile = rows[0];
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (session?.user?.id) {
+      const rows = await db
+        .select()
+        .from(dealerProfiles)
+        .where(eq(dealerProfiles.userId, session.user.id));
+      if (rows.length > 0) {
+        profile = rows[0];
+      }
     }
+  } catch (error) {
+    console.error("Failed to load dealer profile from DB:", error);
   }
 
   return <DealerProfileView initialProfile={profile} />;

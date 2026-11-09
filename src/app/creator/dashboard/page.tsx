@@ -5,52 +5,60 @@ import { campaigns as campaignsTable, dealerProfiles } from "@/db/schema";
 import { user } from "@/db/auth-schema";
 import { eq, desc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Dashboard Kreator Carpaign",
   description: "Overview performa konten, statistik view, dan estimasi reward kreator.",
 };
 
 export default async function CreatorDashboardPage() {
-  const dbRows = await db
-    .select({
-      id: campaignsTable.id,
-      title: campaignsTable.title,
-      type: campaignsTable.type,
-      budget: campaignsTable.budget,
-      status: campaignsTable.status,
-      views: campaignsTable.views,
-      deadline: campaignsTable.deadline,
-      applicantsCount: campaignsTable.applicantsCount,
-      promotionalFocus: campaignsTable.promotionalFocus,
-      thumbnail: campaignsTable.thumbnail,
-      details: campaignsTable.details,
-      dealerName: dealerProfiles.dealerName,
-      userDealerName: user.name,
-      coverImage: dealerProfiles.coverImage,
-    })
-    .from(campaignsTable)
-    .leftJoin(dealerProfiles, eq(campaignsTable.dealerId, dealerProfiles.userId))
-    .leftJoin(user, eq(campaignsTable.dealerId, user.id))
-    .where(eq(campaignsTable.status, "active"))
-    .orderBy(desc(campaignsTable.createdAt))
-    .limit(6);
+  let mappedCampaigns: any[] = [];
 
-  const mappedCampaigns = dbRows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    category: row.type,
-    brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
-    reward: `Rp${row.budget.toLocaleString("id-ID")}`,
-    image:
-      row.thumbnail ||
-      (row.details as any)?.thumbnail ||
-      row.coverImage ||
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
-    type: row.type,
-    views: Number(row.views || 0).toLocaleString("id-ID"),
-    socials: ["tiktok", "instagram"],
-    categoryTag: "OTOMOTIF",
-  }));
+  try {
+    const dbRows = await db
+      .select({
+        id: campaignsTable.id,
+        title: campaignsTable.title,
+        type: campaignsTable.type,
+        budget: campaignsTable.budget,
+        status: campaignsTable.status,
+        views: campaignsTable.views,
+        deadline: campaignsTable.deadline,
+        applicantsCount: campaignsTable.applicantsCount,
+        promotionalFocus: campaignsTable.promotionalFocus,
+        thumbnail: campaignsTable.thumbnail,
+        details: campaignsTable.details,
+        dealerName: dealerProfiles.dealerName,
+        userDealerName: user.name,
+        coverImage: dealerProfiles.coverImage,
+      })
+      .from(campaignsTable)
+      .leftJoin(dealerProfiles, eq(campaignsTable.dealerId, dealerProfiles.userId))
+      .leftJoin(user, eq(campaignsTable.dealerId, user.id))
+      .where(eq(campaignsTable.status, "active"))
+      .orderBy(desc(campaignsTable.createdAt))
+      .limit(6);
+
+    mappedCampaigns = dbRows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      category: row.type,
+      brand: row.dealerName || row.userDealerName || "Dealer Rekanan",
+      reward: `Rp${row.budget.toLocaleString("id-ID")}`,
+      image:
+        row.thumbnail ||
+        (row.details as any)?.thumbnail ||
+        row.coverImage ||
+        "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
+      type: row.type,
+      views: Number(row.views || 0).toLocaleString("id-ID"),
+      socials: ["tiktok", "instagram"],
+      categoryTag: "OTOMOTIF",
+    }));
+  } catch (error) {
+    console.error("Failed to query creator dashboard campaigns from DB:", error);
+  }
 
   return (
     <DashboardView

@@ -1,0 +1,4 @@
+- generic [active] [ref=e1]:
+  - paragraph [ref=e9]: Memuat Halaman
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e19] [cursor=pointer]

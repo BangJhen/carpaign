@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - paragraph [ref=e472]: Memuat Halaman
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e477]:
+        - generic [ref=e482]: Berhasil masuk!
+  - button "Open Next.js Dev Tools" [ref=e45] [cursor=pointer]
+  - alert [ref=e49]
+  - generic [aria-hidden] [ref=e426]: Clipping

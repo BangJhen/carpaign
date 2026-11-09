@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e427]:
+    - img "Background" [ref=e429]
+    - link [ref=e432] [cursor=pointer]:
+      - /url: /
+      - img "Carpaign" [ref=e433]
+    - generic [ref=e435]:
+      - generic [ref=e436]:
+        - paragraph [ref=e437]: Masuk ke Akun
+        - heading "Selamat datang kembali." [level=1] [ref=e438]
+        - paragraph [ref=e439]: Masuk untuk mengakses dashboard dan campaign Anda.
+      - generic [ref=e440]:
+        - generic [ref=e441]:
+          - generic [ref=e442]: Email
+          - textbox "Email" [ref=e443]:
+            - /placeholder: nama@email.com
+        - generic [ref=e444]:
+          - generic [ref=e445]:
+            - generic [ref=e446]: Password
+            - link "Lupa password?" [ref=e447] [cursor=pointer]:
+              - /url: /lupa-password
+          - generic [ref=e448]:
+            - textbox "Password" [ref=e449]:
+              - /placeholder: ••••••••
+            - button "Tampilkan password" [ref=e450]
+        - button "Masuk" [ref=e454]
+      - generic [ref=e459]: atau
+      - paragraph [ref=e463]:
+        - text: Belum punya akun?
+        - link "Daftar sekarang" [ref=e464] [cursor=pointer]:
+          - /url: /register
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e45] [cursor=pointer]
+  - alert [ref=e49]: Carpaign - Turn Vehicle Inventory Into Content
+  - generic [aria-hidden] [ref=e426]: Clipping

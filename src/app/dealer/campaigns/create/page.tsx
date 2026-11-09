@@ -7,13 +7,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Buat Kampanye - Dealer Dashboard | Carpaign",
 };
 
 export default async function CreateCampaignPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-
   let dealerVehicles: {
     id: string;
     name: string;
@@ -24,20 +24,26 @@ export default async function CreateCampaignPage() {
     status: string;
   }[] = [];
 
-  if (session?.user?.id) {
-    const rows = await db
-      .select({
-        id: vehicles.id,
-        name: vehicles.name,
-        location: vehicles.location,
-        image: vehicles.image,
-        year: vehicles.year,
-        color: vehicles.color,
-        status: vehicles.status,
-      })
-      .from(vehicles)
-      .where(eq(vehicles.dealerId, session.user.id));
-    dealerVehicles = rows;
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (session?.user?.id) {
+      const rows = await db
+        .select({
+          id: vehicles.id,
+          name: vehicles.name,
+          location: vehicles.location,
+          image: vehicles.image,
+          year: vehicles.year,
+          color: vehicles.color,
+          status: vehicles.status,
+        })
+        .from(vehicles)
+        .where(eq(vehicles.dealerId, session.user.id));
+      dealerVehicles = rows;
+    }
+  } catch (error) {
+    console.error("Failed to load dealer vehicles from DB:", error);
   }
 
   return <CreateCampaignView vehicles={dealerVehicles} />;
