@@ -1,9 +1,9 @@
 import { DashboardView } from "@/components/views/DashboardView";
+import type { Metadata } from "next";
 import { db } from "@/db/db";
 import { campaigns as campaignsTable, dealerProfiles } from "@/db/schema";
 import { user } from "@/db/auth-schema";
 import { eq, desc } from "drizzle-orm";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dashboard Kreator Carpaign",

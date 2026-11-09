@@ -178,7 +178,7 @@ export function WithdrawModal({ open, onOpenChange, onSuccess, currentBalance = 
             disabled={isLoading || success}
             className={`h-12 w-full rounded-xl font-black text-[15px] transition-all ${
               success
-                ? "bg-emerald-500 text-white"
+                ? "bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30"
                 : "bg-gradient-to-r from-[#D4AF37] to-[#b39023] text-black hover:opacity-90 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
             }`}
           >

@@ -63,8 +63,8 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
             </div>
             <div className="bg-[#1A1C20] rounded-xl p-4 border border-white/5 text-center">
               <div className="flex items-center justify-center gap-1.5 mb-1">
-                <Gift className="size-4 text-emerald-400" />
-                <p className="text-2xl font-black text-emerald-400">150k</p>
+                <Gift className="size-4 text-[#D4AF37]" />
+                <p className="text-2xl font-black text-[#D4AF37]">150k</p>
               </div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold">Bonus Diterima</p>
             </div>
@@ -76,7 +76,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
               Link Referral Kamu
             </p>
             <div className="flex items-center bg-[#0D0F12] rounded-xl border border-white/8 overflow-hidden w-full min-w-0">
-              <span className="text-[13px] text-white/50 font-mono pl-4 pr-2 truncate flex-1 min-w-0 py-3">
+              <span className="text-[13px] text-white/50 pl-4 pr-2 truncate flex-1 min-w-0 py-3">
                 {REFERRAL_LINK}
               </span>
               <Button
@@ -84,7 +84,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
                 onClick={handleCopy}
                 className={`rounded-none rounded-l-md rounded-r-xl h-11 px-5 font-bold text-[13px] shrink-0 transition-all duration-300 ${
                   copied
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30"
                     : "bg-[#D4AF37] text-black hover:bg-[#c4a030]"
                 }`}
               >
@@ -108,7 +108,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
                 className="border-white/10 bg-white/3 hover:bg-white/8 text-foreground rounded-xl h-11 gap-2 font-semibold"
                 onClick={() => window.open(`https://wa.me/?text=Cuan%20konten%20otomotif%20bareng%20Carpaign!%20${REFERRAL_LINK}`, "_blank")}
               >
-                <Share2 className="size-4 text-green-400" />
+                <Share2 className="size-4 text-primary" />
                 WhatsApp
               </Button>
               <Button

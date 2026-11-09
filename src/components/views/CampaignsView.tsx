@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, Video, Scissors, Film, Share2, LayoutGrid, Filter, CircleDollarSign, Car, Users, ChevronLeft, ChevronRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { campaigns, type Campaign } from "@/lib/campaigns-data";
+import { formatCampaignType } from "@/lib/utils";
+import { TikTokIcon, InstagramIcon, YouTubeIcon } from "@/components/ui/social-icons";
 import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
@@ -29,9 +31,9 @@ const fadeUp: Variants = {
 
 const jobTypes = [
   { id: "all", label: "Semua", icon: LayoutGrid, color: "text-muted-foreground", campaignType: "all" },
-  { id: "clipping", label: "Clipping", icon: Scissors, color: "text-muted-foreground", campaignType: "Clipping" },
-  { id: "ugc", label: "UGC/Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC/Review" },
-  { id: "videographer", label: "Videographer/Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Videographer/Edit" },
+  { id: "clipping", label: "Clip & Publish", icon: Scissors, color: "text-muted-foreground", campaignType: "Clip & Publish" },
+  { id: "ugc", label: "UGC & Review", icon: Video, color: "text-muted-foreground", campaignType: "UGC & Review" },
+  { id: "videographer", label: "Shoot & Edit", icon: Camera, color: "text-muted-foreground", campaignType: "Shoot & Edit" },
 ];
 
 const featuredCampaigns = [
@@ -41,7 +43,7 @@ const featuredCampaigns = [
     title: "BMW X5 Test Drive dan Review Experience",
     brand: "BMW Tunas",
     brandLogo: "BMW",
-    type: "UGC/Review",
+    type: "UGC & Review",
     reward: "Rp5.000",
   },
   {
@@ -50,7 +52,7 @@ const featuredCampaigns = [
     title: "Lexus RX Luxury Review",
     brand: "Lexus Gallery",
     brandLogo: "L",
-    type: "Videographer/Edit",
+    type: "Shoot & Edit",
     reward: "Rp7.500",
   },
   {
@@ -59,7 +61,7 @@ const featuredCampaigns = [
     title: "Porsche 911 Carrera S Cinematic",
     brand: "Porsche Centre",
     brandLogo: "P",
-    type: "Clipping",
+    type: "Clip & Publish",
     reward: "Rp10.000",
   }
 ];
@@ -79,7 +81,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
   const filteredCampaigns = useMemo(() => {
     let result = activeTab === "all" 
       ? allCampaigns 
-      : allCampaigns.filter(c => c.type === selectedJobType?.campaignType);
+      : allCampaigns.filter(c => formatCampaignType(c.type) === selectedJobType?.campaignType);
 
     if (selectedBrand !== "all") {
       result = result.filter(c => 
@@ -139,12 +141,12 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-80" />
 
                 {/* Content Overlay */}
-                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-[700px]">
-                  <Badge className="bg-primary text-primary-foreground font-black tracking-widest text-[10px] w-fit px-3 py-1 mb-5 rounded-sm border-none shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-3xl">
+                  <Badge className="bg-primary text-black font-extrabold tracking-widest text-[10px] w-fit px-3 py-1 mb-4 rounded-md border-none shadow-none">
                     FEATURED
                   </Badge>
 
-                  <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-5">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
                     {featured.title}
                   </h1>
 
@@ -157,26 +159,49 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                       </div>
                       <span className="text-sm font-semibold text-white/90">{featured.brand}</span>
                     </div>
-                    <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3">
-                      {featured.type}
+                    <Badge className="bg-white/10 hover:bg-white/20 text-white font-medium tracking-wide text-[10px] border-none backdrop-blur-md px-3 py-0.5 rounded-md">
+                      {formatCampaignType(featured.type)}
                     </Badge>
                   </div>
 
-                  <div className="w-full max-w-[300px] h-[1px] bg-white/10 mb-6" />
+                  {/* Clean Bottom Row: Left Stack (Reward + Sisa Kuota Bar) and Right CTA Button */}
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 pt-2">
+                    {/* Left Column: Reward & Sisa Kuota Stacked */}
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[11px] font-medium text-white/50 mb-0.5">Potensi Reward</p>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            {featured.reward}
+                          </span>
+                          <span className="text-xs sm:text-sm text-white/60 font-medium whitespace-nowrap">
+                            / 1.000 Views
+                          </span>
+                        </div>
+                      </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                    <div>
-                      <p className="text-sm font-medium text-white/60 mb-0.5">Reward</p>
-                      <p className="text-2xl font-bold text-white tracking-tight">
-                        {featured.reward} <span className="text-sm font-normal text-white/70">per 1.000 Views</span>
-                      </p>
+                      {/* Sisa Kuota Budget Gold Progress Bar directly below */}
+                      <div className="w-full sm:w-[240px] space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/60 font-medium text-[11px] sm:text-xs">Sisa Kuota Budget</span>
+                          <span className="text-primary font-bold text-[11px] sm:text-xs">92% Tersedia</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                            style={{ width: "92%" }}
+                          />
+                        </div>
+                      </div>
                     </div>
                     
+                    {/* Right Action CTA Button */}
                     <Button
                       onClick={() => goToJob(featured.id)}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8 h-12 rounded-xl text-[15px] shadow-[0_8px_20px_rgba(212,175,55,0.2)] transition-all sm:ml-auto w-full sm:w-auto z-10"
+                      className="bg-primary text-black hover:bg-primary/90 font-bold px-7 h-11 rounded-xl text-xs sm:text-sm shadow-none transition-all w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 shrink-0"
                     >
-                      Lihat Detail
+                      <span>Lihat Detail</span>
+                      <ArrowUpRight className="size-4" />
                     </Button>
                   </div>
                 </div>
@@ -207,7 +232,7 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
                 onClick={() => setActiveTab(type.id)}
                 className={`flex items-center gap-2.5 px-5 py-3 rounded-xl border transition-all shrink-0 font-bold text-[13px] tracking-wide
                   ${isActive 
-                    ? "bg-[#1F190B] border-primary/50 text-primary shadow-[0_0_15px_rgba(212,175,55,0.15)]" 
+                    ? "bg-[#1F190B] border-primary/50 text-primary shadow-none" 
                     : "bg-[#111316] border-white/5 text-muted-foreground hover:bg-[#15171A] hover:border-white/10"
                   }
                 `}
@@ -275,63 +300,81 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
 
         {/* Campaign Grid with Automotive focus */}
         {filteredCampaigns.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredCampaigns.map((campaign, i) => (
-              <motion.div key={campaign.id} initial="hidden" animate="show" variants={fadeUp} custom={3 + i}>
+              <motion.div key={`${campaign.id}-${i}`} initial="hidden" animate="show" variants={fadeUp} custom={3 + i}>
                 <Card
                   onClick={() => goToJob(campaign.id)}
-                  className="group cursor-pointer border-white/5 bg-[#111316] hover:bg-[#15171A] hover:border-white/10 transition-all duration-300 overflow-hidden shadow-none rounded-2xl flex flex-col sm:flex-row h-full"
+                  className="group cursor-pointer border-white/5 bg-[#111316] hover:bg-[#14171b] hover:border-white/15 transition-all duration-300 overflow-hidden rounded-2xl flex flex-col h-full shadow-none"
                 >
                   {/* Image Section */}
-                  <div className="relative w-full sm:w-[220px] h-[180px] sm:h-auto shrink-0 overflow-hidden">
+                  <div className="relative h-[200px] w-full bg-[#0a0a0c] overflow-hidden">
                     <img 
                       src={campaign.image} 
-                      alt={campaign.brand} 
+                      alt={campaign.vehicle || (campaign as any).title || campaign.brand} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111316] sm:bg-gradient-to-r sm:from-transparent sm:to-[#111316] opacity-60" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/50 to-transparent" />
                     
-                    <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border-white/10 text-white font-semibold text-[10px] px-2.5 py-0.5 rounded">
-                      {campaign.brand}
-                    </Badge>
+                    {/* Top Right Type Badge */}
+                    <div className="absolute top-3.5 right-3.5 z-10">
+                      <Badge className="bg-black/60 backdrop-blur-md text-[10px] font-semibold text-primary border border-primary/30 px-2.5 py-0.5 rounded-lg">
+                        {formatCampaignType(campaign.type)}
+                      </Badge>
+                    </div>
+
+                    {/* Showroom Brand Info */}
+                    <div className="absolute bottom-3.5 left-4 right-4 flex items-center z-10">
+                      <div className="flex items-center gap-2 max-w-full">
+                        <div className="size-6 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
+                          <span className="text-[8px] font-bold text-white font-mono">CP</span>
+                        </div>
+                        <span className="text-xs font-semibold text-white/90 truncate">
+                          {campaign.brand}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Content Section */}
-                  <CardContent className="p-5 flex flex-col justify-between grow">
+                  <CardContent className="p-5 pt-4 flex flex-col grow justify-between gap-4">
                     <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-[11px] font-bold text-primary tracking-wider uppercase">
-                          {campaign.type}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground/80">
-                          {campaign.deadline || "Tersedia"}
-                        </span>
-                      </div>
-                      
-                      <h4 className="font-bold text-[17px] text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {campaign.vehicle}
+                      <h4 className="font-bold text-[15px] text-white group-hover:text-primary transition-colors line-clamp-1 leading-snug">
+                        {campaign.vehicle || (campaign as any).title || campaign.brand}
                       </h4>
-                      
-                      <p className="text-[13px] text-muted-foreground/80 line-clamp-2 leading-relaxed mb-4">
-                        {campaign.description}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <CircleDollarSign className="size-4" />
-                        </div>
-                        <p className="text-[14px] font-bold text-foreground">{campaign.reward}</p>
+                      <div className="mt-2 text-primary font-bold text-base tracking-tight">
+                        {campaign.reward}
                       </div>
-                      
-                      <Button
-                        size="sm"
-                        onClick={(e) => { e.stopPropagation(); goToJob(campaign.id); }}
-                        className="rounded-full bg-white/10 hover:bg-white/20 text-foreground font-semibold px-4 h-8 text-[12px] transition-colors"
-                      >
-                        Lihat Detail
-                      </Button>
+
+                      {/* Sisa Kuota Budget Gold Progress Bar */}
+                      <div className="mt-3.5 pt-3.5 border-t border-white/5 space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-white/40 font-medium">Sisa Kuota Budget</span>
+                          <span className="font-bold text-primary text-xs">
+                            {(campaign as any).remainingBudgetPercent || (Number(campaign.id) % 3 === 0 ? 68 : Number(campaign.id) % 2 === 0 ? 84 : 92)}% Tersedia
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all"
+                            style={{
+                              width: `${(campaign as any).remainingBudgetPercent || (Number(campaign.id) % 3 === 0 ? 68 : Number(campaign.id) % 2 === 0 ? 84 : 92)}%`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-white/50">
+                      <div className="flex items-center gap-2">
+                        <TikTokIcon className="size-3.5 text-white/70" />
+                        <InstagramIcon className="size-3.5 text-white/70" />
+                      </div>
+
+                      <div className="flex items-center gap-1 font-semibold text-white group-hover:text-primary transition-colors">
+                        <span>Lihat Brief</span>
+                        <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -341,15 +384,15 @@ export function CampaignsView({ initialCampaigns }: { initialCampaigns?: Campaig
         ) : (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#111316]/50 py-20 text-center">
             <Filter className="size-8 text-muted-foreground/40 mb-3" />
-            <p className="text-sm font-semibold text-white mb-1">Tidak ada job campaign yang sesuai</p>
+            <p className="text-sm font-semibold text-white mb-1">Tidak ada kampanye yang sesuai</p>
             <p className="text-xs text-muted-foreground max-w-sm mb-5">
-              Coba ganti filter brand atau kategori tipe job di atas.
+              Coba ganti filter brand atau kategori tipe kampanye di atas.
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={resetFilters}
-              className="text-xs border-white/10 text-white hover:bg-white/5"
+              className="text-xs border-white/10 text-white hover:bg-white/5 rounded-xl"
             >
               Reset Filter
             </Button>

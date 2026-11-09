@@ -51,18 +51,6 @@ const fadeUp = {
   }),
 };
 
-const statusStyle: Record<string, { color: string; text: string; bg: string }> = {
-  available: {
-    color: "text-emerald-400",
-    text: "Tersedia",
-    bg: "bg-emerald-500/10 border-emerald-500/20",
-  },
-  in_use: {
-    color: "text-amber-400",
-    text: "Sedang Dipakai",
-    bg: "bg-amber-500/10 border-amber-500/20",
-  },
-};
 
 const PRESET_CAR_IMAGES = [
   {
@@ -146,9 +134,6 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
   const [imageInputMode, setImageInputMode] = useState<"presets" | "upload" | "url">("presets");
   const [customImageUrl, setCustomImageUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const available = vehicles.filter((v) => v.status === "available").length;
-  const inUse = vehicles.filter((v) => v.status === "in_use").length;
 
   const clearFieldError = (field: string) => {
     if (errors[field]) {
@@ -302,7 +287,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
             Kendaraan Showroom
           </h1>
           <p className="text-sm text-white/40 mt-1">
-            {available} unit siap kampanye, {inUse} sedang digunakan
+            {vehicles.length} unit kendaraan terdaftar
           </p>
         </div>
         <Button
@@ -326,7 +311,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
               Belum Ada Unit Kendaraan
             </h3>
             <p className="text-white/40 text-sm max-w-md mb-6">
-              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Clipping, UGC/Review, atau Videographer/Edit.
+              Daftarkan mobil dari showroom Anda agar bisa dipilih dan dipromosikan oleh kreator dalam kampanye Clip & Publish, UGC & Review, atau Shoot & Edit.
             </p>
             <Button
               onClick={handleOpenAdd}
@@ -339,7 +324,6 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {vehicles.map((vehicle, i) => {
-            const s = statusStyle[vehicle.status] || statusStyle.available;
             return (
               <motion.div
                 key={vehicle.id}
@@ -358,11 +342,6 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                       className="w-full h-full object-cover opacity-85 transition-transform duration-700 group-hover:scale-[1.04]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/20 to-transparent" />
-
-                    {/* Status pill */}
-                    <div className={cn("absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border", s.bg)}>
-                      <span className={`text-[10px] font-semibold tracking-wide ${s.color}`}>{s.text}</span>
-                    </div>
 
                     {/* Menu */}
                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -486,7 +465,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
 
                     <div className="space-y-1.5">
                       <label className="text-[12px] font-medium text-white/60">
-                        Nama Unit (Merk, Model & Varian) <span className="text-red-400">*</span>
+                        Nama Unit (Merk, Model & Varian) {!form.name.trim() && <span className="text-red-400">*</span>}
                       </label>
                       <Input
                         value={form.name}
@@ -528,7 +507,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
 
                       <div className="space-y-1.5">
                         <label className="text-[12px] font-medium text-white/60">
-                          Tahun Pembuatan <span className="text-red-400">*</span>
+                          Tahun Pembuatan {!form.year.trim() && <span className="text-red-400">*</span>}
                         </label>
                         <Input
                           value={form.year}
@@ -552,7 +531,7 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div className="space-y-1.5">
                         <label className="text-[12px] font-medium text-white/60">
-                          Warna Eksterior <span className="text-red-400">*</span>
+                          Warna Eksterior {!form.color.trim() && <span className="text-red-400">*</span>}
                         </label>
                         <Input
                           value={form.color}
@@ -593,12 +572,12 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                   {/* Section 2: Lokasi & Showroom */}
                   <div className="space-y-4 pt-4 border-t border-white/[0.06]">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-primary/80">
-                      2. Lokasi & Ketersediaan
+                      2. Lokasi Showroom
                     </span>
 
                     <div className="space-y-1.5">
                       <label className="text-[12px] font-medium text-white/60">
-                        Lokasi Showroom / Cabang <span className="text-red-400">*</span>
+                        Lokasi Showroom / Cabang {!form.location.trim() && <span className="text-red-400">*</span>}
                       </label>
                       <Input
                         value={form.location}
@@ -617,36 +596,16 @@ export function InventoryView({ vehicles }: { vehicles: Vehicle[] }) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div className="space-y-1.5">
-                        <label className="text-[12px] font-medium text-white/60">
-                          Status Ketersediaan
-                        </label>
-                        <Select
-                          value={form.status}
-                          onValueChange={(val: any) => setForm({ ...form, status: val })}
-                        >
-                          <SelectTrigger className="bg-white/5 border-white/10 text-white h-10">
-                            <SelectValue placeholder="Tersedia" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#1a1c20] border-white/10 text-white">
-                            <SelectItem value="available">Tersedia</SelectItem>
-                            <SelectItem value="in_use">Sedang Dipakai</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[12px] font-medium text-white/60">
-                          Nomor Polisi / Plat (Opsional)
-                        </label>
-                        <Input
-                          value={form.plateNumber}
-                          onChange={(e) => setForm({ ...form, plateNumber: e.target.value })}
-                          placeholder="Contoh: B 1234 RFS"
-                          className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-10"
-                        />
-                      </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[12px] font-medium text-white/60">
+                        Nomor Polisi / Plat (Opsional)
+                      </label>
+                      <Input
+                        value={form.plateNumber}
+                        onChange={(e) => setForm({ ...form, plateNumber: e.target.value })}
+                        placeholder="Contoh: B 1234 RFS"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-10"
+                      />
                     </div>
                   </div>
                 </div>

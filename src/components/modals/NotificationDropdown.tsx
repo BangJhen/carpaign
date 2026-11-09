@@ -97,7 +97,7 @@ const DEFAULT_CREATOR_NOTIFICATIONS: NotificationItem[] = [
     message: "Selamat, performa Anda meningkat ke tier V6 Engine dengan penyesuaian rate.",
     time: "Kemarin",
     unread: false,
-    link: "/creator/rank-rewards",
+    link: "/creator/dashboard",
   },
 ];
 

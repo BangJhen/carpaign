@@ -14,7 +14,15 @@ export const metadata: Metadata = {
 export default async function CreateCampaignPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  let dealerVehicles: { id: string; name: string; location: string; image?: string | null }[] = [];
+  let dealerVehicles: {
+    id: string;
+    name: string;
+    location: string;
+    image: string | null;
+    year: number;
+    color: string;
+    status: string;
+  }[] = [];
 
   if (session?.user?.id) {
     const rows = await db
@@ -23,6 +31,9 @@ export default async function CreateCampaignPage() {
         name: vehicles.name,
         location: vehicles.location,
         image: vehicles.image,
+        year: vehicles.year,
+        color: vehicles.color,
+        status: vehicles.status,
       })
       .from(vehicles)
       .where(eq(vehicles.dealerId, session.user.id));

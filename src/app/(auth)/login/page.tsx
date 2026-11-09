@@ -31,9 +31,9 @@ export default function LoginPage() {
       toast.success("Berhasil masuk!");
       const role = (data?.user as any)?.role;
       if (role === "dealership" || role === "dealer") {
-        router.push("/dealer/dashboard");
+        window.location.href = "/dealer/dashboard";
       } else {
-        router.push("/creator/dashboard");
+        window.location.href = "/creator/dashboard";
       }
     }
   };
