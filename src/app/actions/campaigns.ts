@@ -1,12 +1,13 @@
 "use server";
 
 import { db } from "@/db/db";
-import { campaigns } from "@/db/schema";
+import { campaigns, campaignPayments, demoCampaignReserves, demoEscrowAccounts, demoEscrowEntries } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { eq, and } from "drizzle-orm";
 import type { CampaignType, CampaignStatus } from "@/db/schema";
+import { campaignTotalWithFee, isDemoFinanceEnabled } from "@/lib/demo-finance";
 
 export type CreateCampaignInput = {
   title: string;
@@ -117,7 +118,7 @@ export async function createCampaign(input: CreateCampaignInput) {
   return { success: true, campaignId: newId };
 }
 
-export async function payCampaign(campaignId: string, paymentMethod: string = "deposit") {
+export async function payCampaign(campaignId: string, paymentMethod: string = "demo") {
   const session = await auth.api.getSession({ headers: await headers() });
 
   const role = (session?.user as any)?.role;
@@ -125,29 +126,47 @@ export async function payCampaign(campaignId: string, paymentMethod: string = "d
     throw new Error("Unauthorized");
   }
 
-  const [existing] = await db
-    .select()
-    .from(campaigns)
-    .where(and(eq(campaigns.id, campaignId), eq(campaigns.dealerId, session.user.id)))
-    .limit(1);
-
-  if (!existing) {
-    throw new Error("Kampanye tidak ditemukan atau Anda tidak memiliki akses.");
+  if (!isDemoFinanceEnabled() || paymentMethod !== "demo") {
+    throw new Error("Pembayaran sungguhan belum tersedia. Aktifkan mode simulasi untuk menguji alur MVP.");
   }
+  const dealerId = session.user.id;
+  await db.transaction(async (tx) => {
+    const [existing] = await tx.select().from(campaigns)
+      .where(and(eq(campaigns.id, campaignId), eq(campaigns.dealerId, dealerId))).for("update");
+    if (!existing) throw new Error("Kampanye tidak ditemukan.");
+    if (existing.status !== "draft") throw new Error("Hanya kampanye draf yang dapat diaktifkan.");
+    const midtransPayments = await tx.select({ status: campaignPayments.status }).from(campaignPayments)
+      .where(eq(campaignPayments.campaignId, campaignId));
+    if (midtransPayments.some((payment) => !["failed", "deny", "cancel", "expire"].includes(payment.status))) {
+      throw new Error("Kampanye ini sedang memiliki transaksi Midtrans.");
+    }
+    const [oldReserve] = await tx.select().from(demoCampaignReserves)
+      .where(eq(demoCampaignReserves.campaignId, campaignId));
+    if (oldReserve) throw new Error("Alokasi simulasi untuk kampanye ini sudah tercatat.");
 
-  if (existing.status === "active") {
-    return { success: true, message: "Kampanye sudah aktif." };
-  }
-
-  // Update status to active
-  await db
-    .update(campaigns)
-    .set({ status: "active" })
-    .where(eq(campaigns.id, campaignId));
+    await tx.insert(demoEscrowAccounts).values({ dealerId }).onConflictDoNothing();
+    const [account] = await tx.select().from(demoEscrowAccounts)
+      .where(eq(demoEscrowAccounts.dealerId, dealerId)).for("update");
+    const amount = campaignTotalWithFee(existing.budget);
+    if (!account || account.available < amount) {
+      throw new Error(`Saldo simulasi kurang. Diperlukan Rp ${amount.toLocaleString("id-ID")}.`);
+    }
+    const available = account.available - amount;
+    const reserved = account.reserved + amount;
+    await tx.update(demoEscrowAccounts).set({ available, reserved, updatedAt: new Date() })
+      .where(eq(demoEscrowAccounts.dealerId, dealerId));
+    await tx.insert(demoCampaignReserves).values({ campaignId, dealerId, amount });
+    await tx.insert(demoEscrowEntries).values({
+      dealerId, campaignId, kind: "reserve", amount, availableAfter: available, reservedAfter: reserved,
+    });
+    await tx.update(campaigns).set({ status: "active" })
+      .where(eq(campaigns.id, campaignId));
+  });
 
   revalidatePath("/dealer/campaigns");
   revalidatePath("/dealer/dashboard");
   revalidatePath("/campaigns");
+  revalidatePath("/dealer/billing");
   return { success: true };
 }
 
@@ -169,12 +188,39 @@ export async function cancelCampaign(campaignId: string) {
     throw new Error("Kampanye tidak ditemukan atau Anda tidak memiliki akses.");
   }
 
-  await db
-    .update(campaigns)
-    .set({ status: "cancelled" })
-    .where(eq(campaigns.id, campaignId));
+  await db.transaction(async (tx) => {
+    const [campaign] = await tx.select().from(campaigns)
+      .where(and(eq(campaigns.id, campaignId), eq(campaigns.dealerId, session.user.id))).for("update");
+    if (!campaign || campaign.status === "cancelled" || campaign.status === "completed") {
+      throw new Error("Kampanye tidak dapat dibatalkan.");
+    }
+    const midtransPayments = await tx.select().from(campaignPayments)
+      .where(eq(campaignPayments.campaignId, campaignId));
+    if (midtransPayments.some((payment) => !["failed", "deny", "cancel", "expire"].includes(payment.status))) {
+      throw new Error("Kampanye dengan pembayaran Midtrans harus ditangani melalui proses pengembalian dana.");
+    }
+    const [reserve] = await tx.select().from(demoCampaignReserves)
+      .where(eq(demoCampaignReserves.campaignId, campaignId)).for("update");
+    if (reserve?.status === "reserved") {
+      const [account] = await tx.select().from(demoEscrowAccounts)
+        .where(eq(demoEscrowAccounts.dealerId, session.user.id)).for("update");
+      if (!account || account.reserved < reserve.amount) throw new Error("Saldo cadangan tidak sesuai.");
+      const available = account.available + reserve.amount;
+      const reserved = account.reserved - reserve.amount;
+      await tx.update(demoEscrowAccounts).set({ available, reserved, updatedAt: new Date() })
+        .where(eq(demoEscrowAccounts.dealerId, session.user.id));
+      await tx.update(demoCampaignReserves).set({ status: "refunded" })
+        .where(eq(demoCampaignReserves.campaignId, campaignId));
+      await tx.insert(demoEscrowEntries).values({
+        dealerId: session.user.id, campaignId, kind: "refund", amount: reserve.amount,
+        availableAfter: available, reservedAfter: reserved,
+      });
+    }
+    await tx.update(campaigns).set({ status: "cancelled" }).where(eq(campaigns.id, campaignId));
+  });
 
   revalidatePath("/dealer/campaigns");
   revalidatePath("/dealer/dashboard");
+  revalidatePath("/dealer/billing");
   return { success: true };
 }

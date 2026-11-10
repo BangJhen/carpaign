@@ -8,6 +8,8 @@ import { DealerCampaignsView } from "@/components/views/dealer/DealerCampaignsVi
 import type { Campaign } from "@/components/views/dealer/DealerCampaignsView";
 
 import { formatCampaignType } from "@/lib/utils";
+import { isDemoFinanceEnabled } from "@/lib/demo-finance";
+import { midtransConfigured } from "@/lib/midtrans";
 
 export const dynamic = "force-dynamic";
 
@@ -60,5 +62,5 @@ export default async function DealerCampaignsPage() {
     console.error("Failed to load dealer campaigns from DB:", error);
   }
 
-  return <DealerCampaignsView campaigns={data} />;
+  return <DealerCampaignsView campaigns={data} demoEnabled={isDemoFinanceEnabled()} midtransEnabled={midtransConfigured()} />;
 }

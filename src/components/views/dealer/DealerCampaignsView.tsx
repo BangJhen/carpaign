@@ -17,8 +17,6 @@ import {
   Loader2,
   CreditCard,
   Wallet,
-  Building2,
-  QrCode,
   CheckCircle2,
   AlertCircle,
   ChevronDown
@@ -41,6 +39,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cancelCampaign, payCampaign } from "@/app/actions/campaigns";
+import { startMidtransPayment } from "@/app/actions/midtransPayment";
 import { formatCampaignType } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -83,7 +82,7 @@ const statusConfig: Record<
     border: "border-primary/25",
   },
   draft: {
-    label: "Menunggu Bayar",
+    label: "Draf",
     bg: "bg-amber-500/[0.08]",
     text: "text-amber-400",
     dot: "bg-amber-400 animate-pulse",
@@ -118,7 +117,7 @@ export function StatusBadge({ status }: { status: CampaignStatus }) {
 
 const filterTabs = ["Semua", "Aktif", "Draft (Menunggu Bayar)", "Selesai", "Dibatalkan"];
 
-export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
+export function DealerCampaignsView({ campaigns, demoEnabled, midtransEnabled }: { campaigns: Campaign[]; demoEnabled: boolean; midtransEnabled: boolean }) {
   const searchParams = useSearchParams();
   const payCampaignId = searchParams.get("payCampaignId");
 
@@ -127,7 +126,6 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
   const [selectedDetail, setSelectedDetail] = useState<Campaign | null>(null);
   const [selectedCancel, setSelectedCancel] = useState<Campaign | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Campaign | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"deposit" | "va" | "qris">("deposit");
   const [cancelling, setCancelling] = useState(false);
   const [paying, setPaying] = useState(false);
 
@@ -180,7 +178,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
     if (!selectedPayment) return;
     setPaying(true);
     try {
-      const res = await payCampaign(selectedPayment.id, paymentMethod);
+      const res = await payCampaign(selectedPayment.id, "demo");
       if (res?.success) {
         setCampaignList((prev) =>
           prev.map((c) =>
@@ -190,12 +188,24 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
         if (selectedDetail?.id === selectedPayment.id) {
           setSelectedDetail((prev) => (prev ? { ...prev, status: "active" } : null));
         }
-        toast.success("Pembayaran berhasil! Kampanye kini aktif dan telah didistribusikan ke kreator.");
+        toast.success("Alokasi dana simulasi tercatat. Kampanye kini aktif untuk uji MVP.");
         setSelectedPayment(null);
       }
     } catch (err: any) {
-      toast.error(err.message || "Gagal memproses pembayaran kampanye.");
+      toast.error(err.message || "Gagal mencadangkan kredit uji.");
     } finally {
+      setPaying(false);
+    }
+  };
+
+  const handleMidtransPayment = async () => {
+    if (!selectedPayment) return;
+    setPaying(true);
+    try {
+      const result = await startMidtransPayment(selectedPayment.id);
+      window.location.assign(result.redirectUrl);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal membuka pembayaran Midtrans.");
       setPaying(false);
     }
   };
@@ -240,14 +250,14 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
               <div>
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <p className="text-[13px] font-semibold text-white">
-                    {draftCampaigns.length} Kampanye Menunggu Pembayaran
+                    {draftCampaigns.length} Kampanye Menunggu Kredit Uji
                   </p>
                   <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-md">
                     Belum Aktif
                   </span>
                 </div>
                 <p className="text-xs text-white/50 leading-relaxed max-w-2xl">
-                  Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard kreator setelah pembayaran alokasi budget diselesaikan.
+                  Dalam simulasi MVP, kampanye aktif setelah kredit uji dicadangkan. Belum ada pembayaran sungguhan.
                 </p>
               </div>
             </div>
@@ -514,7 +524,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                             onClick={() => setSelectedPayment(campaign)}
                             className="w-full h-8 rounded-xl text-xs font-bold bg-primary text-black hover:bg-primary/90 shadow-md transition-all"
                           >
-                            <CreditCard className="size-3.5 mr-1.5" /> Selesaikan Pembayaran Sekarang
+                            <CreditCard className="size-3.5 mr-1.5" /> Selesaikan Pembayaran
                           </Button>
                         </div>
                       )}
@@ -552,8 +562,8 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-amber-200/90 leading-relaxed">
                   <AlertCircle className="size-4 text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold text-amber-400 block mb-0.5">Kampanye Menunggu Pembayaran</span>
-                    Kampanye ini belum aktif dan belum dapat dilihat oleh kreator. Selesaikan pembayaran alokasi budget sebesar <strong className="text-white font-bold tabular-nums">{selectedDetail.budget}</strong> agar kampanye segera aktif.
+                    <span className="font-semibold text-amber-400 block mb-0.5">Kampanye Menunggu Kredit Uji</span>
+                    Kampanye ini belum aktif dan belum dapat dilihat oleh kreator. Cadangkan kredit simulasi dari buku besar sebelum mengaktifkannya.
                   </div>
                 </div>
               )}
@@ -723,35 +733,8 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
             };
 
             const rawBudget = selectedPayment.rawBudget || parseMoney(selectedPayment.budget);
-            const platformFee = Math.round(rawBudget * 0.15);
+            const platformFee = Math.round(rawBudget * 0.1);
             const totalAmount = rawBudget + platformFee;
-
-            const paymentOptions = [
-              {
-                id: "deposit" as const,
-                label: "Saldo Deposit Showroom",
-                desc: "Potong langsung dari saldo deposit (Proses Instan)",
-                icon: Wallet,
-                badge: "Instan",
-              },
-              {
-                id: "va" as const,
-                label: "Virtual Account Bank",
-                desc: "BCA, Mandiri, BNI, BRI (Verifikasi Otomatis)",
-                icon: Building2,
-                badge: "Otomatis",
-              },
-              {
-                id: "qris" as const,
-                label: "QRIS / E-Wallet",
-                desc: "Scan QRIS via GoPay, OVO, ShopeePay, Dana",
-                icon: QrCode,
-                badge: "QR Code",
-              },
-            ];
-
-            const currentPaymentOpt = paymentOptions.find((p) => p.id === paymentMethod) || paymentOptions[0];
-            const CurrentIcon = currentPaymentOpt.icon;
 
             return (
               <div className="space-y-5">
@@ -760,10 +743,10 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                     <CreditCard className="size-5" />
                   </div>
                   <DialogTitle className="text-xl font-bold text-white tracking-tight">
-                    Pembayaran Alokasi Budget
+                    Pembayaran Kampanye
                   </DialogTitle>
                   <DialogDescription className="text-xs text-white/50 leading-relaxed">
-                    Selesaikan pembayaran untuk mengaktifkan kampanye <span className="text-white font-semibold">&ldquo;{selectedPayment.title}&rdquo;</span> agar segera didistribusikan ke dashboard kreator.
+                    Selesaikan pembayaran kampanye <span className="text-white font-semibold">&ldquo;{selectedPayment.title}&rdquo;</span>. Kampanye aktif setelah Midtrans mengonfirmasi pembayaran.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -779,7 +762,7 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                     <div className="flex items-center gap-1.5">
                       <span>Biaya Layanan Platform</span>
                       <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/25 px-1.5 py-0.2 rounded">
-                        15%
+                        10%
                       </span>
                     </div>
                     <span className="font-semibold text-primary tabular-nums">
@@ -787,79 +770,22 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                     </span>
                   </div>
                   <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[13px] font-bold">
-                    <span className="text-white">Total Tagihan</span>
+                    <span className="text-white">Total pembayaran</span>
                     <span className="text-primary text-base tabular-nums font-bold">
                       Rp {totalAmount.toLocaleString("id-ID")}
                     </span>
                   </div>
                 </div>
 
-                {/* Pilihan Metode Pembayaran - Dropdown */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-white/50 block">Pilih Metode Pembayaran:</label>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      type="button"
-                      className="w-full p-3 rounded-xl bg-[#1a1c20] border border-white/10 hover:border-white/20 transition-all flex items-center justify-between text-left group cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/40"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                          <CurrentIcon className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="text-xs font-semibold text-white truncate">{currentPaymentOpt.label}</p>
-                            <span className="text-[9px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.2 rounded-full">
-                              {currentPaymentOpt.badge}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-white/40 truncate mt-0.5">{currentPaymentOpt.desc}</p>
-                        </div>
-                      </div>
-                      <ChevronDown className="size-4 text-white/40 group-hover:text-white transition-colors shrink-0 ml-2" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="w-[calc(100vw-3rem)] sm:w-[470px] bg-[#1a1c20] border-white/10 text-white p-1.5 rounded-xl shadow-2xl space-y-1 z-50"
-                    >
-                      {paymentOptions.map((opt) => {
-                        const Icon = opt.icon;
-                        const isSelected = paymentMethod === opt.id;
-                        return (
-                          <DropdownMenuItem
-                            key={opt.id}
-                            onClick={() => setPaymentMethod(opt.id)}
-                            className={`p-2.5 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                              isSelected ? "bg-primary/10 text-white border border-primary/25" : "hover:bg-white/5 text-white/80"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-primary/20 text-primary" : "bg-white/5 text-white/50"}`}>
-                                <Icon className="size-4" />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-xs font-semibold text-white truncate">{opt.label}</p>
-                                <p className="text-[10px] text-white/40 truncate">{opt.desc}</p>
-                              </div>
-                            </div>
-                            {isSelected && <CheckCircle2 className="size-4 text-primary shrink-0 ml-2" />}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Info Box based on selected method */}
-                  <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] text-[11px] text-white/50 flex items-center gap-2">
-                    <CheckCircle2 className="size-3.5 text-primary shrink-0" />
-                    <span>
-                      {paymentMethod === "deposit" && `Saldo deposit showroom dipotong otomatis Rp ${totalAmount.toLocaleString("id-ID")} (Proses Instan).`}
-                      {paymentMethod === "va" && "Nomor Virtual Account bank akan otomatis diterbitkan setelah konfirmasi pembayaran."}
-                      {paymentMethod === "qris" && "Kode QRIS dinamis akan ditampilkan di layar untuk dipindai via aplikasi e-wallet Anda."}
-                    </span>
-                  </div>
-                </div>
+                {midtransEnabled && <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs text-white/60">
+                  <p className="font-semibold text-white">Bayar melalui Midtrans</p>
+                  <p className="mt-2">Anda akan diarahkan ke halaman pembayaran Midtrans. Pembayaran yang masuk dicatat untuk kampanye ini; pencairan kreator masih memerlukan alur terpisah.</p>
+                </div>}
+                {demoEnabled && <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs text-white/60">
+                  <p className="flex items-center gap-2 font-semibold text-white"><Wallet className="size-4" /> Simulasi untuk pengujian</p>
+                  <p className="mt-2">Kredit uji dari buku besar tidak melibatkan uang sungguhan.</p>
+                </div>}
+                {!demoEnabled && !midtransEnabled && <p className="text-xs text-amber-300">Pembayaran belum dikonfigurasi. Kampanye tetap berstatus draf.</p>}
 
                 {/* Action Footer */}
                 <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.06]">
@@ -872,18 +798,14 @@ export function DealerCampaignsView({ campaigns }: { campaigns: Campaign[] }) {
                   >
                     Batal
                   </Button>
-                  <Button
-                    size="sm"
-                    disabled={paying}
-                    onClick={handlePayCampaign}
-                    className="bg-primary text-black hover:bg-primary/90 font-bold shadow-lg shadow-primary/20 text-xs h-9 px-5 rounded-xl"
-                  >
-                    {paying ? (
-                      <><Loader2 className="size-3.5 mr-2 animate-spin" /> Memproses...</>
-                    ) : (
-                      `Konfirmasi & Bayar (Rp ${totalAmount.toLocaleString("id-ID")})`
-                    )}
-                  </Button>
+                  {demoEnabled && <Button size="sm" variant="outline" disabled={paying} onClick={handlePayCampaign}
+                    className="border-white/10 text-white hover:bg-white/5 text-xs h-9 rounded-xl">
+                    Gunakan Kredit Uji
+                  </Button>}
+                  {midtransEnabled && <Button size="sm" disabled={paying} onClick={handleMidtransPayment}
+                    className="bg-primary text-black hover:bg-primary/90 font-bold text-xs h-9 px-5 rounded-xl">
+                    {paying ? <><Loader2 className="size-3.5 mr-2 animate-spin" /> Memproses...</> : "Bayar melalui Midtrans"}
+                  </Button>}
                 </div>
               </div>
             );

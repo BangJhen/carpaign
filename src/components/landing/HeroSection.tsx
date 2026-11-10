@@ -2,51 +2,24 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
 
 // Easing from animate skill — strong ease-out for entrances
 const EASE_OUT_STRONG = [0.23, 1, 0.32, 1] as const;
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-// Helper component for staggered text reveal
-function KineticText({ text, delay = 0 }: { text: string; delay?: number }) {
-  const words = text.split(" ");
-  return (
-    <span className="inline-block">
-      {words.map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden mr-[0.25em] pb-2">
-          <motion.span
-            initial={{ transform: "translateY(110%)", opacity: 0 }}
-            animate={{ transform: "translateY(0%)", opacity: 1 }}
-            transition={{
-              duration: 0.8,
-              delay: delay + i * 0.08,
-              ease: EASE_OUT_STRONG,
-            }}
-            className="inline-block origin-bottom-left"
-          >
-            {word}
-          </motion.span>
-        </span>
-      ))}
-    </span>
-  );
-}
 
 export function HeroSection() {
   const containerRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
-  const { scrollYProgress } = useScroll({
+  const { scrollY, scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
   // Scroll parallax
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // Judul keluar bersama hero dan tidak bergeser kembali ke viewport.
+  const contentOpacity = useTransform(scrollY, [0, 180, 520], [1, 1, 0]);
 
   // Letterbox open: starts with inset(45% 0 45% 0) — two bars covering 90% of height
   // Reveals to inset(0% 0 0% 0) — fully open
@@ -163,7 +136,7 @@ export function HeroSection() {
       {/* ─── Main Content ─── */}
       <motion.div
         className="relative z-10 w-full px-6 flex flex-col items-center justify-center text-center mt-20"
-        style={{ y: textY, opacity }}
+        style={{ opacity: contentOpacity }}
       >
         {/* Editorial Overline */}
         <motion.div
@@ -181,17 +154,17 @@ export function HeroSection() {
         </motion.div>
 
         {/* Massive Kinetic Headline */}
-        <h1
+        <motion.h1
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: prefersReducedMotion ? 0.2 : 0.8, delay: contentDelay, ease: EASE_OUT_STRONG }}
           className="text-6xl md:text-8xl lg:text-[9rem] font-bold leading-[0.9] tracking-tighter mb-8"
           style={{ color: "#F5F5E9" }}
         >
-          {/* KineticText delay aligned to post-letterbox-open */}
-          <KineticText text="SHIFT INTO" delay={contentDelay + 0.1} />
+          <span>SHIFT INTO</span>
           <br />
-          <motion.span
-            initial={{ opacity: 0, transform: "translateY(16px)" }}
-            animate={{ opacity: 1, transform: "translateY(0px)" }}
-            transition={{ duration: 0.9, delay: contentDelay + 0.4, ease: EASE_OUT_STRONG }}
+          <span
             className="inline-block italic font-light pr-2"
             style={{
               backgroundImage:
@@ -201,8 +174,8 @@ export function HeroSection() {
             }}
           >
             OVERDRIVE.
-          </motion.span>
-        </h1>
+          </span>
+        </motion.h1>
 
         {/* Subcopy */}
         <motion.p
@@ -212,7 +185,7 @@ export function HeroSection() {
           className="text-sm md:text-lg max-w-lg mx-auto font-light leading-relaxed mb-12"
           style={{ color: "rgba(245, 245, 233, 0.7)" }}
         >
-          Buat konten dari inventory dealership premium dan dapatkan bayaran untuk setiap view yang Anda hasilkan.
+          Hubungkan unit kendaraan dealer dengan kreator otomotif melalui kampanye Clip, UGC, dan Shoot.
         </motion.p>
       </motion.div>
     </section>

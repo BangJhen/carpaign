@@ -50,7 +50,7 @@ export function CtaSection() {
                 border: "1px solid rgba(212, 175, 55, 0.2)"
               }}
             >
-              128 Campaign Aktif Sekarang
+              Untuk dealer dan kreator otomotif
             </p>
           </div>
 
@@ -58,9 +58,8 @@ export function CtaSection() {
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-[1.1]"
             style={{ color: "#F5F5E9" }}
           >
-            Siap mulai menghasilkan
+            Mulai dari satu unit.
             <br />
-            dari{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{
@@ -68,7 +67,7 @@ export function CtaSection() {
                   "linear-gradient(135deg, #F0D060 0%, #D4AF37 45%, #B8941F 100%)",
               }}
             >
-              passion otomotifmu?
+              Wujudkan kontennya.
             </span>
           </h2>
 
@@ -76,8 +75,8 @@ export function CtaSection() {
             className="text-base leading-relaxed max-w-xl mx-auto mb-10"
             style={{ color: "rgba(245, 245, 233, 0.6)" }}
           >
-            Bergabung gratis, tidak ada komitmen jangka panjang. Pilih campaign
-            pertamamu hari ini dan lihat berapa yang bisa kamu hasilkan minggu ini.
+            Dealer dapat menyiapkan unit dan arahan kampanye. Kreator dapat melihat
+            kebutuhan konten sebelum mengajukan diri.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -89,7 +88,7 @@ export function CtaSection() {
                 boxShadow: "0 0 40px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255,255,255,0.25)",
               }}
             >
-              <span className="relative z-10">Mulai Sekarang — Gratis</span>
+              <span className="relative z-10">Buat akun CARPAIGN</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out skew-x-12 z-0" />
             </Link>
             <Link
@@ -100,27 +99,10 @@ export function CtaSection() {
                 border: "1px solid rgba(255, 255, 255, 0.1)",
               }}
             >
-              Lihat Semua Campaigns
+              Jelajahi kampanye
             </Link>
           </div>
 
-          {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mt-12 pt-8 border-t border-white/5">
-            {[
-              "Daftar Gratis",
-              "Tanpa Komitmen",
-              "Cairkan ke 10+ E-Wallet",
-              "Support 7/24",
-            ].map((badge) => (
-              <div
-                key={badge}
-                className="flex items-center gap-2 text-[10px] font-mono tracking-widest uppercase text-white/50"
-              >
-                <span className="w-1 h-1 rounded-full bg-white/20" />
-                {badge}
-              </div>
-            ))}
-          </div>
         </motion.div>
       </div>
     </section>

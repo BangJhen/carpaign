@@ -310,7 +310,7 @@ export function UgcCampaignForm({
 
         const res = await createCampaign(payload);
         if (res.success) {
-          toast.success("Kampanye berhasil dibuat! Selesaikan pembayaran agar kampanye aktif dan didistribusikan ke kreator.");
+          toast.success("Kampanye tersimpan sebagai draf. Cadangkan kredit uji untuk mengaktifkannya dalam simulasi MVP.");
           router.push(res?.campaignId ? `/dealer/campaigns?payCampaignId=${res.campaignId}` : "/dealer/campaigns");
         }
       } catch (err: any) {
@@ -1247,8 +1247,8 @@ export function UgcCampaignForm({
                   <Info className="size-3.5 text-primary" />
                 </div>
                 <div>
-                  <span className="font-semibold text-white/90 block mb-0.5">Alur Pembayaran & Aktivasi Kampanye</span>
-                  Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draft (Menunggu Pembayaran)</span>. Kampanye baru akan aktif dan otomatis didistribusikan ke dashboard & feed kreator setelah pembayaran alokasi budget diselesaikan.
+                  <span className="font-semibold text-white/90 block mb-0.5">Alur Simulasi Aktivasi Kampanye</span>
+                  Kampanye yang dibuat akan disimpan sebagai <span className="text-white font-medium">Draf (Menunggu Kredit Uji)</span>. Dalam simulasi MVP, kampanye aktif setelah kredit uji dicadangkan dari buku besar. Belum ada pembayaran sungguhan.
                 </div>
               </div>
 
@@ -1290,7 +1290,7 @@ export function UgcCampaignForm({
                 disabled={isPending}
                 className="gap-2 h-9 px-6 rounded-lg text-[12px] font-bold bg-primary text-black hover:bg-primary/90 shadow-sm transition-all w-full sm:w-auto"
               >
-                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Buat & Lanjut ke Pembayaran"}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Buat & Lanjut ke Simulasi"}
               </Button>
             </div>
           )}

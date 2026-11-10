@@ -15,6 +15,7 @@ import {
   LogOut,
   ChevronRight,
   Medal,
+  MessageCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,7 @@ const navMain = [
   { href: "/dealer/inventory", label: "Inventory Kendaraan", icon: Car },
   { href: "/dealer/campaigns", label: "Manajemen Kampanye", icon: Megaphone },
   { href: "/dealer/submissions", label: "Review Konten", icon: InboxIcon },
+  { href: "/dealer/prospek", label: "Prospek WhatsApp", icon: MessageCircle },
   { href: "/dealer/billing", label: "Keuangan", icon: CreditCard },
 ];
 

@@ -1,76 +1,89 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { TestimonialMarquee } from "@/components/landing/TestimonialMarquee";
+import { useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+
+const chapters = [
+  { label: "Mulai", time: 0 },
+  { label: "Cari kampanye", time: 3.14 },
+  { label: "Baca panduan", time: 5.74 },
+  { label: "Kirim pengajuan", time: 15.5 },
+];
 
 export function DemoVideoSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLVideoElement>(null);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const reduceMotion = useReducedMotion();
 
-  // Lacak progress scroll saat elemen ini berada dalam viewport
+  // Bingkai mengikuti posisi bagian video dalam viewport.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    // Mulai animasi saat bagian atas video menyentuh bawah layar ("start end")
-    // Selesai animasi saat bagian tengah video menyentuh tengah layar ("center center")
-    offset: ["start end", "center center"],
+    offset: ["start end", "end start"],
   });
+  const frameScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.94, 1, 0.94]);
 
-  // Transformasi scale dan radius
-  const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1]);
-  const borderRadius = useTransform(scrollYProgress, [0, 1], ["24px", "24px"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.5, 1]);
+  const jumpToChapter = (index: number) => {
+    const player = playerRef.current;
+    if (!player) return;
+    player.currentTime = chapters[index].time;
+    setActiveChapter(index);
+    void player.play().catch(() => {});
+  };
+
+  const updateChapter = () => {
+    const currentTime = playerRef.current?.currentTime ?? 0;
+    const index = chapters.findLastIndex((chapter) => currentTime >= chapter.time);
+    setActiveChapter(Math.max(index, 0));
+  };
 
   return (
-    <section ref={sectionRef} className="relative pt-24 pb-10 overflow-hidden flex flex-col items-center group">
-      {/* Top gradient mask to blend with the hero section's bottom fade */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-40 pointer-events-none z-0"
-        style={{
-          background: "linear-gradient(to bottom, transparent 0%, #111316 100%)",
-        }}
-      />
-
-      {/* Interactive background glow behind the video player that brightens on hover */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] pointer-events-none transition-opacity duration-700 opacity-50 group-hover:opacity-100"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)",
-        }}
-      />
-
-      <div className="w-full flex flex-col items-center px-6 relative z-10 cursor-pointer">
+    <section className="relative flex flex-col items-center overflow-hidden pt-24 pb-10">
+      <div ref={sectionRef} className="relative z-10 w-full max-w-[1500px] px-5 sm:px-8">
         <motion.div
-          style={{ scale, opacity, borderRadius }}
-          className="relative w-full max-w-5xl overflow-hidden shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out group-hover:shadow-[0_30px_80px_-15px_rgba(212,175,55,0.2)] group-hover:-translate-y-2"
+          className="rounded-[28px] border border-[#D4AF37]/40 bg-[#1B1C1B] p-2 shadow-[0_28px_80px_-20px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)] sm:p-3"
+          style={reduceMotion ? undefined : { scale: frameScale, transformOrigin: "center center" }}
         >
-          {/* Aspect ratio container (16:9) */}
-          <div 
-            className="relative aspect-video w-full bg-[#111316]"
-          >
-            {/* 
-              Video berjalan otomatis (autoplay loop muted).
-              Tidak ada control play/pause.
-            */}
-            <video 
-              poster="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80&w=1600"
-              className="w-full h-full object-cover"
-              autoPlay
+          <div className="relative aspect-video overflow-hidden rounded-[19px] bg-[#111316]">
+            <video
+              ref={playerRef}
+              src="/creator-guided-campaign-demo.mp4"
+              poster="/creator-guided-campaign-poster.png"
+              aria-label="Alur kreator CARPAIGN dari dashboard sampai pengajuan kampanye"
+              className="h-full w-full object-contain"
+              autoPlay={!reduceMotion}
+              controls={Boolean(reduceMotion)}
               muted
               loop
               playsInline
+              preload="metadata"
+              onTimeUpdate={updateChapter}
             />
           </div>
         </motion.div>
-        
-        <p className="text-center mt-6 text-sm" style={{ color: "rgba(245, 245, 233, 0.5)" }}>
-          *Cuplikan dashboard kreator (mockup visual)
+        <p className="mt-5 text-center text-sm text-[#AEB4B7]">
+          Dari dashboard kreator hingga pengajuan kampanye
         </p>
+        <nav aria-label="Tahap cuplikan kreator" className="mx-auto mt-5 grid w-full max-w-4xl grid-cols-2 gap-2 sm:grid-cols-4">
+          {chapters.map((chapter, index) => (
+            <button
+              key={chapter.label}
+              type="button"
+              onClick={() => jumpToChapter(index)}
+              aria-pressed={activeChapter === index}
+              className={`flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-2 py-2 text-[11px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37] sm:px-3 sm:text-[13px] ${
+                activeChapter === index
+                  ? "border-[#D4AF37]/70 bg-[#D4AF37]/10 text-[#F1D772]"
+                  : "border-white/10 bg-white/[0.03] text-[#B9BFC1] hover:border-white/25 hover:bg-white/[0.06]"
+              }`}
+            >
+              <span className="font-mono text-[10px] opacity-65">{String(index + 1).padStart(2, "0")}</span>
+              {chapter.label}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* Testimonial Marquee placed immediately after video inside the same section */}
-      <div className="w-full mt-24">
-        <TestimonialMarquee />
-      </div>
     </section>
   );
 }

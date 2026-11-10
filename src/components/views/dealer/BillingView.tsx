@@ -1,256 +1,126 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowDownLeft, ArrowUpRight, Plus, CreditCard, ShieldCheck } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TopUpModal, type TopUpSuccessPayload } from "@/components/modals/TopUpModal";
+import { useState, useTransition } from "react";
+import { addDemoCredit } from "@/app/actions/demoFinance";
 import { toast } from "sonner";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { 
-      duration: 0.45, 
-      delay: i * 0.07, 
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number] 
-    },
-  }),
+type Entry = {
+  id: string;
+  kind: "credit" | "reserve" | "refund";
+  amount: number;
+  campaignTitle: string | null;
+  createdAt: string;
 };
 
-interface TransactionItem {
-  id: number | string;
-  type: "payment" | "topup";
-  description: string;
-  detail: string;
-  amount: string;
-  date: string;
-}
+type Payment = {
+  orderId: string;
+  amount: number;
+  status: string;
+  campaignTitle: string;
+  createdAt: string;
+};
 
-const INITIAL_TRANSACTIONS: TransactionItem[] = [
-  { 
-    id: 1, 
-    type: "payment", 
-    description: "Pembayaran Budi Setiawan", 
-    detail: "Edit Xpander", 
-    amount: "-Rp 350.000", 
-    date: "13 Sep 2026" 
-  },
-  { 
-    id: 2, 
-    type: "topup", 
-    description: "Top-Up Saldo BCA Virtual Account", 
-    detail: "ID Transaksi TRX-892102", 
-    amount: "+Rp 5.000.000", 
-    date: "10 Sep 2026" 
-  },
-  { 
-    id: 3, 
-    type: "payment", 
-    description: "Pembayaran Rifky Andika", 
-    detail: "UGC Brio status menunggu", 
-    amount: "-Rp 500.000", 
-    date: "8 Sep 2026" 
-  },
-  { 
-    id: 4, 
-    type: "topup", 
-    description: "Top-Up Saldo Mandiri Virtual Account", 
-    detail: "ID Transaksi TRX-719302", 
-    amount: "+Rp 5.000.000", 
-    date: "1 Sep 2026" 
-  },
-  { 
-    id: 5, 
-    type: "payment", 
-    description: "Pembayaran Zara Putri", 
-    detail: "Cinematic Veloz", 
-    amount: "-Rp 1.200.000", 
-    date: "28 Agu 2026" 
-  },
-];
-
-export function BillingView() {
-  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
-  const [balance, setBalance] = useState(7950000);
-  const [totalTopUp, setTotalTopUp] = useState(10000000);
-  const [usedAmount] = useState(2050000);
-  const [transactions, setTransactions] = useState<TransactionItem[]>(INITIAL_TRANSACTIONS);
-
-  const usedPercentage = Math.min(100, Math.round((usedAmount / totalTopUp) * 100));
-
-  const handleTopUpSuccess = (payload: TopUpSuccessPayload) => {
-    setBalance((prev) => prev + payload.amount);
-    setTotalTopUp((prev) => prev + payload.amount);
-    
-    const newTx: TransactionItem = {
-      id: payload.transactionId,
-      type: "topup",
-      description: `Top-Up Saldo ${payload.methodName}`,
-      detail: `ID Transaksi ${payload.transactionId}`,
-      amount: `+Rp ${payload.amount.toLocaleString("id-ID")}`,
-      date: payload.date,
-    };
-
-    setTransactions((prev) => [newTx, ...prev]);
-
-    toast.success("Deposit Berhasil Ditambahkan", {
-      description: `Saldo sebesar Rp ${payload.amount.toLocaleString("id-ID")} telah aktif dan siap dialokasikan ke kampanye.`,
-    });
-  };
+export function BillingView({ available, reserved, entries, payments, demoEnabled }: {
+  available: number;
+  reserved: number;
+  entries: Entry[];
+  payments: Payment[];
+  demoEnabled: boolean;
+}) {
+  const [amount, setAmount] = useState(2_500_000);
+  const [pending, startTransition] = useTransition();
+  const rupiah = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
+  const labels = { credit: "Kredit simulasi", reserve: "Dana dicadangkan", refund: "Dana dikembalikan" };
 
   return (
-    <div className="flex flex-col gap-8 max-w-[840px] mx-auto w-full pb-20">
-      {/* Header */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} custom={0}>
-        <p className="text-[11px] font-mono font-medium uppercase tracking-[0.2em] text-muted-foreground mb-1">
-          Keuangan Dealer
+    <div className="mx-auto max-w-4xl space-y-10 pb-20 text-white">
+      <header>
+        <h1 className="text-3xl font-semibold tracking-tight">Keuangan kampanye</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
+          Pembayaran melalui Midtrans dan kredit uji dicatat secara terpisah. Kredit uji di bawah ini bukan uang sungguhan.
         </p>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-              Billing dan Deposit
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Kelola saldo deposit operasional dan pantau riwayat pembayaran kampanye kreator.
-            </p>
-          </div>
+      </header>
 
-          <Button
-            type="button"
-            onClick={() => setIsTopUpOpen(true)}
-            className="h-9 px-4 rounded-xl gap-2 bg-white text-black hover:bg-white/90 text-xs font-semibold shadow-sm transition-all shrink-0"
-          >
-            <Plus className="size-4" />
-            <span>Top-Up Saldo</span>
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Balance Card */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} custom={1}>
-        <Card className="border-white/10 bg-[#0f1114] overflow-hidden rounded-2xl shadow-lg">
-          <div className="p-7 pb-6">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                Saldo Deposit Aktif
-              </p>
-              <span className="text-[11px] font-mono text-muted-foreground">
-                ID Akun DEALER-092
-              </span>
-            </div>
-
-            <p className="text-3xl sm:text-4xl font-bold font-mono tracking-tight text-white mt-2">
-              Rp {balance.toLocaleString("id-ID")}
-            </p>
-
-            <p className="text-[12px] text-muted-foreground mt-2">
-              Rp {usedAmount.toLocaleString("id-ID")} terpakai dari total akumulasi deposit Rp {totalTopUp.toLocaleString("id-ID")}
-            </p>
-          </div>
-
-          {/* Progress bar */}
-          <div className="px-7 pb-6">
-            <div className="h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
-              <div
-                className="h-full rounded-full bg-white transition-all duration-500"
-                style={{ width: `${usedPercentage}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Balance Metrics Breakdown */}
-          <div className="border-t border-white/5 grid grid-cols-3 divide-x divide-white/5 bg-white/[0.01]">
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                Terpakai
-              </p>
-              <p className="text-[13px] font-semibold font-mono text-white">
-                Rp {usedAmount.toLocaleString("id-ID")}
-              </p>
-            </div>
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                Transaksi Dibayarkan
-              </p>
-              <p className="text-[13px] font-semibold text-white">
-                {transactions.filter((t) => t.type === "payment").length} transaksi
-              </p>
-            </div>
-            <div className="px-5 py-4">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                Menunggu Review
-              </p>
-              <p className="text-[13px] font-semibold font-mono text-white">
-                Rp 500.000
-              </p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Transaction History */}
-      <motion.div initial="hidden" animate="show" variants={fadeUp} custom={2}>
-        <Card className="bg-[#0f1114] border-white/10 overflow-hidden rounded-2xl shadow-lg">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-            <div>
-              <h2 className="text-[13px] font-semibold text-white">Riwayat Transaksi</h2>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Mutasi saldo masuk dan pengeluaran kampanye
-              </p>
-            </div>
-            <span className="text-[11px] font-mono text-muted-foreground">
-              {transactions.length} riwayat
-            </span>
-          </div>
-
-          <div className="divide-y divide-white/5">
-            {transactions.map((tx) => (
-              <div
-                key={tx.id}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors"
-              >
-                <div
-                  className="size-8 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/10"
-                >
-                  {tx.type === "topup" ? (
-                    <ArrowDownLeft className="size-3.5 text-white" />
-                  ) : (
-                    <ArrowUpRight className="size-3.5 text-muted-foreground" />
-                  )}
+      <section aria-labelledby="midtrans-title">
+        <h2 id="midtrans-title" className="mb-5 text-lg font-semibold">Pembayaran Midtrans</h2>
+        {payments.length === 0 ? <p className="text-sm text-white/50">Belum ada transaksi Midtrans.</p> : (
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {payments.map((payment) => (
+              <div key={payment.orderId} className="flex items-center justify-between gap-4 py-4 text-sm">
+                <div>
+                  <p className="font-medium">{payment.campaignTitle}</p>
+                  <p className="mt-1 text-xs text-white/45">{payment.orderId} · {payment.createdAt}</p>
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-white truncate">
-                    {tx.description}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {tx.detail}, {tx.date}
-                  </p>
+                <div className="text-right">
+                  <p className="tabular-nums">{rupiah(payment.amount)}</p>
+                  <p className="mt-1 text-xs text-white/50">{payment.status === "settlement" || payment.status === "capture" ? "Pembayaran terverifikasi" : payment.status === "pending" || payment.status === "initiating" ? "Menunggu pembayaran" : "Status: " + payment.status}</p>
                 </div>
-
-                <p
-                  className={`text-[13px] font-mono font-semibold flex-shrink-0 ${
-                    tx.type === "topup" ? "text-white" : "text-muted-foreground"
-                  }`}
-                >
-                  {tx.amount}
-                </p>
               </div>
             ))}
           </div>
-        </Card>
-      </motion.div>
+        )}
+      </section>
 
-      {/* Top-Up Payment Modal */}
-      <TopUpModal
-        open={isTopUpOpen}
-        onClose={() => setIsTopUpOpen(false)}
-        onSuccess={handleTopUpSuccess}
-      />
+      <h2 className="text-lg font-semibold">Kredit uji</h2>
+      <div className="grid gap-6 border-y border-white/15 py-8 sm:grid-cols-2">
+        <div>
+          <p className="text-sm text-white/50">Kredit uji tersedia</p>
+          <p className="mt-2 text-4xl font-semibold tabular-nums">{rupiah(available)}</p>
+        </div>
+        <div>
+          <p className="text-sm text-white/50">Kredit uji dicadangkan</p>
+          <p className="mt-2 text-4xl font-semibold tabular-nums">{rupiah(reserved)}</p>
+        </div>
+      </div>
+
+      {demoEnabled ? (
+        <section aria-labelledby="demo-credit-title" className="space-y-4">
+          <h2 id="demo-credit-title" className="text-lg font-semibold">Tambahkan kredit uji</h2>
+          <p className="text-sm text-white/55">Kredit hanya untuk menguji alur aktivasi kampanye. Tidak ada transfer bank atau QRIS.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="sr-only" htmlFor="demo-amount">Nominal kredit uji</label>
+            <select id="demo-amount" value={amount} onChange={(event) => setAmount(Number(event.target.value))}
+              className="rounded-md border border-white/15 bg-[#1A1D20] px-4 py-3 text-sm text-white">
+              {[500_000, 2_500_000, 5_000_000, 10_000_000].map((value) => (
+                <option key={value} value={value}>{rupiah(value)}</option>
+              ))}
+            </select>
+            <button type="button" disabled={pending}
+              onClick={() => startTransition(async () => {
+                try {
+                  await addDemoCredit(amount);
+                  toast.success("Kredit uji tercatat.");
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Gagal mencatat kredit uji.");
+                }
+              })}
+              className="rounded-md bg-white px-5 py-3 text-sm font-semibold text-black disabled:opacity-50">
+              {pending ? "Mencatat..." : "Tambahkan kredit uji"}
+            </button>
+          </div>
+        </section>
+      ) : (
+        <p className="border-y border-white/10 py-5 text-sm text-white/55">
+          Kredit uji dinonaktifkan di lingkungan ini.
+        </p>
+      )}
+
+      <section aria-labelledby="ledger-title">
+        <h2 id="ledger-title" className="mb-5 text-lg font-semibold">Riwayat kredit uji</h2>
+        {entries.length === 0 ? <p className="text-sm text-white/50">Belum ada pencatatan dana.</p> : (
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {entries.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between gap-4 py-4 text-sm">
+                <div>
+                  <p className="font-medium">{labels[entry.kind]}</p>
+                  <p className="mt-1 text-xs text-white/45">{entry.campaignTitle ?? "Akun dealer"} · {entry.createdAt}</p>
+                </div>
+                <p className="shrink-0 tabular-nums">{entry.kind === "reserve" ? "−" : "+"}{rupiah(entry.amount)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

@@ -5,6 +5,9 @@ import { dealerProfiles, creatorProfiles } from "../db/schema";
 
 const getBaseURL = () => {
   if (process.env.NODE_ENV === "production") {
+    if (process.env.BETTER_AUTH_URL?.includes("localhost") && !process.env.VERCEL_URL) {
+      return process.env.BETTER_AUTH_URL;
+    }
     if (process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost")) {
       return process.env.BETTER_AUTH_URL;
     }
@@ -22,6 +25,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://carpaign.vercel.app",
     "http://localhost:3000",
+    getBaseURL(),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
   database: drizzleAdapter(db, { provider: "pg" }),

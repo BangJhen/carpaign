@@ -1,286 +1,162 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-// Animated inline dashboard mockup — real UI, no screenshots
-function DashboardMockup() {
-  const [activeTab, setActiveTab] = useState(0);
-  const campaigns = [
-    {
-      brand: "BMW Tunas",
-      title: "X5 M50i — Test Drive",
-      type: "SHOOT",
-      reward: "Rp2.500.000",
-      views: "51.2K",
-      payout: "Rp800.000",
-    },
-    {
-      brand: "Honda Kebon Jeruk",
-      title: "HRV RS — Cinematic",
-      type: "UGC",
-      reward: "Rp1.500.000",
-      views: "34.7K",
-      payout: "Rp412.000",
-    },
-    {
-      brand: "Porsche Centre Jakarta",
-      title: "911 S/T — Short Hooks",
-      type: "CLIP",
-      reward: "Rp750.000",
-      views: "18.1K",
-      payout: "Rp198.000",
-    },
-  ];
-
-  return (
-    <div
-      className="relative rounded-lg overflow-hidden w-full max-w-[600px]"
-      style={{
-        background: "linear-gradient(145deg, #15181c 0%, #0d0f12 100%)",
-        border: "1px solid rgba(212,175,55,0.15)",
-      }}
-    >
-      {/* Window chrome */}
-      <div
-        className="flex items-center gap-2 px-4 py-3 border-b"
-        style={{ borderColor: "rgba(245,245,233,0.05)" }}
-      >
-        <div className="flex gap-1.5">
-          {["#FF5F57","#FFBD2E","#28CA41"].map((c) => (
-            <div key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3 p-4">
-        {[
-          { label: "Total Views", value: "104.0K", delta: "+12.4%" },
-          { label: "Saldo Aktif", value: "Rp1.41M", delta: "Bisa ditarik" },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="rounded-xl p-4"
-            style={{
-              background: "rgba(245,245,233,0.02)",
-              border: "1px solid rgba(245,245,233,0.04)",
-            }}
-          >
-            <p className="text-[10px] mb-2 uppercase tracking-widest font-mono" style={{ color: "rgba(245,245,233,0.35)" }}>
-              {s.label}
-            </p>
-            <p className="text-2xl font-bold tracking-tight" style={{ color: "#F5F5E9" }}>{s.value}</p>
-            <p className="text-[10px] mt-1" style={{ color: "#D4AF37" }}>{s.delta}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Campaign list */}
-      <div className="px-4 pb-4 space-y-2">
-        <p className="text-[10px] uppercase tracking-[0.2em] font-mono mb-3 mt-2" style={{ color: "rgba(245,245,233,0.3)" }}>
-          Active Campaigns
-        </p>
-        {campaigns.map((c, i) => (
-          <div
-            key={c.title}
-            className="flex items-center gap-3 rounded-xl p-3"
-            style={{
-              background: "rgba(245,245,233,0.015)",
-              border: "1px solid rgba(245,245,233,0.03)",
-            }}
-          >
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-semibold truncate" style={{ color: "#F5F5E9" }}>
-                {c.title}
-              </p>
-              <p className="text-[10px] font-mono tracking-wider mt-0.5" style={{ color: "rgba(245,245,233,0.4)" }}>
-                {c.brand}
-              </p>
-            </div>
-            {/* Views + payout */}
-            <div className="text-right shrink-0">
-              <p className="text-[12px] font-bold" style={{ color: "#10FC1C" }}>{c.payout}</p>
-              <p className="text-[9px] mt-0.5" style={{ color: "rgba(245,245,233,0.3)" }}>{c.views} views</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-type TabKey = "creator" | "dealership";
-
-const features: Record<TabKey, {
+type Role = "dealer" | "kreator";
+type Step = {
+  label: string;
   title: string;
   description: string;
-  stat?: string;
-  statLabel?: string;
-}[]> = {
-  creator: [
-    {
-      title: "Bayaran per View",
-      description: "Penghasilan pasif terus mengalir selama videomu ditonton.",
-      stat: "Rp5",
-      statLabel: "per view rata-rata",
-    },
-    {
-      title: "Akses Showroom",
-      description: "Buat konten di area premium yang tertutup untuk publik umum.",
-      stat: "200+",
-      statLabel: "showroom partner",
-    },
-    {
-      title: "Sistem Tier & Bonus",
-      description: "Naikkan tier untuk melipatgandakan pendapatan hingga +20%.",
-      stat: "+20%",
-      statLabel: "bonus Tier Elite",
-    },
+  video: string;
+  poster: string;
+  start?: number;
+  end?: number;
+};
+
+const creatorVideo = "/creator-guided-campaign-demo.mp4";
+const creatorPoster = "/creator-guided-campaign-poster.png";
+
+const journeys: Record<Role, Step[]> = {
+  dealer: [
+    { label: "Masukkan unit", title: "Kendaraan masuk ke inventaris.", description: "Dealer menyiapkan unit yang akan ditawarkan kepada kreator.", video: "/landing-flow/dealer-inventory.mp4", poster: "/landing-flow/dealer-inventory-poster.jpg" },
+    { label: "Susun kampanye", title: "Arahan konten mulai terbentuk.", description: "Dealer memilih jenis kampanye dan menjelaskan kebutuhan kontennya.", video: "/landing-flow/dealer-create.mp4", poster: "/landing-flow/dealer-create-poster.jpg" },
+    { label: "Terima pengajuan", title: "Karya kreator masuk untuk ditinjau.", description: "Pengajuan dan hasil konten dapat diperiksa di satu tempat.", video: "/landing-flow/dealer-submissions.mp4", poster: "/landing-flow/dealer-submissions-poster.jpg" },
+    { label: "Pantau aktivitas", title: "Seluruh aktivitas terlihat bersama.", description: "Dashboard merangkum unit, kampanye, dan pengajuan yang berjalan.", video: "/landing-flow/dealer-dashboard.mp4", poster: "/landing-flow/dealer-dashboard-poster.jpg" },
   ],
-  dealership: [
-    {
-      title: "Jangkauan Organik",
-      description: "Sebaran video kreator menghasilkan impresi yang tak bisa ditandingi iklan statis.",
-      stat: "10×",
-      statLabel: "lebih efisien vs iklan",
-    },
-    {
-      title: "Pay-Per-View",
-      description: "Hanya bayar untuk views nyata yang benar-benar didapatkan.",
-      stat: "CPV",
-      statLabel: "model pembayaran",
-    },
-    {
-      title: "Brand Safety",
-      description: "Setiap konten wajib lolos review. Melanggar brief = tidak ada bayaran.",
-      stat: "100%",
-      statLabel: "terverifikasi",
-    },
+  kreator: [
+    { label: "Mulai", title: "Masuk ke ruang kerja kreator.", description: "Panduan awal mengantar kreator menuju kampanye yang tersedia.", video: creatorVideo, poster: creatorPoster, start: 0, end: 3.14 },
+    { label: "Cari kampanye", title: "Pilih kendaraan yang ingin dibuatkan konten.", description: "Kreator menjelajahi pilihan kampanye dari dealer.", video: creatorVideo, poster: creatorPoster, start: 3.14, end: 5.74 },
+    { label: "Baca panduan", title: "Pahami pekerjaan sebelum mengajukan diri.", description: "Rincian kampanye membantu kreator menyiapkan pengajuan.", video: creatorVideo, poster: creatorPoster, start: 5.74, end: 15.5 },
+    { label: "Kirim pengajuan", title: "Ajukan diri melalui kampanye.", description: "Kreator mengikuti langkah pengajuan dari halaman kampanye.", video: creatorVideo, poster: creatorPoster, start: 15.5, end: 20.16 },
   ],
 };
 
 export function FeaturesSection() {
-  const [activeTab, setActiveTab] = useState<TabKey>("creator");
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const [role, setRole] = useState<Role>("dealer");
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const inView = useInView(sectionRef, { amount: 0.25 });
+  const reduceMotion = useReducedMotion();
+  const steps = journeys[role];
+  const step = steps[stepIndex];
 
-  // Static sticky without parallax translation to avoid bleeding out of bounds
-  // const yMockup = ... (removed)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (!inView || !playing || reduceMotion) {
+      video.pause();
+      return;
+    }
+    void video.play().catch(() => {});
+  }, [inView, playing, reduceMotion, role, stepIndex]);
+
+  const nextStep = () => setStepIndex((index) => (index + 1) % steps.length);
+
+  const handleReady = (video: HTMLVideoElement) => {
+    if (step.start !== undefined) video.currentTime = step.start;
+    else if (inView && playing && !reduceMotion) void video.play().catch(() => {});
+  };
+
+  const handleSeeked = (video: HTMLVideoElement) => {
+    if (inView && playing && !reduceMotion) void video.play().catch(() => {});
+  };
+
+  const handleTimeUpdate = (video: HTMLVideoElement) => {
+    if (!reduceMotion && playing && step.end !== undefined && video.currentTime >= step.end - 0.08) nextStep();
+  };
 
   return (
-    <section ref={containerRef} className="relative bg-[#111316] pt-24 lg:pt-32">
-      {/* 
-        Sticky Container Layout:
-        The dashboard mockup stays sticky on the left side (desktop)
-        while the massive typography features scroll by on the right.
-      */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row relative">
-        
-        {/* Left: Sticky Mockup area */}
-        <div className="w-full lg:w-1/2 lg:h-[200vh] relative pt-20 lg:pt-0">
-          <div className="lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center px-6 lg:pl-12 lg:pr-20">
-            <p
-              className="text-[11px] uppercase tracking-[0.22em] font-mono mb-8"
-              style={{ color: "rgba(212, 175, 55, 0.55)" }}
-            >
-              Cara Kerja Ekosistem
-            </p>
-            <h2
-              className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] mb-8"
-              style={{ color: "#F5F5E9" }}
-            >
-              Buat Konten.<br/>Raih Penjualan.
+    <section ref={sectionRef} aria-labelledby="ecosystem-title" className="bg-[#101214] px-5 py-24 text-[#F5F5E9] sm:px-8 lg:py-32">
+      <div className="mx-auto max-w-[1380px]">
+        <div className="mb-10 flex flex-col justify-between gap-8 lg:mb-14 lg:flex-row lg:items-end">
+          <div>
+            <h2 id="ecosystem-title" className="max-w-[900px] text-[clamp(2.5rem,5.3vw,5.5rem)] font-semibold leading-[1.04] tracking-[-0.055em]">
+              Dari unit kendaraan<br />menjadi konten.
             </h2>
-            
-            <div className="flex gap-4 mb-12">
-              {(["creator", "dealership"] as TabKey[]).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className="text-xs uppercase tracking-widest font-bold pb-2 transition-colors relative"
-                  style={{
-                    color: activeTab === tab ? "#D4AF37" : "rgba(245,245,233,0.3)",
-                  }}
-                >
-                  {tab}
-                  {activeTab === tab && (
-                    <motion.div
-                      layoutId="activeTabUnderline"
-                      className="absolute bottom-0 left-0 right-0 h-px"
-                      style={{ background: "#D4AF37" }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <motion.div>
-              <DashboardMockup />
-            </motion.div>
+            <p className="mt-5 max-w-xl text-base leading-7 text-[#A7AAAB]">Lihat bagaimana dealer dan kreator bekerja di CARPAIGN.</p>
+          </div>
+          <div role="group" aria-label="Pilih alur" className="flex shrink-0 gap-7 self-start lg:self-auto">
+            {(["dealer", "kreator"] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={role === item}
+                onClick={() => { setRole(item); setStepIndex(0); }}
+                className={`text-base font-medium transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${role === item ? "text-white" : "text-[#72787B] hover:text-[#D8DADB]"}`}
+              >
+                {item === "dealer" ? "Dealer" : "Kreator"}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Right: Scrolling Features Content */}
-        <div className="w-full lg:w-1/2 px-6 pt-20 lg:pt-40 pb-40">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -40 }}
-              transition={{ duration: 0.6, ease: EASE }}
-              className="flex flex-col gap-32"
-            >
-              {features[activeTab].map((f, i) => (
-                <div key={i} className="relative group">
-                  <div 
-                    className="absolute -left-6 md:-left-12 top-0 text-[10rem] font-bold leading-none opacity-5 pointer-events-none transition-transform duration-700 group-hover:-translate-x-4"
-                    style={{ color: "#D4AF37", fontFamily: "serif" }}
-                  >
-                    {i + 1}
-                  </div>
-                  
-                  <div className="relative z-10 pt-8 pl-4">
-                    {f.stat && (
-                      <div className="mb-6">
-                        <span 
-                          className="text-5xl md:text-7xl font-bold tracking-tighter block mb-2"
-                          style={{
-                            backgroundImage: "linear-gradient(135deg, #F0D060 0%, #D4AF37 100%)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                          }}
-                        >
-                          {f.stat}
-                        </span>
-                        {f.statLabel && (
-                          <span className="text-[10px] font-mono tracking-widest uppercase" style={{ color: "rgba(245,245,233,0.4)" }}>
-                            {f.statLabel}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    
-                    <h3 className="text-2xl font-bold mb-4 tracking-tight" style={{ color: "#F5F5E9" }}>
-                      {f.title}
-                    </h3>
-                    <p className="text-sm md:text-base leading-relaxed max-w-sm font-light" style={{ color: "rgba(245,245,233,0.5)" }}>
-                      {f.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+        <div className="grid items-center gap-9 lg:grid-cols-[minmax(0,1.7fr)_minmax(290px,0.65fr)] lg:gap-14">
+          <div className="relative min-w-0 aspect-video overflow-hidden bg-[#080A0B]">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.video
+                ref={videoRef}
+                key={`${role}-${stepIndex}`}
+                src={step.video}
+                poster={step.poster}
+                aria-label={`Rekaman CARPAIGN: ${step.label}`}
+                muted
+                playsInline
+                preload="auto"
+                controls={Boolean(reduceMotion)}
+                className="absolute inset-0 h-full w-full object-contain"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0.15 : 0.3, ease: [0.23, 1, 0.32, 1] }}
+                onLoadedMetadata={(event) => handleReady(event.currentTarget)}
+                onSeeked={(event) => handleSeeked(event.currentTarget)}
+                onTimeUpdate={(event) => handleTimeUpdate(event.currentTarget)}
+                onEnded={() => { if (!reduceMotion && playing) nextStep(); }}
+              />
+            </AnimatePresence>
+          </div>
+
+          <div aria-live="polite" aria-atomic="true" className="min-w-0">
+            <span className="block text-sm tabular-nums text-[#858B8E]">{String(stepIndex + 1).padStart(2, "0")} / 04</span>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={`${role}-${stepIndex}-text`}
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(12px)" }}
+                animate={{ opacity: 1, transform: "translateY(0px)" }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(-12px)" }}
+                transition={{ duration: reduceMotion ? 0.15 : 0.3, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <h3 className="mt-5 text-[clamp(1.9rem,3vw,3.3rem)] font-semibold leading-[1.1] tracking-[-0.045em]">{step.title}</h3>
+                <p className="mt-5 max-w-md text-base leading-7 text-[#A7AAAB]">{step.description}</p>
+              </motion.div>
+            </AnimatePresence>
+            {!reduceMotion && (
+              <button type="button" onClick={() => setPlaying((value) => !value)} className="mt-8 text-sm text-[#D4D7D8] underline decoration-[#73797C] underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                {playing ? "Jeda tutorial" : "Putar tutorial"}
+              </button>
+            )}
+          </div>
         </div>
 
+        <nav aria-label={`Tahapan ${role}`} className="mt-10 overflow-x-auto border-t border-white/15 pt-5 lg:mt-12">
+          <div className="grid min-w-[660px] grid-cols-4 gap-5 sm:min-w-0 sm:gap-8">
+            {steps.map((item, index) => (
+              <button
+                key={item.label}
+                type="button"
+                aria-current={stepIndex === index ? "step" : undefined}
+                onClick={() => setStepIndex(index)}
+                className={`flex min-w-0 items-baseline gap-3 whitespace-nowrap text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${stepIndex === index ? "text-white" : "text-[#777D80] hover:text-[#D8DADB]"}`}
+              >
+                <span className="text-xs tabular-nums">{String(index + 1).padStart(2, "0")}</span>
+                <span className="text-sm font-medium sm:text-base">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
       </div>
     </section>
   );

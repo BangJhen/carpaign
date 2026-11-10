@@ -7,27 +7,27 @@ import Image from "next/image";
 const steps = [
   {
     number: "01",
-    title: "Discover.",
-    description: "Browse campaign otomotif dari dealership tier-1. Filter berdasarkan jenis konten, lokasi, atau reward.",
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800",
+    title: "Temukan.",
+    description: "Jelajahi kampanye otomotif dan pilih kendaraan yang sesuai dengan kemampuanmu.",
+    image: "/process-images/discover.jpg",
   },
   {
     number: "02",
-    title: "Visit.",
-    description: "Kunjungi showroom eksklusif untuk sesi rekaman. Koordinasi dilakukan 100% via platform, tanpa negosiasi manual.",
-    image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&q=80&w=800",
+    title: "Pelajari.",
+    description: "Baca arahan, format konten, lokasi, dan ketentuan setiap kampanye sebelum mengajukan diri.",
+    image: "/process-images/visit.jpg",
   },
   {
     number: "03",
-    title: "Create.",
-    description: "Buat konten sesuai brief, upload ke media sosial pilihanmu (TikTok/Reels), lalu submit link lewat dashboard.",
-    image: "https://images.unsplash.com/photo-1512758117904-7b6cecea82f8?auto=format&fit=crop&q=80&w=800",
+    title: "Ajukan.",
+    description: "Ikuti langkah pengajuan pada kampanye yang dipilih dan siapkan materi sesuai arahan dealer.",
+    image: "/process-images/create.jpg",
   },
   {
     number: "04",
-    title: "Earn.",
-    description: "Views terakumulasi otomatis. Tarik saldo ke e-wallet atau bank kapan saja tanpa potongan tersembunyi.",
-    image: "https://images.unsplash.com/photo-1580509988188-34861e69b59e?auto=format&fit=crop&q=80&w=800",
+    title: "Pantau.",
+    description: "Lihat status pengajuan dan pekerjaanmu melalui dashboard kreator.",
+    image: "/process-images/earn.jpg",
   },
 ];
 
@@ -54,7 +54,7 @@ export function HowItWorksSection() {
         {/* Absolute Title behind the sliding cards */}
         <div className="absolute top-12 md:top-16 left-6 md:left-20 z-0">
            <h2 className="text-[10vw] md:text-[8vw] font-bold tracking-tighter leading-none opacity-5 pointer-events-none" style={{ color: "#F5F5E9" }}>
-             PROCESS
+             CARA KERJA
            </h2>
         </div>
 
@@ -63,7 +63,7 @@ export function HowItWorksSection() {
           style={{ x }} 
           className="flex gap-10 px-10 md:px-32 relative z-10 items-center h-full w-[400vw] md:w-[300vw] lg:w-[250vw]"
         >
-          {steps.map((step, i) => (
+          {steps.map((step) => (
             <div 
               key={step.number} 
               className="relative flex-shrink-0 w-[85vw] md:w-[60vw] lg:w-[45vw] h-[60vh] md:h-[70vh] flex flex-col justify-end p-8 md:p-12 overflow-hidden"
@@ -74,9 +74,11 @@ export function HowItWorksSection() {
                   src={step.image}
                   alt={step.title}
                   fill
-                  className="object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700"
+                  loading="eager"
+                  unoptimized
+                  className="object-cover opacity-80 grayscale-[35%] transition-[filter] duration-700 hover:grayscale-0"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111316] via-[#111316]/30 to-transparent" />
               </div>
               
               <div className="relative z-10">

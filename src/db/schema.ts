@@ -5,6 +5,7 @@ import {
   timestamp,
   integer,
   jsonb,
+  index,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
@@ -136,4 +137,55 @@ export const creatorProfilesRelations = relations(creatorProfiles, ({ one }) => 
     references: [user.id],
   }),
 }));
+
+// Saldo ini khusus simulasi MVP. Tidak mewakili uang yang diterima atau ditahan PJP.
+export const demoEscrowAccounts = pgTable("demo_escrow_accounts", {
+  dealerId: text("dealer_id").primaryKey().references(() => user.id, { onDelete: "cascade" }),
+  available: integer("available").default(0).notNull(),
+  reserved: integer("reserved").default(0).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const demoEscrowEntries = pgTable("demo_escrow_entries", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  dealerId: text("dealer_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  campaignId: text("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
+  kind: text("kind").$type<"credit" | "reserve" | "refund">().notNull(),
+  amount: integer("amount").notNull(),
+  availableAfter: integer("available_after").notNull(),
+  reservedAfter: integer("reserved_after").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [index("demo_escrow_entries_dealer_created_idx").on(table.dealerId, table.createdAt)]);
+
+export const demoCampaignReserves = pgTable("demo_campaign_reserves", {
+  campaignId: text("campaign_id").primaryKey().references(() => campaigns.id, { onDelete: "cascade" }),
+  dealerId: text("dealer_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(),
+  status: text("status").$type<"reserved" | "refunded">().notNull().default("reserved"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Pembayaran Midtrans dicatat terpisah dari saldo simulasi.
+export const campaignPayments = pgTable("campaign_payments", {
+  orderId: text("order_id").primaryKey(),
+  campaignId: text("campaign_id").notNull().references(() => campaigns.id, { onDelete: "restrict" }),
+  dealerId: text("dealer_id").notNull().references(() => user.id, { onDelete: "restrict" }),
+  amount: integer("amount").notNull(),
+  status: text("status").$type<"initiating" | "pending" | "settlement" | "capture" | "deny" | "cancel" | "expire" | "refund" | "failed">().notNull().default("initiating"),
+  redirectUrl: text("redirect_url"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [index("campaign_payments_campaign_created_idx").on(table.campaignId, table.createdAt)]);
+
+// Klik keluar ke WhatsApp adalah sinyal minat, bukan bukti percakapan atau penjualan.
+export const leadClicks = pgTable("lead_clicks", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  campaignId: text("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
+  dealerId: text("dealer_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  creatorId: text("creator_id").references(() => user.id, { onDelete: "set null" }),
+  status: text("status").$type<"baru" | "dihubungi" | "test_drive" | "terjual">().notNull().default("baru"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [index("lead_clicks_dealer_created_idx").on(table.dealerId, table.createdAt)]);
 
